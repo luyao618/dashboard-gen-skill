@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Monitoring Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #f4f6f9;
+      --bg-card: #ffffff;
+      --text-primary: #1e293b;
+      --text-secondary: #64748b;
+      --accent: #4f6ef7;
+      --accent-light: #e8ecff;
+      --accent-dark: #3b52c7;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --info: #3b82f6;
+      --border: #e2e8f0;
+      --radius: 10px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,.06);
+      --shadow-md: 0 4px 12px rgba(0,0,0,.08);
+      --shadow-lg: 0 10px 30px rgba(0,0,0,.1);
+      --transition: .2s ease;
+    }
+
+    :root[data-theme="dark"] {
+      --bg-primary: #0f172a;
+      --bg-card: #1e293b;
+      --text-primary: #f8fafc;
+      --text-secondary: #cbd5e1;
+      --accent-light: #1e3a5f;
+      --border: #475569;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,.3);
+      --shadow-md: 0 4px 12px rgba(0,0,0,.4);
+      --shadow-lg: 0 10px 30px rgba(0,0,0,.5);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      margin: 0;
+      padding: 20px 24px;
+      background: var(--bg-primary);
+      min-height: 100vh;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 1.5;
+      color: var(--text-primary);
+    }
+
+    .dashboard-container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .dashboard-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .filter-btn {
+      padding: 6px 14px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition);
+      font-family: inherit;
+    }
+
+    .filter-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .filter-btn.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    /* KPI Cards */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .kpi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .kpi-card:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    .kpi-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+
+    .kpi-value-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .kpi-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .kpi-threshold {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .kpi-sparkline {
+      width: 100%;
+      height: 40px;
+      margin-top: 8px;
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .badge-success { background: rgba(34,197,94,0.1); color: #16a34a; }
+    .badge-warning { background: rgba(245,158,11,0.1); color: #d97706; }
+    .badge-danger  { background: rgba(239,68,68,0.1);  color: #dc2626; }
+    .badge-info    { background: rgba(59,130,246,0.1);  color: #2563eb; }
+
+    /* Chart Cards */
+    .chart-row {
+      display: flex;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .chart-card {
+      flex: 1;
+      min-width: 0;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .chart-card.wide { flex: 2; }
+    .chart-card.narrow { flex: 1; }
+
+    .chart-card-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+    }
+
+    .chart-container {
+      width: 100%;
+      height: 300px;
+    }
+
+    .full-width {
+      width: 100%;
+      margin-bottom: 20px;
+    }
+
+    /* Data Table */
+    .data-table-wrapper {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      box-shadow: var(--shadow-sm);
+      overflow-x: auto;
+      margin-bottom: 20px;
+    }
+
+    .data-table-wrapper .chart-card-title {
+      margin-bottom: 12px;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .data-table th {
+      text-align: left;
+      padding: 10px 12px;
+      font-weight: 600;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-secondary);
+      border-bottom: 2px solid var(--border);
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    .data-table th:hover {
+      color: var(--accent);
+    }
+
+    .data-table th .sort-icon {
+      margin-left: 4px;
+      font-size: 10px;
+      opacity: 0.4;
+    }
+
+    .data-table th.sorted .sort-icon {
+      opacity: 1;
+      color: var(--accent);
+    }
+
+    .data-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-primary);
+    }
+
+    .data-table tbody tr:hover {
+      background: var(--accent-light);
+    }
+
+    /* Theme Toggle */
+    .theme-toggle {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-primary);
+      font-size: 18px;
+      cursor: pointer;
+      box-shadow: var(--shadow-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--transition);
+      z-index: 1000;
+    }
+
+    .theme-toggle:hover {
+      box-shadow: var(--shadow-lg);
+      transform: scale(1.05);
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .kpi-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .chart-row {
+        flex-direction: column;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .kpi-row {
+        grid-template-columns: 1fr;
+      }
+      body {
+        padding: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard-container">
+    <!-- Header -->
+    <div class="dashboard-header">
+      <h1 class="dashboard-title">API Monitoring Dashboard</h1>
+      <div class="filter-bar">
+        <button class="filter-btn" onclick="filterByRange(1, this)">24h</button>
+        <button class="filter-btn" onclick="filterByRange(7, this)">7d</button>
+        <button class="filter-btn active" onclick="filterByRange(30, this)">30d</button>
+      </div>
+    </div>
+
+    <!-- KPI Row -->
+    <div class="kpi-row" id="kpi-row"></div>
+
+    <!-- Latency Trend (full width) -->
+    <div class="chart-card full-width">
+      <div class="chart-card-title">Latency Trend (P50 / P95 / P99)</div>
+      <div class="chart-container" id="chart-latency"></div>
+    </div>
+
+    <!-- Error charts row -->
+    <div class="chart-row">
+      <div class="chart-card narrow">
+        <div class="chart-card-title">Error Type Breakdown</div>
+        <div class="chart-container" id="chart-error-donut"></div>
+      </div>
+      <div class="chart-card wide">
+        <div class="chart-card-title">Error Rate by Endpoint</div>
+        <div class="chart-container" id="chart-error-bar"></div>
+      </div>
+    </div>
+
+    <!-- QPS by Endpoint (full width) -->
+    <div class="chart-card full-width">
+      <div class="chart-card-title">QPS by Endpoint</div>
+      <div class="chart-container" id="chart-qps"></div>
+    </div>
+
+    <!-- Daily Summary Table -->
+    <div class="data-table-wrapper">
+      <div class="chart-card-title">Daily Summary</div>
+      <table class="data-table" id="summary-table">
+        <thead>
+          <tr>
+            <th onclick="sortTable(0)">Date <i class="sort-icon fas fa-sort"></i></th>
+            <th onclick="sortTable(1)">Endpoint <i class="sort-icon fas fa-sort"></i></th>
+            <th onclick="sortTable(2)">Avg P50 (ms) <i class="sort-icon fas fa-sort"></i></th>
+            <th onclick="sortTable(3)">Avg P95 (ms) <i class="sort-icon fas fa-sort"></i></th>
+            <th onclick="sortTable(4)">Avg P99 (ms) <i class="sort-icon fas fa-sort"></i></th>
+            <th onclick="sortTable(5)">Error Rate (%) <i class="sort-icon fas fa-sort"></i></th>
+            <th onclick="sortTable(6)">Avg QPS <i class="sort-icon fas fa-sort"></i></th>
+          </tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Theme Toggle -->
+  <button class="theme-toggle" onclick="toggleTheme()">
+    <i class="fas fa-moon"></i>
+  </button>
+
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+  <script>
+    // ── Embedded aggregated data ──
+    const ALL_DATES = ["2026-02-16","2026-02-17","2026-02-18","2026-02-19","2026-02-20","2026-02-21","2026-02-22","2026-02-23","2026-02-24","2026-02-25","2026-02-26","2026-02-27","2026-02-28","2026-03-01","2026-03-02","2026-03-03","2026-03-04","2026-03-05","2026-03-06","2026-03-07","2026-03-08","2026-03-09","2026-03-10","2026-03-11","2026-03-12","2026-03-13","2026-03-14","2026-03-15","2026-03-16","2026-03-17"];
+    const ENDPOINTS = ["/api/orders","/api/products","/api/search","/api/users"];
+
+    const LATENCY_TREND = [
+      {date:"2026-02-16",p50:58.9,p95:244.3,p99:627.1},{date:"2026-02-17",p50:57.7,p95:239.3,p99:614.3},{date:"2026-02-18",p50:58.6,p95:243.2,p99:623.9},{date:"2026-02-19",p50:58.7,p95:243.7,p99:625.2},{date:"2026-02-20",p50:56.8,p95:235.5,p99:604.3},{date:"2026-02-21",p50:60.6,p95:251.2,p99:645.1},{date:"2026-02-22",p50:59.5,p95:246.5,p99:632.9},{date:"2026-02-23",p50:57.3,p95:237.4,p99:609.4},{date:"2026-02-24",p50:58.5,p95:242.5,p99:622.8},{date:"2026-02-25",p50:56.9,p95:236.4,p99:606.3},{date:"2026-02-26",p50:56.8,p95:235.5,p99:604.5},{date:"2026-02-27",p50:57.7,p95:238.9,p99:613.6},{date:"2026-02-28",p50:60.3,p95:249.9,p99:641.9},{date:"2026-03-01",p50:56.3,p95:233.2,p99:598.9},{date:"2026-03-02",p50:59.6,p95:247.0,p99:633.8},{date:"2026-03-03",p50:60.5,p95:250.9,p99:644.1},{date:"2026-03-04",p50:58.6,p95:243.2,p99:623.9},{date:"2026-03-05",p50:57.0,p95:236.7,p99:607.4},{date:"2026-03-06",p50:58.4,p95:242.1,p99:622.0},{date:"2026-03-07",p50:58.5,p95:242.8,p99:623.1},{date:"2026-03-08",p50:58.5,p95:242.9,p99:623.1},{date:"2026-03-09",p50:58.1,p95:240.8,p99:618.2},{date:"2026-03-10",p50:56.5,p95:234.3,p99:601.4},{date:"2026-03-11",p50:57.6,p95:238.7,p99:613.1},{date:"2026-03-12",p50:57.2,p95:237.2,p99:608.7},{date:"2026-03-13",p50:60.2,p95:250.0,p99:641.6},{date:"2026-03-14",p50:57.7,p95:239.4,p99:614.5},{date:"2026-03-15",p50:61.3,p95:253.9,p99:651.8},{date:"2026-03-16",p50:59.6,p95:247.3,p99:634.5},{date:"2026-03-17",p50:58.2,p95:241.2,p99:619.2}
+    ];
+
+    const ERROR_TYPES = {"429":16,"timeout":11,"500":14,"network":12};
+
+    const ERROR_BY_ENDPOINT = {"/api/orders":0.3,"/api/products":0.32,"/api/search":0.32,"/api/users":0.32};
+
+    const QPS_BY_ENDPOINT = {
+      "/api/orders":[782,844,829,850,850,840,789,830,838,855,837,840,822,840,819,832,849,805,844,835,840,848,855,857,841,817,851,850,844,868],
+      "/api/products":[1576,1570,1557,1535,1619,1570,1543,1509,1593,1566,1588,1589,1565,1536,1650,1552,1622,1575,1566,1590,1580,1496,1561,1583,1585,1556,1529,1496,1626,1593],
+      "/api/search":[652,621,633,644,637,644,603,637,612,640,605,637,619,621,645,628,628,637,628,644,637,612,606,617,641,603,653,633,612,615],
+      "/api/users":[1337,1316,1291,1334,1317,1368,1287,1305,1340,1324,1328,1351,1326,1332,1253,1373,1300,1327,1279,1372,1267,1372,1314,1309,1289,1298,1308,1318,1314,1277]
+    };
+
+    const DAILY_DATA = [
+      {date:"2026-02-16",endpoint:"/api/orders",p50:62.2,p95:248.4,p99:654.9,error_rate:0.31,qps:782},{date:"2026-02-16",endpoint:"/api/products",p50:40.1,p95:171.9,p99:435.5,error_rate:0.47,qps:1576},{date:"2026-02-16",endpoint:"/api/search",p50:89.2,p95:367.0,p99:943.9,error_rate:0.30,qps:652},{date:"2026-02-16",endpoint:"/api/users",p50:44.3,p95:189.9,p99:474.2,error_rate:0.25,qps:1337},
+      {date:"2026-02-17",endpoint:"/api/orders",p50:59.9,p95:239.7,p99:631.8,error_rate:0.24,qps:844},{date:"2026-02-17",endpoint:"/api/products",p50:35.2,p95:150.8,p99:382.2,error_rate:0.25,qps:1570},{date:"2026-02-17",endpoint:"/api/search",p50:90.9,p95:374.2,p99:962.1,error_rate:0.25,qps:621},{date:"2026-02-17",endpoint:"/api/users",p50:44.8,p95:192.4,p99:481.0,error_rate:0.43,qps:1316},
+      {date:"2026-02-18",endpoint:"/api/orders",p50:56.6,p95:226.5,p99:597.2,error_rate:0.24,qps:829},{date:"2026-02-18",endpoint:"/api/products",p50:40.2,p95:172.3,p99:436.6,error_rate:0.44,qps:1557},{date:"2026-02-18",endpoint:"/api/search",p50:90.2,p95:371.5,p99:955.1,error_rate:0.25,qps:633},{date:"2026-02-18",endpoint:"/api/users",p50:47.3,p95:202.7,p99:506.5,error_rate:0.35,qps:1291},
+      {date:"2026-02-19",endpoint:"/api/orders",p50:58.0,p95:232.3,p99:612.3,error_rate:0.25,qps:850},{date:"2026-02-19",endpoint:"/api/products",p50:41.2,p95:176.8,p99:447.7,error_rate:0.57,qps:1535},{date:"2026-02-19",endpoint:"/api/search",p50:89.5,p95:368.0,p99:946.1,error_rate:0.27,qps:644},{date:"2026-02-19",endpoint:"/api/users",p50:46.0,p95:197.9,p99:494.5,error_rate:0.43,qps:1334},
+      {date:"2026-02-20",endpoint:"/api/orders",p50:57.2,p95:229.2,p99:604.4,error_rate:0.29,qps:850},{date:"2026-02-20",endpoint:"/api/products",p50:37.6,p95:161.2,p99:408.5,error_rate:0.28,qps:1619},{date:"2026-02-20",endpoint:"/api/search",p50:87.8,p95:361.2,p99:928.9,error_rate:0.28,qps:637},{date:"2026-02-20",endpoint:"/api/users",p50:44.4,p95:190.3,p99:475.5,error_rate:0.25,qps:1317},
+      {date:"2026-02-21",endpoint:"/api/orders",p50:63.1,p95:252.9,p99:666.8,error_rate:0.30,qps:840},{date:"2026-02-21",endpoint:"/api/products",p50:35.9,p95:154.0,p99:390.0,error_rate:0.26,qps:1570},{date:"2026-02-21",endpoint:"/api/search",p50:98.6,p95:405.8,p99:1043.5,error_rate:0.43,qps:644},{date:"2026-02-21",endpoint:"/api/users",p50:44.8,p95:192.1,p99:480.2,error_rate:0.24,qps:1368},
+      {date:"2026-02-22",endpoint:"/api/orders",p50:63.7,p95:254.3,p99:670.5,error_rate:0.31,qps:789},{date:"2026-02-22",endpoint:"/api/products",p50:38.2,p95:163.4,p99:414.0,error_rate:0.41,qps:1543},{date:"2026-02-22",endpoint:"/api/search",p50:90.4,p95:372.5,p99:957.9,error_rate:0.23,qps:603},{date:"2026-02-22",endpoint:"/api/users",p50:45.6,p95:195.8,p99:489.4,error_rate:0.40,qps:1287},
+      {date:"2026-02-23",endpoint:"/api/orders",p50:58.0,p95:231.8,p99:611.2,error_rate:0.44,qps:830},{date:"2026-02-23",endpoint:"/api/products",p50:34.8,p95:149.2,p99:377.6,error_rate:0.23,qps:1509},{date:"2026-02-23",endpoint:"/api/search",p50:91.5,p95:376.7,p99:968.5,error_rate:0.58,qps:637},{date:"2026-02-23",endpoint:"/api/users",p50:45.0,p95:192.1,p99:480.2,error_rate:0.23,qps:1305},
+      {date:"2026-02-24",endpoint:"/api/orders",p50:58.5,p95:233.9,p99:616.6,error_rate:0.27,qps:838},{date:"2026-02-24",endpoint:"/api/products",p50:37.7,p95:161.5,p99:409.2,error_rate:0.22,qps:1593},{date:"2026-02-24",endpoint:"/api/search",p50:95.8,p95:394.4,p99:1014.1,error_rate:0.61,qps:612},{date:"2026-02-24",endpoint:"/api/users",p50:42.2,p95:180.4,p99:451.0,error_rate:0.23,qps:1340},
+      {date:"2026-02-25",endpoint:"/api/orders",p50:55.1,p95:220.4,p99:581.2,error_rate:0.24,qps:855},{date:"2026-02-25",endpoint:"/api/products",p50:38.0,p95:163.1,p99:413.1,error_rate:0.30,qps:1566},{date:"2026-02-25",endpoint:"/api/search",p50:88.5,p95:364.7,p99:937.7,error_rate:0.26,qps:640},{date:"2026-02-25",endpoint:"/api/users",p50:46.0,p95:197.2,p99:493.1,error_rate:0.38,qps:1324},
+      {date:"2026-02-26",endpoint:"/api/orders",p50:58.3,p95:233.2,p99:614.8,error_rate:0.23,qps:837},{date:"2026-02-26",endpoint:"/api/products",p50:37.1,p95:159.0,p99:403.0,error_rate:0.27,qps:1588},{date:"2026-02-26",endpoint:"/api/search",p50:88.6,p95:365.0,p99:938.4,error_rate:0.22,qps:605},{date:"2026-02-26",endpoint:"/api/users",p50:43.1,p95:184.8,p99:461.8,error_rate:0.23,qps:1328},
+      {date:"2026-02-27",endpoint:"/api/orders",p50:58.3,p95:233.0,p99:614.8,error_rate:0.33,qps:840},{date:"2026-02-27",endpoint:"/api/products",p50:37.0,p95:158.7,p99:402.2,error_rate:0.49,qps:1589},{date:"2026-02-27",endpoint:"/api/search",p50:93.4,p95:384.6,p99:989.3,error_rate:0.34,qps:637},{date:"2026-02-27",endpoint:"/api/users",p50:41.9,p95:179.1,p99:448.0,error_rate:0.27,qps:1351},
+      {date:"2026-02-28",endpoint:"/api/orders",p50:63.2,p95:253.1,p99:667.4,error_rate:0.32,qps:822},{date:"2026-02-28",endpoint:"/api/products",p50:37.0,p95:158.2,p99:401.0,error_rate:0.23,qps:1565},{date:"2026-02-28",endpoint:"/api/search",p50:96.9,p95:399.4,p99:1026.9,error_rate:0.38,qps:619},{date:"2026-02-28",endpoint:"/api/users",p50:44.0,p95:188.8,p99:472.1,error_rate:0.23,qps:1326},
+      {date:"2026-03-01",endpoint:"/api/orders",p50:61.5,p95:245.9,p99:648.2,error_rate:0.38,qps:840},{date:"2026-03-01",endpoint:"/api/products",p50:37.4,p95:160.2,p99:405.9,error_rate:0.26,qps:1536},{date:"2026-03-01",endpoint:"/api/search",p50:85.5,p95:352.2,p99:905.5,error_rate:0.28,qps:621},{date:"2026-03-01",endpoint:"/api/users",p50:40.6,p95:174.4,p99:435.8,error_rate:0.28,qps:1332},
+      {date:"2026-03-02",endpoint:"/api/orders",p50:58.7,p95:234.5,p99:618.3,error_rate:0.28,qps:819},{date:"2026-03-02",endpoint:"/api/products",p50:36.0,p95:154.6,p99:391.7,error_rate:0.26,qps:1650},{date:"2026-03-02",endpoint:"/api/search",p50:95.0,p95:391.0,p99:1005.3,error_rate:0.37,qps:645},{date:"2026-03-02",endpoint:"/api/users",p50:48.5,p95:207.8,p99:519.7,error_rate:0.33,qps:1253},
+      {date:"2026-03-03",endpoint:"/api/orders",p50:58.7,p95:234.2,p99:617.7,error_rate:0.26,qps:832},{date:"2026-03-03",endpoint:"/api/products",p50:40.4,p95:172.8,p99:437.6,error_rate:0.47,qps:1552},{date:"2026-03-03",endpoint:"/api/search",p50:100.3,p95:413.5,p99:1063.2,error_rate:0.37,qps:628},{date:"2026-03-03",endpoint:"/api/users",p50:42.8,p95:183.1,p99:457.8,error_rate:0.26,qps:1373},
+      {date:"2026-03-04",endpoint:"/api/orders",p50:57.5,p95:229.7,p99:605.9,error_rate:0.27,qps:849},{date:"2026-03-04",endpoint:"/api/products",p50:38.7,p95:166.2,p99:421.1,error_rate:0.42,qps:1622},{date:"2026-03-04",endpoint:"/api/search",p50:88.9,p95:366.2,p99:941.5,error_rate:0.23,qps:628},{date:"2026-03-04",endpoint:"/api/users",p50:49.2,p95:210.8,p99:527.1,error_rate:0.50,qps:1300},
+      {date:"2026-03-05",endpoint:"/api/orders",p50:56.2,p95:225.4,p99:594.3,error_rate:0.26,qps:805},{date:"2026-03-05",endpoint:"/api/products",p50:36.0,p95:154.2,p99:390.3,error_rate:0.25,qps:1575},{date:"2026-03-05",endpoint:"/api/search",p50:92.1,p95:379.0,p99:974.9,error_rate:0.29,qps:637},{date:"2026-03-05",endpoint:"/api/users",p50:43.8,p95:188.2,p99:470.2,error_rate:0.27,qps:1327},
+      {date:"2026-03-06",endpoint:"/api/orders",p50:64.2,p95:256.3,p99:675.9,error_rate:0.36,qps:844},{date:"2026-03-06",endpoint:"/api/products",p50:39.3,p95:168.6,p99:427.1,error_rate:0.34,qps:1566},{date:"2026-03-06",endpoint:"/api/search",p50:87.9,p95:362.0,p99:930.8,error_rate:0.29,qps:628},{date:"2026-03-06",endpoint:"/api/users",p50:42.4,p95:181.5,p99:454.1,error_rate:0.25,qps:1279},
+      {date:"2026-03-07",endpoint:"/api/orders",p50:56.8,p95:227.0,p99:598.7,error_rate:0.28,qps:835},{date:"2026-03-07",endpoint:"/api/products",p50:40.5,p95:174.2,p99:441.2,error_rate:0.41,qps:1590},{date:"2026-03-07",endpoint:"/api/search",p50:91.2,p95:375.3,p99:965.2,error_rate:0.39,qps:644},{date:"2026-03-07",endpoint:"/api/users",p50:45.5,p95:194.8,p99:487.3,error_rate:0.24,qps:1372},
+      {date:"2026-03-08",endpoint:"/api/orders",p50:57.0,p95:227.9,p99:600.9,error_rate:0.22,qps:840},{date:"2026-03-08",endpoint:"/api/products",p50:40.9,p95:175.5,p99:444.4,error_rate:0.35,qps:1580},{date:"2026-03-08",endpoint:"/api/search",p50:91.5,p95:377.0,p99:968.9,error_rate:0.34,qps:637},{date:"2026-03-08",endpoint:"/api/users",p50:44.7,p95:191.3,p99:478.1,error_rate:0.45,qps:1267},
+      {date:"2026-03-09",endpoint:"/api/orders",p50:59.4,p95:237.7,p99:626.5,error_rate:0.24,qps:848},{date:"2026-03-09",endpoint:"/api/products",p50:36.0,p95:154.1,p99:390.3,error_rate:0.23,qps:1496},{date:"2026-03-09",endpoint:"/api/search",p50:93.1,p95:384.0,p99:987.4,error_rate:0.27,qps:612},{date:"2026-03-09",endpoint:"/api/users",p50:43.8,p95:187.4,p99:468.5,error_rate:0.25,qps:1372},
+      {date:"2026-03-10",endpoint:"/api/orders",p50:57.2,p95:229.0,p99:603.8,error_rate:0.27,qps:855},{date:"2026-03-10",endpoint:"/api/products",p50:36.8,p95:157.8,p99:399.8,error_rate:0.26,qps:1561},{date:"2026-03-10",endpoint:"/api/search",p50:88.7,p95:364.9,p99:938.2,error_rate:0.24,qps:606},{date:"2026-03-10",endpoint:"/api/users",p50:43.3,p95:185.5,p99:463.8,error_rate:0.26,qps:1314},
+      {date:"2026-03-11",endpoint:"/api/orders",p50:62.4,p95:249.3,p99:657.5,error_rate:0.57,qps:857},{date:"2026-03-11",endpoint:"/api/products",p50:36.3,p95:155.8,p99:394.5,error_rate:0.27,qps:1583},{date:"2026-03-11",endpoint:"/api/search",p50:87.3,p95:359.2,p99:923.6,error_rate:0.27,qps:617},{date:"2026-03-11",endpoint:"/api/users",p50:44.4,p95:190.7,p99:476.8,error_rate:0.25,qps:1309},
+      {date:"2026-03-12",endpoint:"/api/orders",p50:55.8,p95:222.5,p99:587.1,error_rate:0.22,qps:841},{date:"2026-03-12",endpoint:"/api/products",p50:36.8,p95:157.6,p99:399.1,error_rate:0.24,qps:1585},{date:"2026-03-12",endpoint:"/api/search",p50:88.7,p95:364.9,p99:938.5,error_rate:0.26,qps:641},{date:"2026-03-12",endpoint:"/api/users",p50:47.7,p95:204.0,p99:510.1,error_rate:0.31,qps:1289},
+      {date:"2026-03-13",endpoint:"/api/orders",p50:60.9,p95:243.8,p99:642.4,error_rate:0.38,qps:817},{date:"2026-03-13",endpoint:"/api/products",p50:40.0,p95:171.8,p99:434.7,error_rate:0.31,qps:1556},{date:"2026-03-13",endpoint:"/api/search",p50:95.1,p95:391.9,p99:1007.9,error_rate:0.31,qps:603},{date:"2026-03-13",endpoint:"/api/users",p50:44.9,p95:192.4,p99:481.3,error_rate:0.28,qps:1298},
+      {date:"2026-03-14",endpoint:"/api/orders",p50:59.5,p95:238.3,p99:628.3,error_rate:0.39,qps:851},{date:"2026-03-14",endpoint:"/api/products",p50:36.8,p95:158.0,p99:400.4,error_rate:0.28,qps:1529},{date:"2026-03-14",endpoint:"/api/search",p50:87.6,p95:361.0,p99:928.6,error_rate:0.26,qps:653},{date:"2026-03-14",endpoint:"/api/users",p50:46.8,p95:200.2,p99:500.5,error_rate:0.53,qps:1308},
+      {date:"2026-03-15",endpoint:"/api/orders",p50:59.2,p95:236.9,p99:624.2,error_rate:0.25,qps:850},{date:"2026-03-15",endpoint:"/api/products",p50:36.9,p95:158.4,p99:401.6,error_rate:0.24,qps:1496},{date:"2026-03-15",endpoint:"/api/search",p50:103.4,p95:425.8,p99:1095.0,error_rate:0.61,qps:633},{date:"2026-03-15",endpoint:"/api/users",p50:45.5,p95:194.6,p99:486.5,error_rate:0.51,qps:1318},
+      {date:"2026-03-16",endpoint:"/api/orders",p50:58.2,p95:232.8,p99:613.8,error_rate:0.21,qps:844},{date:"2026-03-16",endpoint:"/api/products",p50:38.5,p95:165.2,p99:418.4,error_rate:0.24,qps:1626},{date:"2026-03-16",endpoint:"/api/search",p50:92.5,p95:381.3,p99:980.6,error_rate:0.21,qps:612},{date:"2026-03-16",endpoint:"/api/users",p50:49.0,p95:210.0,p99:525.2,error_rate:0.31,qps:1314},
+      {date:"2026-03-17",endpoint:"/api/orders",p50:60.4,p95:241.4,p99:636.4,error_rate:0.37,qps:868},{date:"2026-03-17",endpoint:"/api/products",p50:38.2,p95:163.9,p99:415.4,error_rate:0.23,qps:1593},{date:"2026-03-17",endpoint:"/api/search",p50:89.7,p95:369.0,p99:948.9,error_rate:0.24,qps:615},{date:"2026-03-17",endpoint:"/api/users",p50:44.3,p95:190.5,p99:476.0,error_rate:0.25,qps:1277}
+    ];
+
+    // ── Constants ──
+    const SERIES_COLORS = [
+      '#E53E3E','#DD6B20','#D69E2E','#38A169','#319795',
+      '#3182CE','#5A67D8','#805AD5','#D53F8C','#718096',
+      '#C05621','#2C7A7B','#2B6CB0','#6B46C1','#B7791F',
+      '#2D3748','#4A5568','#B83280','#276749','#1A365D',
+    ];
+
+    // ── State ──
+    let currentRange = 30;
+    let sortState = { column: -1, direction: 1 };
+    let charts = {};
+
+    // ── Theme ──
+    function getChartThemeColors() {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      return {
+        textColor:      isDark ? '#cbd5e1' : '#64748b',
+        axisLineColor:  isDark ? '#475569' : '#e2e8f0',
+        splitLineColor: isDark ? 'rgba(71,85,105,0.4)' : '#f1f5f9',
+        backgroundColor: isDark ? '#1e293b' : '#ffffff',
+      };
+    }
+
+    function initTheme() {
+      const saved = localStorage.getItem('dashboard-theme');
+      if (saved) {
+        document.documentElement.setAttribute('data-theme', saved);
+      } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+      updateToggleIcon();
+    }
+
+    function toggleTheme() {
+      const root = document.documentElement;
+      const current = root.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      localStorage.setItem('dashboard-theme', next);
+      updateToggleIcon();
+    }
+
+    function updateToggleIcon() {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      const btn = document.querySelector('.theme-toggle');
+      if (btn) btn.innerHTML = isDark
+        ? '<i class="fas fa-sun"></i>'
+        : '<i class="fas fa-moon"></i>';
+    }
+
+    // ── Chart init helper ──
+    function initChart(containerId) {
+      const el = document.getElementById(containerId);
+      if (!el) return null;
+      const chart = echarts.init(el);
+      window.addEventListener('resize', () => chart.resize());
+      return chart;
+    }
+
+    // ── Data filtering ──
+    function getFilteredDates() {
+      const allDates = [...ALL_DATES];
+      return allDates.slice(-currentRange);
+    }
+
+    function getFilteredLatencyTrend() {
+      const dates = getFilteredDates();
+      return LATENCY_TREND.filter(d => dates.includes(d.date));
+    }
+
+    function getFilteredDailyData() {
+      const dates = getFilteredDates();
+      return DAILY_DATA.filter(d => dates.includes(d.date));
+    }
+
+    function getFilteredQPS() {
+      const offset = ALL_DATES.length - currentRange;
+      const result = {};
+      for (const ep of ENDPOINTS) {
+        result[ep] = QPS_BY_ENDPOINT[ep].slice(offset);
+      }
+      return result;
+    }
+
+    // ── KPI rendering ──
+    function computeKPIs(data) {
+      const p50s = data.map(d => d.p50);
+      const p95s = data.map(d => d.p95);
+      const p99s = data.map(d => d.p99);
+      const errs = data.map(d => d.error_rate);
+      const qpss = data.map(d => d.qps);
+      const avg = arr => arr.reduce((a,b) => a+b, 0) / arr.length;
+      return {
+        p50: avg(p50s),
+        p95: avg(p95s),
+        p99: avg(p99s),
+        error_rate: avg(errs),
+        qps: avg(qpss)
+      };
+    }
+
+    function getP50Status(val) {
+      if (val < 100) return { badge: 'badge-success', label: 'Good' };
+      if (val < 200) return { badge: 'badge-warning', label: 'Warning' };
+      return { badge: 'badge-danger', label: 'Critical' };
+    }
+
+    function getP95Status(val) {
+      if (val < 200) return { badge: 'badge-success', label: 'Good' };
+      if (val < 500) return { badge: 'badge-warning', label: 'Warning' };
+      return { badge: 'badge-danger', label: 'Critical' };
+    }
+
+    function getErrStatus(val) {
+      if (val < 1) return { badge: 'badge-success', label: 'Good' };
+      if (val < 5) return { badge: 'badge-warning', label: 'Warning' };
+      return { badge: 'badge-danger', label: 'Critical' };
+    }
+
+    function renderKPIs(data) {
+      const kpis = computeKPIs(data);
+      const p50s = getP50Status(kpis.p50);
+      const p95s = getP95Status(kpis.p95);
+      const errs = getErrStatus(kpis.error_rate);
+
+      document.getElementById('kpi-row').innerHTML = `
+        <div class="kpi-card">
+          <div class="kpi-label">P50 Latency</div>
+          <div class="kpi-value-row">
+            <span class="kpi-value">${kpis.p50.toFixed(1)}ms</span>
+            <span class="badge ${p50s.badge}">${p50s.label}</span>
+          </div>
+          <div class="kpi-threshold">Threshold: &lt; 100ms</div>
+          <div class="kpi-sparkline" id="spark-p50"></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">P95 Latency</div>
+          <div class="kpi-value-row">
+            <span class="kpi-value">${kpis.p95.toFixed(1)}ms</span>
+            <span class="badge ${p95s.badge}">${p95s.label}</span>
+          </div>
+          <div class="kpi-threshold">Threshold: &lt; 200ms</div>
+          <div class="kpi-sparkline" id="spark-p95"></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Error Rate</div>
+          <div class="kpi-value-row">
+            <span class="kpi-value">${kpis.error_rate.toFixed(2)}%</span>
+            <span class="badge ${errs.badge}">${errs.label}</span>
+          </div>
+          <div class="kpi-threshold">Threshold: &lt; 1%</div>
+          <div class="kpi-sparkline" id="spark-err"></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Avg QPS</div>
+          <div class="kpi-value-row">
+            <span class="kpi-value">${Math.round(kpis.qps).toLocaleString()}</span>
+            <span class="badge badge-info">Total</span>
+          </div>
+          <div class="kpi-threshold">Across all endpoints</div>
+          <div class="kpi-sparkline" id="spark-qps"></div>
+        </div>
+      `;
+
+      // Render sparklines
+      renderSparklines();
+    }
+
+    function renderSparklines() {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      const lineColor = isDark ? '#60a5fa' : '#2d4a6e';
+      const areaColor = isDark ? 'rgba(96,165,250,0.15)' : 'rgba(45,74,110,0.10)';
+      const trend = getFilteredLatencyTrend();
+      const dates = trend.map(d => d.date.slice(5));
+
+      const sparkOpts = (values) => ({
+        animation: false,
+        grid: { left: 0, right: 0, top: 2, bottom: 2 },
+        xAxis: { type: 'category', show: false, data: dates },
+        yAxis: { type: 'value', show: false },
+        series: [{
+          type: 'line', data: values, symbol: 'none', smooth: true,
+          lineStyle: { color: lineColor, width: 2 },
+          areaStyle: { color: areaColor },
+        }],
+      });
+
+      const sparkIds = [
+        { id: 'spark-p50', values: trend.map(d => d.p50) },
+        { id: 'spark-p95', values: trend.map(d => d.p95) },
+        { id: 'spark-err', values: getFilteredDailyData().reduce((acc, d) => {
+          const idx = getFilteredDates().indexOf(d.date);
+          if (idx >= 0) {
+            if (!acc[idx]) acc[idx] = { sum: 0, count: 0 };
+            acc[idx].sum += d.error_rate;
+            acc[idx].count++;
+          }
+          return acc;
+        }, []).map(d => d ? +(d.sum / d.count).toFixed(2) : 0) },
+        { id: 'spark-qps', values: getFilteredDates().map((date, i) => {
+          let total = 0;
+          ENDPOINTS.forEach(ep => {
+            const offset = ALL_DATES.length - currentRange;
+            total += QPS_BY_ENDPOINT[ep][offset + i] || 0;
+          });
+          return Math.round(total / ENDPOINTS.length);
+        }) },
+      ];
+
+      sparkIds.forEach(s => {
+        const el = document.getElementById(s.id);
+        if (el) {
+          const existing = echarts.getInstanceByDom(el);
+          const chart = existing || echarts.init(el);
+          chart.setOption(sparkOpts(s.values), true);
+          if (!existing) {
+            window.addEventListener('resize', () => chart.resize());
+          }
+        }
+      });
+    }
+
+    // ── Charts ──
+    function renderLatencyTrend() {
+      if (!charts.latency) charts.latency = initChart('chart-latency');
+      const theme = getChartThemeColors();
+      const trend = getFilteredLatencyTrend();
+      const dates = trend.map(d => d.date.slice(5));
+
+      charts.latency.setOption({
+        tooltip: {
+          trigger: 'axis',
+          backgroundColor: theme.backgroundColor,
+          borderColor: theme.axisLineColor,
+          textStyle: { color: theme.textColor },
+        },
+        legend: {
+          top: 5,
+          textStyle: { fontSize: 12, color: theme.textColor },
+        },
+        grid: { left: 55, right: 20, top: 36, bottom: 40 },
+        xAxis: {
+          type: 'category', data: dates,
+          axisLabel: { rotate: 30, fontSize: 10, color: theme.textColor },
+          axisLine: { lineStyle: { color: theme.axisLineColor } },
+        },
+        yAxis: {
+          type: 'value', name: 'Latency (ms)',
+          nameTextStyle: { color: theme.textColor },
+          axisLabel: { color: theme.textColor },
+          splitLine: { lineStyle: { color: theme.splitLineColor } },
+        },
+        series: [
+          { name: 'P50', type: 'line', smooth: true, symbol: 'circle', symbolSize: 5,
+            lineStyle: { width: 2 }, itemStyle: { color: SERIES_COLORS[3] },
+            data: trend.map(d => d.p50) },
+          { name: 'P95', type: 'line', smooth: true, symbol: 'circle', symbolSize: 5,
+            lineStyle: { width: 2 }, itemStyle: { color: SERIES_COLORS[2] },
+            data: trend.map(d => d.p95) },
+          { name: 'P99', type: 'line', smooth: true, symbol: 'circle', symbolSize: 5,
+            lineStyle: { width: 2 }, itemStyle: { color: SERIES_COLORS[0] },
+            data: trend.map(d => d.p99) },
+        ],
+      }, true);
+    }
+
+    function renderErrorDonut() {
+      if (!charts.errorDonut) charts.errorDonut = initChart('chart-error-donut');
+      const theme = getChartThemeColors();
+      const items = Object.entries(ERROR_TYPES).map(([name, value]) => ({ name, value }));
+
+      charts.errorDonut.setOption({
+        tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
+        legend: {
+          orient: 'vertical', right: 10, top: 'center',
+          textStyle: { fontSize: 11, color: theme.textColor },
+        },
+        series: [{
+          type: 'pie', radius: ['40%', '70%'], center: ['40%', '50%'],
+          data: items.map((item, i) => ({
+            name: item.name, value: item.value,
+            itemStyle: { color: SERIES_COLORS[i] },
+          })),
+          label: {
+            formatter: params => `${params.percent.toFixed(1)}%`,
+            fontSize: 11, color: theme.textColor,
+          },
+          emphasis: {
+            itemStyle: { shadowBlur: 8, shadowColor: 'rgba(0,0,0,0.2)' },
+          },
+        }],
+      }, true);
+    }
+
+    function renderErrorBar() {
+      if (!charts.errorBar) charts.errorBar = initChart('chart-error-bar');
+      const theme = getChartThemeColors();
+
+      // Compute error rate by endpoint from filtered data
+      const filtered = getFilteredDailyData();
+      const epErrors = {};
+      const epCounts = {};
+      filtered.forEach(d => {
+        if (!epErrors[d.endpoint]) { epErrors[d.endpoint] = 0; epCounts[d.endpoint] = 0; }
+        epErrors[d.endpoint] += d.error_rate;
+        epCounts[d.endpoint]++;
+      });
+      const labels = ENDPOINTS.map(ep => ep);
+      const values = ENDPOINTS.map(ep => +((epErrors[ep] || 0) / (epCounts[ep] || 1)).toFixed(2));
+
+      charts.errorBar.setOption({
+        tooltip: {
+          trigger: 'axis', axisPointer: { type: 'shadow' },
+          backgroundColor: theme.backgroundColor,
+          borderColor: theme.axisLineColor,
+          textStyle: { color: theme.textColor },
+          formatter: params => `${params[0].name}<br/>Error Rate: ${params[0].value}%`
+        },
+        grid: { left: 120, right: 50, top: 10, bottom: 30 },
+        xAxis: {
+          type: 'value', name: 'Error Rate (%)',
+          nameTextStyle: { color: theme.textColor },
+          axisLabel: { color: theme.textColor },
+          splitLine: { lineStyle: { color: theme.splitLineColor } },
+        },
+        yAxis: {
+          type: 'category', data: labels, inverse: true,
+          axisLabel: { fontSize: 11, width: 110, overflow: 'truncate', color: theme.textColor },
+        },
+        series: [{
+          type: 'bar',
+          data: values.map((v, i) => ({
+            value: v, itemStyle: { color: SERIES_COLORS[i] },
+          })),
+          barWidth: '60%',
+          label: { show: true, position: 'right', fontSize: 10, color: theme.textColor,
+            formatter: p => p.value + '%' },
+        }],
+      }, true);
+    }
+
+    function renderQPSChart() {
+      if (!charts.qps) charts.qps = initChart('chart-qps');
+      const theme = getChartThemeColors();
+      const dates = getFilteredDates().map(d => d.slice(5));
+      const filteredQPS = getFilteredQPS();
+
+      charts.qps.setOption({
+        tooltip: {
+          trigger: 'axis',
+          backgroundColor: theme.backgroundColor,
+          borderColor: theme.axisLineColor,
+          textStyle: { color: theme.textColor },
+        },
+        legend: {
+          top: 5,
+          textStyle: { fontSize: 12, color: theme.textColor },
+        },
+        grid: { left: 55, right: 20, top: 36, bottom: 40 },
+        xAxis: {
+          type: 'category', data: dates,
+          axisLabel: { rotate: 30, fontSize: 10, color: theme.textColor },
+          axisLine: { lineStyle: { color: theme.axisLineColor } },
+        },
+        yAxis: {
+          type: 'value', name: 'QPS',
+          nameTextStyle: { color: theme.textColor },
+          axisLabel: { color: theme.textColor },
+          splitLine: { lineStyle: { color: theme.splitLineColor } },
+        },
+        series: ENDPOINTS.map((ep, i) => ({
+          name: ep, type: 'line', smooth: true, symbol: 'circle', symbolSize: 5,
+          lineStyle: { width: 2 }, itemStyle: { color: SERIES_COLORS[i] },
+          data: filteredQPS[ep],
+        })),
+      }, true);
+    }
+
+    // ── Table ──
+    function renderTable(data) {
+      const tbody = document.getElementById('table-body');
+      tbody.innerHTML = data.map(d => `
+        <tr>
+          <td data-value="${d.date}">${d.date}</td>
+          <td data-value="${d.endpoint}">${d.endpoint}</td>
+          <td data-value="${d.p50}">${d.p50.toFixed(1)}</td>
+          <td data-value="${d.p95}">${d.p95.toFixed(1)}</td>
+          <td data-value="${d.p99}">${d.p99.toFixed(1)}</td>
+          <td data-value="${d.error_rate}"><span class="badge ${d.error_rate < 0.3 ? 'badge-success' : d.error_rate < 0.5 ? 'badge-warning' : 'badge-danger'}">${d.error_rate.toFixed(2)}%</span></td>
+          <td data-value="${d.qps}">${Math.round(d.qps).toLocaleString()}</td>
+        </tr>
+      `).join('');
+      sortState = { column: -1, direction: 1 };
+      updateSortIcons(-1);
+    }
+
+    // ── Sorting ──
+    function sortTable(columnIndex) {
+      const tbody = document.getElementById('table-body');
+      const rows = Array.from(tbody.rows);
+
+      if (sortState.column === columnIndex) {
+        sortState.direction *= -1;
+      } else {
+        sortState.column = columnIndex;
+        sortState.direction = 1;
+      }
+
+      rows.sort((a, b) => {
+        const va = a.cells[columnIndex].getAttribute('data-value') || a.cells[columnIndex].textContent;
+        const vb = b.cells[columnIndex].getAttribute('data-value') || b.cells[columnIndex].textContent;
+        const na = parseFloat(va), nb = parseFloat(vb);
+        if (!isNaN(na) && !isNaN(nb)) return sortState.direction * (na - nb);
+        return sortState.direction * va.localeCompare(vb);
+      });
+
+      rows.forEach(row => tbody.appendChild(row));
+      updateSortIcons(columnIndex);
+    }
+
+    function updateSortIcons(activeCol) {
+      document.querySelectorAll('.data-table th').forEach((th, i) => {
+        th.classList.toggle('sorted', i === activeCol);
+        const icon = th.querySelector('.sort-icon');
+        if (icon) {
+          icon.className = 'sort-icon fas ' +
+            (i === activeCol
+              ? (sortState.direction === 1 ? 'fa-sort-up' : 'fa-sort-down')
+              : 'fa-sort');
+        }
+      });
+    }
+
+    // ── Filter ──
+    function filterByRange(days, btn) {
+      currentRange = days;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      renderAll();
+    }
+
+    // ── Render all ──
+    function renderAll() {
+      const filtered = getFilteredDailyData();
+      renderKPIs(filtered);
+      renderLatencyTrend();
+      renderErrorDonut();
+      renderErrorBar();
+      renderQPSChart();
+      renderTable(filtered);
+    }
+
+    // ── Theme change observer ──
+    const observer = new MutationObserver(() => {
+      renderAll();
+    });
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme'],
+    });
+
+    // ── Init ──
+    initTheme();
+    renderAll();
+  </script>
+</body>
+</html>

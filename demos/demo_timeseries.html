@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>E-Commerce Sales Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #f4f6f9;
+      --bg-card: #ffffff;
+      --text-primary: #1e293b;
+      --text-secondary: #64748b;
+      --accent: #4f6ef7;
+      --accent-light: #e8ecff;
+      --accent-dark: #3b52c7;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --info: #3b82f6;
+      --border: #e2e8f0;
+      --radius: 10px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,.06);
+      --shadow-md: 0 4px 12px rgba(0,0,0,.08);
+      --shadow-lg: 0 10px 30px rgba(0,0,0,.1);
+      --transition: .2s ease;
+    }
+
+    :root[data-theme="dark"] {
+      --bg-primary: #0f172a;
+      --bg-card: #1e293b;
+      --text-primary: #f8fafc;
+      --text-secondary: #cbd5e1;
+      --accent-light: #1e3a5f;
+      --border: #475569;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,.3);
+      --shadow-md: 0 4px 12px rgba(0,0,0,.4);
+      --shadow-lg: 0 10px 30px rgba(0,0,0,.5);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 1.5;
+      color: var(--text-primary);
+      background: var(--bg-primary);
+      margin: 0;
+      padding: 20px 24px;
+      min-height: 100vh;
+    }
+
+    .dashboard-container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .dashboard-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .filter-btn {
+      padding: 6px 14px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition);
+      font-family: inherit;
+    }
+
+    .filter-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .filter-btn.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .kpi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .kpi-card:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    .kpi-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+
+    .kpi-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .kpi-change {
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .kpi-change.positive { color: var(--success); }
+    .kpi-change.negative { color: var(--danger); }
+
+    .kpi-sparkline {
+      width: 100%;
+      height: 40px;
+      margin-top: 8px;
+    }
+
+    .chart-row {
+      display: flex;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .chart-card {
+      flex: 1;
+      min-width: 0;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .chart-card.full-width {
+      width: 100%;
+    }
+
+    .chart-card-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+    }
+
+    .chart-container {
+      width: 100%;
+      height: 300px;
+    }
+
+    .data-table-wrapper {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      box-shadow: var(--shadow-sm);
+      overflow-x: auto;
+      margin-bottom: 20px;
+    }
+
+    .data-table-wrapper .chart-card-title {
+      margin-bottom: 12px;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .data-table th {
+      text-align: left;
+      padding: 10px 12px;
+      font-weight: 600;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-secondary);
+      border-bottom: 2px solid var(--border);
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    .data-table th:hover {
+      color: var(--accent);
+    }
+
+    .data-table th .sort-icon {
+      margin-left: 4px;
+      font-size: 10px;
+      opacity: 0.4;
+    }
+
+    .data-table th.sorted .sort-icon {
+      opacity: 1;
+      color: var(--accent);
+    }
+
+    .data-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-primary);
+    }
+
+    .data-table tbody tr:hover {
+      background: var(--accent-light);
+    }
+
+    .theme-toggle {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-primary);
+      font-size: 18px;
+      cursor: pointer;
+      box-shadow: var(--shadow-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--transition);
+      z-index: 1000;
+    }
+
+    .theme-toggle:hover {
+      box-shadow: var(--shadow-lg);
+      transform: scale(1.05);
+    }
+
+    @media (max-width: 1024px) {
+      .kpi-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .chart-row {
+        flex-direction: column;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .kpi-row {
+        grid-template-columns: 1fr;
+      }
+      body {
+        padding: 12px;
+      }
+      .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard-container">
+    <div class="dashboard-header">
+      <h1 class="dashboard-title">E-Commerce Sales Dashboard</h1>
+      <div class="filter-bar">
+        <button class="filter-btn" onclick="setDateRange(7, this)">7d</button>
+        <button class="filter-btn" onclick="setDateRange(14, this)">14d</button>
+        <button class="filter-btn active" onclick="setDateRange(30, this)">30d</button>
+        <button class="filter-btn" onclick="setDateRange(60, this)">60d</button>
+        <button class="filter-btn" onclick="setDateRange(90, this)">90d</button>
+      </div>
+    </div>
+
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-label">Total Revenue</div>
+        <div class="kpi-value" id="kpi-revenue">—</div>
+        <div class="kpi-change" id="kpi-revenue-change">—</div>
+        <div class="kpi-sparkline" id="spark-revenue"></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Total Orders</div>
+        <div class="kpi-value" id="kpi-orders">—</div>
+        <div class="kpi-change" id="kpi-orders-change">—</div>
+        <div class="kpi-sparkline" id="spark-orders"></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Avg Order Value</div>
+        <div class="kpi-value" id="kpi-aov">—</div>
+        <div class="kpi-change" id="kpi-aov-change">—</div>
+        <div class="kpi-sparkline" id="spark-aov"></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Conversion Rate</div>
+        <div class="kpi-value" id="kpi-conv">—</div>
+        <div class="kpi-change" id="kpi-conv-change">—</div>
+        <div class="kpi-sparkline" id="spark-conv"></div>
+      </div>
+    </div>
+
+    <div class="chart-row" style="margin-bottom: 20px;">
+      <div class="chart-card full-width">
+        <div class="chart-card-title">Revenue & Orders Trend</div>
+        <div class="chart-container" id="chart-dual"></div>
+      </div>
+    </div>
+
+    <div class="chart-row">
+      <div class="chart-card">
+        <div class="chart-card-title">Revenue by Category</div>
+        <div class="chart-container" id="chart-donut"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-title">Daily Revenue by Category</div>
+        <div class="chart-container" id="chart-stacked"></div>
+      </div>
+    </div>
+
+    <div class="data-table-wrapper">
+      <div class="chart-card-title">Daily Data</div>
+      <table class="data-table" id="data-table">
+        <thead>
+          <tr>
+            <th onclick="sortTable(0)">Date <i class="sort-icon fas fa-sort"></i></th>
+            <th onclick="sortTable(1)">Revenue <i class="sort-icon fas fa-sort"></i></th>
+            <th onclick="sortTable(2)">Orders <i class="sort-icon fas fa-sort"></i></th>
+            <th onclick="sortTable(3)">Avg Order Value <i class="sort-icon fas fa-sort"></i></th>
+            <th onclick="sortTable(4)">Conv. Rate <i class="sort-icon fas fa-sort"></i></th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <button class="theme-toggle" onclick="toggleTheme()">
+    <i class="fas fa-moon"></i>
+  </button>
+
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+  <script>
+    // ── Embedded CSV Data ──
+    const RAW_DATA = [
+      {date:"2025-12-20",revenue:20419.83,orders:143,avg_order_value:142.8,conversion_rate:2.91,visitors:4909,category:"Electronics"},
+      {date:"2025-12-20",revenue:9628.11,orders:48,avg_order_value:200.59,conversion_rate:3.52,visitors:1365,category:"Clothing"},
+      {date:"2025-12-20",revenue:9388.29,orders:63,avg_order_value:149.02,conversion_rate:3.13,visitors:2010,category:"Home & Garden"},
+      {date:"2025-12-20",revenue:5411.32,orders:34,avg_order_value:159.16,conversion_rate:3.26,visitors:1043,category:"Sports"},
+      {date:"2025-12-21",revenue:16900.11,orders:108,avg_order_value:156.48,conversion_rate:3.47,visitors:3108,category:"Electronics"},
+      {date:"2025-12-21",revenue:10694.77,orders:67,avg_order_value:159.62,conversion_rate:3.39,visitors:1979,category:"Clothing"},
+      {date:"2025-12-21",revenue:9225.66,orders:65,avg_order_value:141.93,conversion_rate:3.71,visitors:1752,category:"Home & Garden"},
+      {date:"2025-12-21",revenue:6707.86,orders:40,avg_order_value:167.7,conversion_rate:2.73,visitors:1463,category:"Sports"},
+      {date:"2025-12-22",revenue:32159.0,orders:192,avg_order_value:167.49,conversion_rate:2.64,visitors:7275,category:"Electronics"},
+      {date:"2025-12-22",revenue:13317.08,orders:64,avg_order_value:208.08,conversion_rate:3.41,visitors:1879,category:"Clothing"},
+      {date:"2025-12-22",revenue:13236.72,orders:66,avg_order_value:200.56,conversion_rate:3.3,visitors:1997,category:"Home & Garden"},
+      {date:"2025-12-22",revenue:10380.19,orders:60,avg_order_value:173.0,conversion_rate:3.33,visitors:1802,category:"Sports"},
+      {date:"2025-12-23",revenue:31228.5,orders:164,avg_order_value:190.42,conversion_rate:3.79,visitors:4324,category:"Electronics"},
+      {date:"2025-12-23",revenue:15578.31,orders:79,avg_order_value:197.19,conversion_rate:2.57,visitors:3075,category:"Clothing"},
+      {date:"2025-12-23",revenue:11185.74,orders:68,avg_order_value:164.5,conversion_rate:2.62,visitors:2595,category:"Home & Garden"},
+      {date:"2025-12-23",revenue:8402.71,orders:56,avg_order_value:150.05,conversion_rate:2.92,visitors:1919,category:"Sports"},
+      {date:"2025-12-24",revenue:53500.58,orders:316,avg_order_value:169.31,conversion_rate:3.06,visitors:10342,category:"Electronics"},
+      {date:"2025-12-24",revenue:25139.95,orders:155,avg_order_value:162.19,conversion_rate:3.91,visitors:3969,category:"Clothing"},
+      {date:"2025-12-24",revenue:23010.45,orders:121,avg_order_value:190.17,conversion_rate:2.76,visitors:4389,category:"Home & Garden"},
+      {date:"2025-12-24",revenue:17659.83,orders:115,avg_order_value:153.56,conversion_rate:3.07,visitors:3746,category:"Sports"},
+      {date:"2025-12-25",revenue:59246.63,orders:309,avg_order_value:191.74,conversion_rate:3.34,visitors:9264,category:"Electronics"},
+      {date:"2025-12-25",revenue:29207.76,orders:140,avg_order_value:208.63,conversion_rate:3.66,visitors:3820,category:"Clothing"},
+      {date:"2025-12-25",revenue:20340.34,orders:142,avg_order_value:143.24,conversion_rate:2.97,visitors:4776,category:"Home & Garden"},
+      {date:"2025-12-25",revenue:15448.0,orders:98,avg_order_value:157.63,conversion_rate:3.92,visitors:2503,category:"Sports"},
+      {date:"2025-12-26",revenue:57773.4,orders:349,avg_order_value:165.54,conversion_rate:3.48,visitors:10019,category:"Electronics"},
+      {date:"2025-12-26",revenue:26939.26,orders:126,avg_order_value:213.8,conversion_rate:3.19,visitors:3951,category:"Clothing"},
+      {date:"2025-12-26",revenue:20678.72,orders:129,avg_order_value:160.3,conversion_rate:3.34,visitors:3859,category:"Home & Garden"},
+      {date:"2025-12-26",revenue:15498.33,orders:82,avg_order_value:189.0,conversion_rate:3.85,visitors:2131,category:"Sports"},
+      {date:"2025-12-27",revenue:19673.77,orders:124,avg_order_value:158.66,conversion_rate:4.0,visitors:3102,category:"Electronics"},
+      {date:"2025-12-27",revenue:10898.56,orders:74,avg_order_value:147.28,conversion_rate:2.57,visitors:2878,category:"Clothing"},
+      {date:"2025-12-27",revenue:7675.89,orders:40,avg_order_value:191.9,conversion_rate:3.69,visitors:1084,category:"Home & Garden"},
+      {date:"2025-12-27",revenue:6368.23,orders:43,avg_order_value:148.1,conversion_rate:3.07,visitors:1399,category:"Sports"},
+      {date:"2025-12-28",revenue:23417.88,orders:128,avg_order_value:182.95,conversion_rate:3.96,visitors:3235,category:"Electronics"},
+      {date:"2025-12-28",revenue:12101.91,orders:85,avg_order_value:142.38,conversion_rate:3.58,visitors:2373,category:"Clothing"},
+      {date:"2025-12-28",revenue:9212.23,orders:50,avg_order_value:184.24,conversion_rate:2.9,visitors:1723,category:"Home & Garden"},
+      {date:"2025-12-28",revenue:6829.07,orders:45,avg_order_value:151.76,conversion_rate:3.15,visitors:1427,category:"Sports"},
+      {date:"2025-12-29",revenue:28853.79,orders:133,avg_order_value:216.95,conversion_rate:3.81,visitors:3487,category:"Electronics"},
+      {date:"2025-12-29",revenue:14562.34,orders:80,avg_order_value:182.03,conversion_rate:2.77,visitors:2890,category:"Clothing"},
+      {date:"2025-12-29",revenue:14092.31,orders:67,avg_order_value:210.33,conversion_rate:2.95,visitors:2272,category:"Home & Garden"},
+      {date:"2025-12-29",revenue:9797.05,orders:51,avg_order_value:192.1,conversion_rate:2.73,visitors:1868,category:"Sports"},
+      {date:"2025-12-30",revenue:31715.35,orders:173,avg_order_value:183.33,conversion_rate:3.67,visitors:4716,category:"Electronics"},
+      {date:"2025-12-30",revenue:15893.42,orders:113,avg_order_value:140.65,conversion_rate:2.99,visitors:3784,category:"Clothing"},
+      {date:"2025-12-30",revenue:10783.62,orders:50,avg_order_value:215.67,conversion_rate:3.82,visitors:1309,category:"Home & Garden"},
+      {date:"2025-12-30",revenue:10390.27,orders:63,avg_order_value:164.92,conversion_rate:2.59,visitors:2435,category:"Sports"},
+      {date:"2025-12-31",revenue:49334.88,orders:228,avg_order_value:216.38,conversion_rate:2.63,visitors:8674,category:"Electronics"},
+      {date:"2025-12-31",revenue:23637.73,orders:162,avg_order_value:145.91,conversion_rate:3.64,visitors:4449,category:"Clothing"},
+      {date:"2025-12-31",revenue:20504.46,orders:136,avg_order_value:150.77,conversion_rate:3.21,visitors:4232,category:"Home & Garden"},
+      {date:"2025-12-31",revenue:14455.3,orders:89,avg_order_value:162.42,conversion_rate:3.81,visitors:2336,category:"Sports"},
+      {date:"2026-01-01",revenue:43493.43,orders:277,avg_order_value:157.02,conversion_rate:3.31,visitors:8371,category:"Electronics"},
+      {date:"2026-01-01",revenue:25495.16,orders:163,avg_order_value:156.41,conversion_rate:2.97,visitors:5492,category:"Clothing"},
+      {date:"2026-01-01",revenue:21914.23,orders:114,avg_order_value:192.23,conversion_rate:3.16,visitors:3610,category:"Home & Garden"},
+      {date:"2026-01-01",revenue:14385.45,orders:96,avg_order_value:149.85,conversion_rate:2.84,visitors:3383,category:"Sports"},
+      {date:"2026-01-02",revenue:42557.27,orders:227,avg_order_value:187.48,conversion_rate:2.85,visitors:7978,category:"Electronics"},
+      {date:"2026-01-02",revenue:21951.21,orders:150,avg_order_value:146.34,conversion_rate:3.45,visitors:4352,category:"Clothing"},
+      {date:"2026-01-02",revenue:17611.14,orders:82,avg_order_value:214.77,conversion_rate:3.79,visitors:2163,category:"Home & Garden"},
+      {date:"2026-01-02",revenue:12526.5,orders:78,avg_order_value:160.6,conversion_rate:3.5,visitors:2226,category:"Sports"},
+      {date:"2026-01-03",revenue:19174.09,orders:127,avg_order_value:150.98,conversion_rate:3.9,visitors:3253,category:"Electronics"},
+      {date:"2026-01-03",revenue:11474.45,orders:64,avg_order_value:179.29,conversion_rate:3.68,visitors:1740,category:"Clothing"},
+      {date:"2026-01-03",revenue:9817.13,orders:63,avg_order_value:155.83,conversion_rate:2.65,visitors:2381,category:"Home & Garden"},
+      {date:"2026-01-03",revenue:6601.56,orders:37,avg_order_value:178.42,conversion_rate:3.2,visitors:1156,category:"Sports"},
+      {date:"2026-01-04",revenue:22517.99,orders:116,avg_order_value:194.12,conversion_rate:3.98,visitors:2917,category:"Electronics"},
+      {date:"2026-01-04",revenue:9927.64,orders:57,avg_order_value:174.17,conversion_rate:3.01,visitors:1894,category:"Clothing"},
+      {date:"2026-01-04",revenue:10009.77,orders:62,avg_order_value:161.45,conversion_rate:2.79,visitors:2225,category:"Home & Garden"},
+      {date:"2026-01-04",revenue:6668.1,orders:38,avg_order_value:175.48,conversion_rate:2.92,visitors:1302,category:"Sports"},
+      {date:"2026-01-05",revenue:27970.24,orders:130,avg_order_value:215.16,conversion_rate:3.17,visitors:4107,category:"Electronics"},
+      {date:"2026-01-05",revenue:17956.16,orders:97,avg_order_value:185.12,conversion_rate:2.58,visitors:3765,category:"Clothing"},
+      {date:"2026-01-05",revenue:14901.21,orders:72,avg_order_value:206.96,conversion_rate:3.95,visitors:1821,category:"Home & Garden"},
+      {date:"2026-01-05",revenue:10963.29,orders:52,avg_order_value:210.83,conversion_rate:2.75,visitors:1891,category:"Sports"},
+      {date:"2026-01-06",revenue:30249.13,orders:192,avg_order_value:157.55,conversion_rate:3.1,visitors:6190,category:"Electronics"},
+      {date:"2026-01-06",revenue:14120.04,orders:82,avg_order_value:172.2,conversion_rate:3.98,visitors:2061,category:"Clothing"},
+      {date:"2026-01-06",revenue:12102.88,orders:59,avg_order_value:205.13,conversion_rate:3.18,visitors:1853,category:"Home & Garden"},
+      {date:"2026-01-06",revenue:9539.45,orders:44,avg_order_value:216.81,conversion_rate:4.0,visitors:1101,category:"Sports"},
+      {date:"2026-01-07",revenue:31030.61,orders:157,avg_order_value:197.65,conversion_rate:2.73,visitors:5746,category:"Electronics"},
+      {date:"2026-01-07",revenue:15352.85,orders:70,avg_order_value:219.33,conversion_rate:3.37,visitors:2077,category:"Clothing"},
+      {date:"2026-01-07",revenue:13245.57,orders:66,avg_order_value:200.69,conversion_rate:2.59,visitors:2552,category:"Home & Garden"},
+      {date:"2026-01-07",revenue:10057.73,orders:55,avg_order_value:182.87,conversion_rate:3.78,visitors:1455,category:"Sports"},
+      {date:"2026-01-08",revenue:27509.07,orders:126,avg_order_value:218.33,conversion_rate:2.62,visitors:4808,category:"Electronics"},
+      {date:"2026-01-08",revenue:14876.9,orders:79,avg_order_value:188.32,conversion_rate:3.51,visitors:2248,category:"Clothing"},
+      {date:"2026-01-08",revenue:12096.17,orders:80,avg_order_value:151.2,conversion_rate:3.84,visitors:2085,category:"Home & Garden"},
+      {date:"2026-01-08",revenue:9104.69,orders:48,avg_order_value:189.68,conversion_rate:3.43,visitors:1399,category:"Sports"},
+      {date:"2026-01-09",revenue:30053.64,orders:160,avg_order_value:187.84,conversion_rate:3.28,visitors:4871,category:"Electronics"},
+      {date:"2026-01-09",revenue:18651.8,orders:119,avg_order_value:156.74,conversion_rate:3.57,visitors:3329,category:"Clothing"},
+      {date:"2026-01-09",revenue:12165.2,orders:70,avg_order_value:173.79,conversion_rate:3.51,visitors:1995,category:"Home & Garden"},
+      {date:"2026-01-09",revenue:9305.99,orders:56,avg_order_value:166.18,conversion_rate:3.63,visitors:1543,category:"Sports"},
+      {date:"2026-01-10",revenue:18880.64,orders:106,avg_order_value:178.12,conversion_rate:4.0,visitors:2651,category:"Electronics"},
+      {date:"2026-01-10",revenue:13329.29,orders:91,avg_order_value:146.48,conversion_rate:2.82,visitors:3227,category:"Clothing"},
+      {date:"2026-01-10",revenue:8628.18,orders:40,avg_order_value:215.7,conversion_rate:3.82,visitors:1046,category:"Home & Garden"},
+      {date:"2026-01-10",revenue:7753.59,orders:45,avg_order_value:172.3,conversion_rate:2.74,visitors:1644,category:"Sports"},
+      {date:"2026-01-11",revenue:23934.29,orders:121,avg_order_value:197.8,conversion_rate:3.42,visitors:3540,category:"Electronics"},
+      {date:"2026-01-11",revenue:13358.61,orders:69,avg_order_value:193.6,conversion_rate:2.51,visitors:2747,category:"Clothing"},
+      {date:"2026-01-11",revenue:10211.0,orders:62,avg_order_value:164.69,conversion_rate:3.5,visitors:1773,category:"Home & Garden"},
+      {date:"2026-01-11",revenue:7913.83,orders:52,avg_order_value:152.19,conversion_rate:2.67,visitors:1945,category:"Sports"},
+      {date:"2026-01-12",revenue:27539.5,orders:149,avg_order_value:184.83,conversion_rate:2.91,visitors:5122,category:"Electronics"},
+      {date:"2026-01-12",revenue:17250.98,orders:87,avg_order_value:198.29,conversion_rate:2.81,visitors:3101,category:"Clothing"},
+      {date:"2026-01-12",revenue:13918.83,orders:86,avg_order_value:161.85,conversion_rate:3.23,visitors:2660,category:"Home & Garden"},
+      {date:"2026-01-12",revenue:11255.27,orders:54,avg_order_value:208.43,conversion_rate:2.64,visitors:2046,category:"Sports"},
+      {date:"2026-01-13",revenue:30641.0,orders:188,avg_order_value:162.98,conversion_rate:2.51,visitors:7504,category:"Electronics"},
+      {date:"2026-01-13",revenue:18166.44,orders:95,avg_order_value:191.23,conversion_rate:2.89,visitors:3283,category:"Clothing"},
+      {date:"2026-01-13",revenue:14412.64,orders:78,avg_order_value:184.78,conversion_rate:3.14,visitors:2482,category:"Home & Garden"},
+      {date:"2026-01-13",revenue:8597.24,orders:58,avg_order_value:148.23,conversion_rate:3.83,visitors:1516,category:"Sports"},
+      {date:"2026-01-14",revenue:35317.13,orders:192,avg_order_value:183.94,conversion_rate:3.75,visitors:5117,category:"Electronics"},
+      {date:"2026-01-14",revenue:17292.7,orders:113,avg_order_value:153.03,conversion_rate:2.69,visitors:4198,category:"Clothing"},
+      {date:"2026-01-14",revenue:12723.45,orders:60,avg_order_value:212.06,conversion_rate:3.69,visitors:1624,category:"Home & Garden"},
+      {date:"2026-01-14",revenue:11220.63,orders:52,avg_order_value:215.78,conversion_rate:2.82,visitors:1847,category:"Sports"},
+      {date:"2026-01-15",revenue:29262.54,orders:197,avg_order_value:148.54,conversion_rate:3.67,visitors:5367,category:"Electronics"},
+      {date:"2026-01-15",revenue:18903.32,orders:109,avg_order_value:173.42,conversion_rate:3.43,visitors:3176,category:"Clothing"},
+      {date:"2026-01-15",revenue:12154.72,orders:56,avg_order_value:217.05,conversion_rate:3.8,visitors:1474,category:"Home & Garden"},
+      {date:"2026-01-15",revenue:11622.9,orders:56,avg_order_value:207.55,conversion_rate:3.82,visitors:1465,category:"Sports"},
+      {date:"2026-01-16",revenue:27249.31,orders:136,avg_order_value:200.36,conversion_rate:3.0,visitors:4535,category:"Electronics"},
+      {date:"2026-01-16",revenue:19225.39,orders:94,avg_order_value:204.53,conversion_rate:3.8,visitors:2476,category:"Clothing"},
+      {date:"2026-01-16",revenue:14889.72,orders:92,avg_order_value:161.84,conversion_rate:3.68,visitors:2499,category:"Home & Garden"},
+      {date:"2026-01-16",revenue:9014.01,orders:42,avg_order_value:214.62,conversion_rate:3.79,visitors:1108,category:"Sports"},
+      {date:"2026-01-17",revenue:20483.42,orders:99,avg_order_value:206.9,conversion_rate:3.19,visitors:3103,category:"Electronics"},
+      {date:"2026-01-17",revenue:11270.44,orders:55,avg_order_value:204.92,conversion_rate:2.84,visitors:1935,category:"Clothing"},
+      {date:"2026-01-17",revenue:8207.58,orders:52,avg_order_value:157.84,conversion_rate:2.99,visitors:1737,category:"Home & Garden"},
+      {date:"2026-01-17",revenue:7967.03,orders:36,avg_order_value:221.31,conversion_rate:2.92,visitors:1233,category:"Sports"},
+      {date:"2026-01-18",revenue:23394.54,orders:136,avg_order_value:172.02,conversion_rate:3.97,visitors:3424,category:"Electronics"},
+      {date:"2026-01-18",revenue:12153.12,orders:56,avg_order_value:217.02,conversion_rate:2.67,visitors:2095,category:"Clothing"},
+      {date:"2026-01-18",revenue:10975.29,orders:71,avg_order_value:154.58,conversion_rate:3.94,visitors:1800,category:"Home & Garden"},
+      {date:"2026-01-18",revenue:6705.96,orders:45,avg_order_value:149.02,conversion_rate:3.15,visitors:1427,category:"Sports"},
+      {date:"2026-01-19",revenue:34407.75,orders:208,avg_order_value:165.42,conversion_rate:3.41,visitors:6100,category:"Electronics"},
+      {date:"2026-01-19",revenue:17309.11,orders:101,avg_order_value:171.38,conversion_rate:3.37,visitors:3001,category:"Clothing"},
+      {date:"2026-01-19",revenue:12784.55,orders:64,avg_order_value:199.76,conversion_rate:2.5,visitors:2557,category:"Home & Garden"},
+      {date:"2026-01-19",revenue:11671.41,orders:63,avg_order_value:185.26,conversion_rate:3.58,visitors:1760,category:"Sports"},
+      {date:"2026-01-20",revenue:34687.4,orders:179,avg_order_value:193.78,conversion_rate:3.05,visitors:5875,category:"Electronics"},
+      {date:"2026-01-20",revenue:15089.94,orders:78,avg_order_value:193.46,conversion_rate:3.0,visitors:2604,category:"Clothing"},
+      {date:"2026-01-20",revenue:13086.26,orders:62,avg_order_value:211.07,conversion_rate:3.58,visitors:1732,category:"Home & Garden"},
+      {date:"2026-01-20",revenue:9772.3,orders:59,avg_order_value:165.63,conversion_rate:3.11,visitors:1895,category:"Sports"},
+      {date:"2026-01-21",revenue:31528.99,orders:192,avg_order_value:164.21,conversion_rate:2.69,visitors:7135,category:"Electronics"},
+      {date:"2026-01-21",revenue:16984.73,orders:78,avg_order_value:217.75,conversion_rate:3.52,visitors:2218,category:"Clothing"},
+      {date:"2026-01-21",revenue:15602.12,orders:82,avg_order_value:190.27,conversion_rate:2.95,visitors:2778,category:"Home & Garden"},
+      {date:"2026-01-21",revenue:10590.14,orders:75,avg_order_value:141.2,conversion_rate:2.93,visitors:2559,category:"Sports"},
+      {date:"2026-01-22",revenue:31933.89,orders:171,avg_order_value:186.75,conversion_rate:3.48,visitors:4910,category:"Electronics"},
+      {date:"2026-01-22",revenue:17291.45,orders:98,avg_order_value:176.44,conversion_rate:2.82,visitors:3474,category:"Clothing"},
+      {date:"2026-01-22",revenue:13867.54,orders:65,avg_order_value:213.35,conversion_rate:3.7,visitors:1759,category:"Home & Garden"},
+      {date:"2026-01-22",revenue:9446.01,orders:64,avg_order_value:147.59,conversion_rate:3.27,visitors:1955,category:"Sports"},
+      {date:"2026-01-23",revenue:34066.54,orders:204,avg_order_value:166.99,conversion_rate:3.73,visitors:5472,category:"Electronics"},
+      {date:"2026-01-23",revenue:18872.24,orders:97,avg_order_value:194.56,conversion_rate:2.84,visitors:3419,category:"Clothing"},
+      {date:"2026-01-23",revenue:12772.74,orders:89,avg_order_value:143.51,conversion_rate:2.87,visitors:3104,category:"Home & Garden"},
+      {date:"2026-01-23",revenue:10451.46,orders:50,avg_order_value:209.03,conversion_rate:2.61,visitors:1916,category:"Sports"},
+      {date:"2026-01-24",revenue:22438.87,orders:117,avg_order_value:191.79,conversion_rate:2.79,visitors:4191,category:"Electronics"},
+      {date:"2026-01-24",revenue:13064.26,orders:72,avg_order_value:181.45,conversion_rate:2.87,visitors:2512,category:"Clothing"},
+      {date:"2026-01-24",revenue:10332.09,orders:73,avg_order_value:141.54,conversion_rate:3.63,visitors:2012,category:"Home & Garden"},
+      {date:"2026-01-24",revenue:8002.21,orders:53,avg_order_value:150.99,conversion_rate:3.14,visitors:1689,category:"Sports"},
+      {date:"2026-01-25",revenue:20879.17,orders:96,avg_order_value:217.49,conversion_rate:3.28,visitors:2929,category:"Electronics"},
+      {date:"2026-01-25",revenue:10718.16,orders:67,avg_order_value:159.97,conversion_rate:3.77,visitors:1776,category:"Clothing"},
+      {date:"2026-01-25",revenue:9782.53,orders:47,avg_order_value:208.14,conversion_rate:3.5,visitors:1342,category:"Home & Garden"},
+      {date:"2026-01-25",revenue:8522.1,orders:45,avg_order_value:189.38,conversion_rate:3.93,visitors:1146,category:"Sports"},
+      {date:"2026-01-26",revenue:37076.25,orders:196,avg_order_value:189.16,conversion_rate:3.58,visitors:5476,category:"Electronics"},
+      {date:"2026-01-26",revenue:17800.48,orders:86,avg_order_value:206.98,conversion_rate:3.32,visitors:2588,category:"Clothing"},
+      {date:"2026-01-26",revenue:15914.49,orders:79,avg_order_value:201.45,conversion_rate:3.21,visitors:2459,category:"Home & Garden"},
+      {date:"2026-01-26",revenue:9894.53,orders:61,avg_order_value:162.21,conversion_rate:3.46,visitors:1764,category:"Sports"},
+      {date:"2026-01-27",revenue:35977.07,orders:197,avg_order_value:182.62,conversion_rate:3.44,visitors:5726,category:"Electronics"},
+      {date:"2026-01-27",revenue:16642.97,orders:113,avg_order_value:147.28,conversion_rate:2.93,visitors:3858,category:"Clothing"},
+      {date:"2026-01-27",revenue:13302.03,orders:80,avg_order_value:166.28,conversion_rate:3.31,visitors:2416,category:"Home & Garden"},
+      {date:"2026-01-27",revenue:9548.1,orders:60,avg_order_value:159.14,conversion_rate:3.54,visitors:1694,category:"Sports"},
+      {date:"2026-01-28",revenue:35532.04,orders:244,avg_order_value:145.62,conversion_rate:3.11,visitors:7842,category:"Electronics"},
+      {date:"2026-01-28",revenue:18154.14,orders:104,avg_order_value:174.56,conversion_rate:2.81,visitors:3700,category:"Clothing"},
+      {date:"2026-01-28",revenue:13996.46,orders:65,avg_order_value:215.33,conversion_rate:3.38,visitors:1925,category:"Home & Garden"},
+      {date:"2026-01-28",revenue:11385.85,orders:54,avg_order_value:210.85,conversion_rate:3.65,visitors:1480,category:"Sports"},
+      {date:"2026-01-29",revenue:32394.24,orders:230,avg_order_value:140.84,conversion_rate:3.03,visitors:7596,category:"Electronics"},
+      {date:"2026-01-29",revenue:19368.77,orders:92,avg_order_value:210.53,conversion_rate:3.93,visitors:2340,category:"Clothing"},
+      {date:"2026-01-29",revenue:14050.17,orders:70,avg_order_value:200.72,conversion_rate:3.32,visitors:2108,category:"Home & Garden"},
+      {date:"2026-01-29",revenue:11134.54,orders:70,avg_order_value:159.06,conversion_rate:2.83,visitors:2474,category:"Sports"},
+      {date:"2026-01-30",revenue:33090.53,orders:232,avg_order_value:142.63,conversion_rate:3.0,visitors:7722,category:"Electronics"},
+      {date:"2026-01-30",revenue:19046.4,orders:110,avg_order_value:173.15,conversion_rate:2.75,visitors:4003,category:"Clothing"},
+      {date:"2026-01-30",revenue:14318.54,orders:95,avg_order_value:150.72,conversion_rate:3.43,visitors:2766,category:"Home & Garden"},
+      {date:"2026-01-30",revenue:9305.99,orders:54,avg_order_value:172.33,conversion_rate:3.35,visitors:1613,category:"Sports"},
+      {date:"2026-01-31",revenue:20351.43,orders:106,avg_order_value:191.99,conversion_rate:2.7,visitors:3920,category:"Electronics"},
+      {date:"2026-01-31",revenue:12559.01,orders:87,avg_order_value:144.36,conversion_rate:3.07,visitors:2835,category:"Clothing"},
+      {date:"2026-01-31",revenue:9284.79,orders:55,avg_order_value:168.81,conversion_rate:3.64,visitors:1510,category:"Home & Garden"},
+      {date:"2026-01-31",revenue:7346.57,orders:36,avg_order_value:204.07,conversion_rate:3.75,visitors:960,category:"Sports"},
+      {date:"2026-02-01",revenue:22044.18,orders:150,avg_order_value:146.96,conversion_rate:2.53,visitors:5931,category:"Electronics"},
+      {date:"2026-02-01",revenue:12908.37,orders:58,avg_order_value:222.56,conversion_rate:3.03,visitors:1917,category:"Clothing"},
+      {date:"2026-02-01",revenue:10665.71,orders:52,avg_order_value:205.11,conversion_rate:3.48,visitors:1495,category:"Home & Garden"},
+      {date:"2026-02-01",revenue:8238.31,orders:38,avg_order_value:216.8,conversion_rate:2.8,visitors:1357,category:"Sports"},
+      {date:"2026-02-02",revenue:29244.85,orders:192,avg_order_value:152.32,conversion_rate:2.69,visitors:7139,category:"Electronics"},
+      {date:"2026-02-02",revenue:19230.33,orders:103,avg_order_value:186.7,conversion_rate:2.83,visitors:3643,category:"Clothing"},
+      {date:"2026-02-02",revenue:15516.05,orders:77,avg_order_value:201.51,conversion_rate:2.75,visitors:2798,category:"Home & Garden"},
+      {date:"2026-02-02",revenue:11333.27,orders:56,avg_order_value:202.38,conversion_rate:2.67,visitors:2095,category:"Sports"},
+      {date:"2026-02-03",revenue:37585.61,orders:173,avg_order_value:217.26,conversion_rate:2.66,visitors:6498,category:"Electronics"},
+      {date:"2026-02-03",revenue:15760.3,orders:95,avg_order_value:165.9,conversion_rate:3.52,visitors:2701,category:"Clothing"},
+      {date:"2026-02-03",revenue:16720.54,orders:97,avg_order_value:172.38,conversion_rate:3.57,visitors:2715,category:"Home & Garden"},
+      {date:"2026-02-03",revenue:9622.61,orders:49,avg_order_value:196.38,conversion_rate:3.44,visitors:1424,category:"Sports"},
+      {date:"2026-02-04",revenue:30326.84,orders:150,avg_order_value:202.18,conversion_rate:3.78,visitors:3973,category:"Electronics"},
+      {date:"2026-02-04",revenue:19005.78,orders:126,avg_order_value:150.84,conversion_rate:3.98,visitors:3169,category:"Clothing"},
+      {date:"2026-02-04",revenue:16011.51,orders:95,avg_order_value:168.54,conversion_rate:3.14,visitors:3023,category:"Home & Garden"},
+      {date:"2026-02-04",revenue:10640.17,orders:58,avg_order_value:183.45,conversion_rate:3.01,visitors:1925,category:"Sports"},
+      {date:"2026-02-05",revenue:38206.5,orders:185,avg_order_value:206.52,conversion_rate:2.66,visitors:6959,category:"Electronics"},
+      {date:"2026-02-05",revenue:21085.83,orders:110,avg_order_value:191.69,conversion_rate:3.74,visitors:2938,category:"Clothing"},
+      {date:"2026-02-05",revenue:15741.69,orders:90,avg_order_value:174.91,conversion_rate:3.6,visitors:2499,category:"Home & Garden"},
+      {date:"2026-02-05",revenue:12667.12,orders:78,avg_order_value:162.4,conversion_rate:3.71,visitors:2101,category:"Sports"},
+      {date:"2026-02-06",revenue:35117.61,orders:196,avg_order_value:179.17,conversion_rate:3.15,visitors:6215,category:"Electronics"},
+      {date:"2026-02-06",revenue:19889.13,orders:123,avg_order_value:161.7,conversion_rate:3.78,visitors:3256,category:"Clothing"},
+      {date:"2026-02-06",revenue:16356.38,orders:111,avg_order_value:147.35,conversion_rate:3.82,visitors:2903,category:"Home & Garden"},
+      {date:"2026-02-06",revenue:10302.45,orders:58,avg_order_value:177.63,conversion_rate:3.42,visitors:1698,category:"Sports"},
+      {date:"2026-02-07",revenue:23516.13,orders:165,avg_order_value:142.52,conversion_rate:3.78,visitors:4369,category:"Electronics"},
+      {date:"2026-02-07",revenue:11824.76,orders:75,avg_order_value:157.66,conversion_rate:3.7,visitors:2028,category:"Clothing"},
+      {date:"2026-02-07",revenue:9957.08,orders:47,avg_order_value:211.85,conversion_rate:3.55,visitors:1323,category:"Home & Garden"},
+      {date:"2026-02-07",revenue:7317.05,orders:51,avg_order_value:143.47,conversion_rate:3.92,visitors:1300,category:"Sports"},
+      {date:"2026-02-08",revenue:21454.26,orders:108,avg_order_value:198.65,conversion_rate:3.23,visitors:3340,category:"Electronics"},
+      {date:"2026-02-08",revenue:14141.52,orders:72,avg_order_value:196.41,conversion_rate:3.47,visitors:2075,category:"Clothing"},
+      {date:"2026-02-08",revenue:10471.09,orders:51,avg_order_value:205.32,conversion_rate:2.64,visitors:1932,category:"Home & Garden"},
+      {date:"2026-02-08",revenue:7217.27,orders:36,avg_order_value:200.48,conversion_rate:2.96,visitors:1216,category:"Sports"},
+      {date:"2026-02-09",revenue:35999.76,orders:202,avg_order_value:178.22,conversion_rate:3.3,visitors:6127,category:"Electronics"},
+      {date:"2026-02-09",revenue:18404.28,orders:92,avg_order_value:200.05,conversion_rate:3.0,visitors:3070,category:"Clothing"},
+      {date:"2026-02-09",revenue:15976.5,orders:98,avg_order_value:163.03,conversion_rate:2.88,visitors:3406,category:"Home & Garden"},
+      {date:"2026-02-09",revenue:10009.59,orders:64,avg_order_value:156.4,conversion_rate:2.68,visitors:2388,category:"Sports"},
+      {date:"2026-02-10",revenue:35659.58,orders:177,avg_order_value:201.47,conversion_rate:2.78,visitors:6372,category:"Electronics"},
+      {date:"2026-02-10",revenue:17291.9,orders:96,avg_order_value:180.12,conversion_rate:3.59,visitors:2676,category:"Clothing"},
+      {date:"2026-02-10",revenue:17281.89,orders:94,avg_order_value:183.85,conversion_rate:2.92,visitors:3214,category:"Home & Garden"},
+      {date:"2026-02-10",revenue:9980.99,orders:64,avg_order_value:155.95,conversion_rate:2.84,visitors:2252,category:"Sports"},
+      {date:"2026-02-11",revenue:32013.75,orders:226,avg_order_value:141.65,conversion_rate:3.3,visitors:6845,category:"Electronics"},
+      {date:"2026-02-11",revenue:17690.27,orders:81,avg_order_value:218.4,conversion_rate:3.33,visitors:2432,category:"Clothing"},
+      {date:"2026-02-11",revenue:16079.04,orders:107,avg_order_value:150.27,conversion_rate:3.8,visitors:2813,category:"Home & Garden"},
+      {date:"2026-02-11",revenue:11353.85,orders:54,avg_order_value:210.26,conversion_rate:3.36,visitors:1606,category:"Sports"},
+      {date:"2026-02-12",revenue:35233.53,orders:201,avg_order_value:175.29,conversion_rate:2.78,visitors:7239,category:"Electronics"},
+      {date:"2026-02-12",revenue:16486.12,orders:76,avg_order_value:216.92,conversion_rate:3.22,visitors:2362,category:"Clothing"},
+      {date:"2026-02-12",revenue:16712.71,orders:97,avg_order_value:172.3,conversion_rate:2.61,visitors:3714,category:"Home & Garden"},
+      {date:"2026-02-12",revenue:11873.87,orders:82,avg_order_value:144.8,conversion_rate:2.72,visitors:3010,category:"Sports"},
+      {date:"2026-02-13",revenue:36373.01,orders:221,avg_order_value:164.58,conversion_rate:3.99,visitors:5537,category:"Electronics"},
+      {date:"2026-02-13",revenue:16935.87,orders:84,avg_order_value:201.62,conversion_rate:3.41,visitors:2463,category:"Clothing"},
+      {date:"2026-02-13",revenue:16634.5,orders:105,avg_order_value:158.42,conversion_rate:3.28,visitors:3197,category:"Home & Garden"},
+      {date:"2026-02-13",revenue:11304.65,orders:64,avg_order_value:176.64,conversion_rate:3.79,visitors:1688,category:"Sports"},
+      {date:"2026-02-14",revenue:37409.02,orders:227,avg_order_value:164.8,conversion_rate:3.43,visitors:6615,category:"Electronics"},
+      {date:"2026-02-14",revenue:18046.64,orders:90,avg_order_value:200.52,conversion_rate:3.92,visitors:2295,category:"Clothing"},
+      {date:"2026-02-14",revenue:12752.27,orders:81,avg_order_value:157.44,conversion_rate:3.49,visitors:2320,category:"Home & Garden"},
+      {date:"2026-02-14",revenue:9404.66,orders:61,avg_order_value:154.17,conversion_rate:2.61,visitors:2334,category:"Sports"},
+      {date:"2026-02-15",revenue:21428.32,orders:121,avg_order_value:177.09,conversion_rate:3.39,visitors:3568,category:"Electronics"},
+      {date:"2026-02-15",revenue:12647.57,orders:79,avg_order_value:160.1,conversion_rate:3.56,visitors:2218,category:"Clothing"},
+      {date:"2026-02-15",revenue:11451.31,orders:64,avg_order_value:178.93,conversion_rate:3.53,visitors:1812,category:"Home & Garden"},
+      {date:"2026-02-15",revenue:9125.03,orders:44,avg_order_value:207.39,conversion_rate:3.44,visitors:1279,category:"Sports"},
+      {date:"2026-02-16",revenue:37866.58,orders:176,avg_order_value:215.15,conversion_rate:3.14,visitors:5609,category:"Electronics"},
+      {date:"2026-02-16",revenue:19608.68,orders:102,avg_order_value:192.24,conversion_rate:3.86,visitors:2640,category:"Clothing"},
+      {date:"2026-02-16",revenue:16996.88,orders:116,avg_order_value:146.52,conversion_rate:2.75,visitors:4219,category:"Home & Garden"},
+      {date:"2026-02-16",revenue:10939.91,orders:54,avg_order_value:202.59,conversion_rate:3.35,visitors:1610,category:"Sports"},
+      {date:"2026-02-17",revenue:33960.51,orders:226,avg_order_value:150.27,conversion_rate:3.53,visitors:6396,category:"Electronics"},
+      {date:"2026-02-17",revenue:20588.95,orders:95,avg_order_value:216.73,conversion_rate:3.25,visitors:2922,category:"Clothing"},
+      {date:"2026-02-17",revenue:15511.07,orders:105,avg_order_value:147.72,conversion_rate:2.56,visitors:4101,category:"Home & Garden"},
+      {date:"2026-02-17",revenue:11417.34,orders:68,avg_order_value:167.9,conversion_rate:2.88,visitors:2364,category:"Sports"},
+      {date:"2026-02-18",revenue:31937.29,orders:147,avg_order_value:217.26,conversion_rate:3.75,visitors:3915,category:"Electronics"},
+      {date:"2026-02-18",revenue:19939.91,orders:92,avg_order_value:216.74,conversion_rate:4.0,visitors:2300,category:"Clothing"},
+      {date:"2026-02-18",revenue:16406.28,orders:101,avg_order_value:162.44,conversion_rate:2.56,visitors:3944,category:"Home & Garden"},
+      {date:"2026-02-18",revenue:12599.5,orders:70,avg_order_value:179.99,conversion_rate:3.48,visitors:2013,category:"Sports"},
+      {date:"2026-02-19",revenue:41100.99,orders:265,avg_order_value:155.1,conversion_rate:3.38,visitors:7844,category:"Electronics"},
+      {date:"2026-02-19",revenue:20366.52,orders:113,avg_order_value:180.23,conversion_rate:2.64,visitors:4285,category:"Clothing"},
+      {date:"2026-02-19",revenue:14945.72,orders:89,avg_order_value:167.93,conversion_rate:3.51,visitors:2539,category:"Home & Garden"},
+      {date:"2026-02-19",revenue:13005.47,orders:78,avg_order_value:166.74,conversion_rate:3.54,visitors:2203,category:"Sports"},
+      {date:"2026-02-20",revenue:34349.55,orders:159,avg_order_value:216.03,conversion_rate:3.72,visitors:4273,category:"Electronics"},
+      {date:"2026-02-20",revenue:19945.32,orders:113,avg_order_value:176.51,conversion_rate:2.97,visitors:3802,category:"Clothing"},
+      {date:"2026-02-20",revenue:14886.56,orders:68,avg_order_value:218.92,conversion_rate:3.11,visitors:2189,category:"Home & Garden"},
+      {date:"2026-02-20",revenue:11841.63,orders:54,avg_order_value:219.29,conversion_rate:3.49,visitors:1548,category:"Sports"},
+      {date:"2026-02-21",revenue:26103.34,orders:150,avg_order_value:174.02,conversion_rate:2.78,visitors:5393,category:"Electronics"},
+      {date:"2026-02-21",revenue:13234.96,orders:66,avg_order_value:200.53,conversion_rate:3.44,visitors:1919,category:"Clothing"},
+      {date:"2026-02-21",revenue:11907.56,orders:76,avg_order_value:156.68,conversion_rate:3.32,visitors:2286,category:"Home & Garden"},
+      {date:"2026-02-21",revenue:9347.42,orders:53,avg_order_value:176.37,conversion_rate:3.55,visitors:1494,category:"Sports"},
+      {date:"2026-02-22",revenue:22933.66,orders:105,avg_order_value:218.42,conversion_rate:3.41,visitors:3076,category:"Electronics"},
+      {date:"2026-02-22",revenue:12776.0,orders:83,avg_order_value:153.93,conversion_rate:3.33,visitors:2495,category:"Clothing"},
+      {date:"2026-02-22",revenue:11261.81,orders:76,avg_order_value:148.18,conversion_rate:3.99,visitors:1905,category:"Home & Garden"},
+      {date:"2026-02-22",revenue:9346.18,orders:52,avg_order_value:179.73,conversion_rate:2.68,visitors:1943,category:"Sports"},
+      {date:"2026-02-23",revenue:40796.75,orders:226,avg_order_value:180.52,conversion_rate:3.58,visitors:6321,category:"Electronics"},
+      {date:"2026-02-23",revenue:19927.9,orders:123,avg_order_value:162.02,conversion_rate:3.75,visitors:3278,category:"Clothing"},
+      {date:"2026-02-23",revenue:18190.77,orders:114,avg_order_value:159.57,conversion_rate:3.33,visitors:3426,category:"Home & Garden"},
+      {date:"2026-02-23",revenue:11508.53,orders:53,avg_order_value:217.14,conversion_rate:3.26,visitors:1624,category:"Sports"},
+      {date:"2026-02-24",revenue:41477.83,orders:198,avg_order_value:209.48,conversion_rate:2.91,visitors:6793,category:"Electronics"},
+      {date:"2026-02-24",revenue:21685.69,orders:125,avg_order_value:173.49,conversion_rate:3.9,visitors:3204,category:"Clothing"},
+      {date:"2026-02-24",revenue:15997.05,orders:77,avg_order_value:207.75,conversion_rate:2.92,visitors:2633,category:"Home & Garden"},
+      {date:"2026-02-24",revenue:11246.61,orders:60,avg_order_value:187.44,conversion_rate:4.0,visitors:1500,category:"Sports"},
+      {date:"2026-02-25",revenue:37263.83,orders:245,avg_order_value:152.1,conversion_rate:3.31,visitors:7406,category:"Electronics"},
+      {date:"2026-02-25",revenue:19094.58,orders:103,avg_order_value:185.38,conversion_rate:3.32,visitors:3106,category:"Clothing"},
+      {date:"2026-02-25",revenue:15805.39,orders:95,avg_order_value:166.37,conversion_rate:2.78,visitors:3413,category:"Home & Garden"},
+      {date:"2026-02-25",revenue:12726.88,orders:68,avg_order_value:187.16,conversion_rate:2.85,visitors:2385,category:"Sports"},
+      {date:"2026-02-26",revenue:40621.53,orders:283,avg_order_value:143.54,conversion_rate:3.62,visitors:7824,category:"Electronics"},
+      {date:"2026-02-26",revenue:21337.52,orders:104,avg_order_value:205.17,conversion_rate:3.08,visitors:3377,category:"Clothing"},
+      {date:"2026-02-26",revenue:16869.63,orders:82,avg_order_value:205.73,conversion_rate:3.97,visitors:2064,category:"Home & Garden"},
+      {date:"2026-02-26",revenue:12043.1,orders:84,avg_order_value:143.37,conversion_rate:3.25,visitors:2581,category:"Sports"},
+      {date:"2026-02-27",revenue:38678.86,orders:184,avg_order_value:210.21,conversion_rate:3.81,visitors:4827,category:"Electronics"},
+      {date:"2026-02-27",revenue:19813.7,orders:108,avg_order_value:183.46,conversion_rate:3.19,visitors:3390,category:"Clothing"},
+      {date:"2026-02-27",revenue:17217.07,orders:99,avg_order_value:173.91,conversion_rate:3.48,visitors:2843,category:"Home & Garden"},
+      {date:"2026-02-27",revenue:10849.81,orders:61,avg_order_value:177.87,conversion_rate:3.96,visitors:1542,category:"Sports"},
+      {date:"2026-02-28",revenue:25178.5,orders:128,avg_order_value:196.71,conversion_rate:3.48,visitors:3683,category:"Electronics"},
+      {date:"2026-02-28",revenue:15670.88,orders:75,avg_order_value:208.95,conversion_rate:3.79,visitors:1979,category:"Clothing"},
+      {date:"2026-02-28",revenue:10931.79,orders:66,avg_order_value:165.63,conversion_rate:3.58,visitors:1844,category:"Home & Garden"},
+      {date:"2026-02-28",revenue:9166.86,orders:43,avg_order_value:213.18,conversion_rate:2.55,visitors:1683,category:"Sports"},
+      {date:"2026-03-01",revenue:23119.44,orders:121,avg_order_value:191.07,conversion_rate:3.88,visitors:3117,category:"Electronics"},
+      {date:"2026-03-01",revenue:16350.64,orders:81,avg_order_value:201.86,conversion_rate:3.15,visitors:2570,category:"Clothing"},
+      {date:"2026-03-01",revenue:10010.84,orders:52,avg_order_value:192.52,conversion_rate:3.81,visitors:1365,category:"Home & Garden"},
+      {date:"2026-03-01",revenue:8392.26,orders:42,avg_order_value:199.82,conversion_rate:3.86,visitors:1089,category:"Sports"},
+      {date:"2026-03-02",revenue:32893.4,orders:161,avg_order_value:204.31,conversion_rate:2.94,visitors:5476,category:"Electronics"},
+      {date:"2026-03-02",revenue:19634.03,orders:129,avg_order_value:152.2,conversion_rate:3.3,visitors:3912,category:"Clothing"},
+      {date:"2026-03-02",revenue:16642.78,orders:81,avg_order_value:205.47,conversion_rate:2.76,visitors:2940,category:"Home & Garden"},
+      {date:"2026-03-02",revenue:10693.97,orders:51,avg_order_value:209.69,conversion_rate:3.43,visitors:1487,category:"Sports"},
+      {date:"2026-03-03",revenue:35248.35,orders:165,avg_order_value:213.63,conversion_rate:2.71,visitors:6078,category:"Electronics"},
+      {date:"2026-03-03",revenue:20236.36,orders:126,avg_order_value:160.61,conversion_rate:2.88,visitors:4370,category:"Clothing"},
+      {date:"2026-03-03",revenue:13969.18,orders:68,avg_order_value:205.43,conversion_rate:3.85,visitors:1765,category:"Home & Garden"},
+      {date:"2026-03-03",revenue:12939.58,orders:84,avg_order_value:154.04,conversion_rate:3.16,visitors:2656,category:"Sports"},
+      {date:"2026-03-04",revenue:36582.77,orders:195,avg_order_value:187.6,conversion_rate:3.46,visitors:5638,category:"Electronics"},
+      {date:"2026-03-04",revenue:20083.36,orders:125,avg_order_value:160.67,conversion_rate:3.77,visitors:3317,category:"Clothing"},
+      {date:"2026-03-04",revenue:14956.54,orders:87,avg_order_value:171.91,conversion_rate:3.23,visitors:2697,category:"Home & Garden"},
+      {date:"2026-03-04",revenue:11357.92,orders:61,avg_order_value:186.2,conversion_rate:3.36,visitors:1814,category:"Sports"},
+      {date:"2026-03-05",revenue:44190.59,orders:270,avg_order_value:163.67,conversion_rate:3.97,visitors:6806,category:"Electronics"},
+      {date:"2026-03-05",revenue:21604.05,orders:133,avg_order_value:162.44,conversion_rate:3.35,visitors:3971,category:"Clothing"},
+      {date:"2026-03-05",revenue:17419.71,orders:87,avg_order_value:200.23,conversion_rate:2.57,visitors:3380,category:"Home & Garden"},
+      {date:"2026-03-05",revenue:12770.03,orders:71,avg_order_value:179.86,conversion_rate:3.86,visitors:1841,category:"Sports"},
+      {date:"2026-03-06",revenue:36161.56,orders:177,avg_order_value:204.3,conversion_rate:3.41,visitors:5189,category:"Electronics"},
+      {date:"2026-03-06",revenue:19782.91,orders:103,avg_order_value:192.07,conversion_rate:3.43,visitors:3001,category:"Clothing"},
+      {date:"2026-03-06",revenue:17443.13,orders:88,avg_order_value:198.22,conversion_rate:3.49,visitors:2522,category:"Home & Garden"},
+      {date:"2026-03-06",revenue:13680.64,orders:71,avg_order_value:192.69,conversion_rate:3.86,visitors:1841,category:"Sports"},
+      {date:"2026-03-07",revenue:28337.77,orders:172,avg_order_value:164.75,conversion_rate:3.16,visitors:5440,category:"Electronics"},
+      {date:"2026-03-07",revenue:14889.66,orders:74,avg_order_value:201.21,conversion_rate:2.64,visitors:2808,category:"Clothing"},
+      {date:"2026-03-07",revenue:10918.89,orders:54,avg_order_value:202.2,conversion_rate:2.76,visitors:1954,category:"Home & Garden"},
+      {date:"2026-03-07",revenue:7762.62,orders:42,avg_order_value:184.82,conversion_rate:3.96,visitors:1061,category:"Sports"},
+      {date:"2026-03-08",revenue:27496.16,orders:129,avg_order_value:213.15,conversion_rate:3.75,visitors:3443,category:"Electronics"},
+      {date:"2026-03-08",revenue:13530.89,orders:65,avg_order_value:208.17,conversion_rate:3.22,visitors:2016,category:"Clothing"},
+      {date:"2026-03-08",revenue:12749.57,orders:63,avg_order_value:202.37,conversion_rate:3.01,visitors:2094,category:"Home & Garden"},
+      {date:"2026-03-08",revenue:7746.01,orders:35,avg_order_value:221.31,conversion_rate:2.71,visitors:1290,category:"Sports"},
+      {date:"2026-03-09",revenue:44526.45,orders:213,avg_order_value:209.04,conversion_rate:3.59,visitors:5939,category:"Electronics"},
+      {date:"2026-03-09",revenue:23937.84,orders:110,avg_order_value:217.62,conversion_rate:3.71,visitors:2967,category:"Clothing"},
+      {date:"2026-03-09",revenue:16065.92,orders:79,avg_order_value:203.37,conversion_rate:2.52,visitors:3133,category:"Home & Garden"},
+      {date:"2026-03-09",revenue:12692.75,orders:71,avg_order_value:178.77,conversion_rate:3.51,visitors:2023,category:"Sports"},
+      {date:"2026-03-10",revenue:41226.73,orders:220,avg_order_value:187.39,conversion_rate:3.73,visitors:5892,category:"Electronics"},
+      {date:"2026-03-10",revenue:23773.84,orders:159,avg_order_value:149.52,conversion_rate:2.85,visitors:5577,category:"Clothing"},
+      {date:"2026-03-10",revenue:14406.12,orders:68,avg_order_value:211.85,conversion_rate:3.34,visitors:2034,category:"Home & Garden"},
+      {date:"2026-03-10",revenue:14169.67,orders:89,avg_order_value:159.21,conversion_rate:2.6,visitors:3429,category:"Sports"},
+      {date:"2026-03-11",revenue:43162.14,orders:202,avg_order_value:213.67,conversion_rate:2.95,visitors:6839,category:"Electronics"},
+      {date:"2026-03-11",revenue:20495.2,orders:135,avg_order_value:151.82,conversion_rate:3.92,visitors:3444,category:"Clothing"},
+      {date:"2026-03-11",revenue:15870.48,orders:88,avg_order_value:180.35,conversion_rate:2.65,visitors:3326,category:"Home & Garden"},
+      {date:"2026-03-11",revenue:14114.07,orders:93,avg_order_value:151.76,conversion_rate:3.18,visitors:2924,category:"Sports"},
+      {date:"2026-03-12",revenue:41499.24,orders:208,avg_order_value:199.52,conversion_rate:3.92,visitors:5307,category:"Electronics"},
+      {date:"2026-03-12",revenue:20636.86,orders:103,avg_order_value:200.36,conversion_rate:2.73,visitors:3770,category:"Clothing"},
+      {date:"2026-03-12",revenue:16487.95,orders:111,avg_order_value:148.54,conversion_rate:3.23,visitors:3432,category:"Home & Garden"},
+      {date:"2026-03-12",revenue:12340.2,orders:57,avg_order_value:216.49,conversion_rate:2.55,visitors:2236,category:"Sports"},
+      {date:"2026-03-13",revenue:38081.12,orders:217,avg_order_value:175.49,conversion_rate:3.93,visitors:5527,category:"Electronics"},
+      {date:"2026-03-13",revenue:23488.33,orders:158,avg_order_value:148.66,conversion_rate:3.53,visitors:4477,category:"Clothing"},
+      {date:"2026-03-13",revenue:17206.51,orders:78,avg_order_value:220.6,conversion_rate:3.04,visitors:2567,category:"Home & Garden"},
+      {date:"2026-03-13",revenue:12345.84,orders:79,avg_order_value:156.28,conversion_rate:2.68,visitors:2944,category:"Sports"},
+      {date:"2026-03-14",revenue:30737.94,orders:174,avg_order_value:176.65,conversion_rate:3.49,visitors:4979,category:"Electronics"},
+      {date:"2026-03-14",revenue:15543.84,orders:82,avg_order_value:189.56,conversion_rate:2.53,visitors:3238,category:"Clothing"},
+      {date:"2026-03-14",revenue:12954.27,orders:81,avg_order_value:159.93,conversion_rate:2.69,visitors:3012,category:"Home & Garden"},
+      {date:"2026-03-14",revenue:9119.31,orders:62,avg_order_value:147.09,conversion_rate:3.65,visitors:1699,category:"Sports"},
+      {date:"2026-03-15",revenue:25476.27,orders:161,avg_order_value:158.24,conversion_rate:3.81,visitors:4231,category:"Electronics"},
+      {date:"2026-03-15",revenue:14192.95,orders:93,avg_order_value:152.61,conversion_rate:3.85,visitors:2415,category:"Clothing"},
+      {date:"2026-03-15",revenue:10184.68,orders:48,avg_order_value:212.18,conversion_rate:2.72,visitors:1766,category:"Home & Garden"},
+      {date:"2026-03-15",revenue:7980.98,orders:49,avg_order_value:162.88,conversion_rate:2.76,visitors:1774,category:"Sports"},
+      {date:"2026-03-16",revenue:41974.62,orders:295,avg_order_value:142.29,conversion_rate:2.52,visitors:11695,category:"Electronics"},
+      {date:"2026-03-16",revenue:23316.05,orders:146,avg_order_value:159.7,conversion_rate:2.99,visitors:4890,category:"Clothing"},
+      {date:"2026-03-16",revenue:15483.02,orders:107,avg_order_value:144.7,conversion_rate:3.61,visitors:2961,category:"Home & Garden"},
+      {date:"2026-03-16",revenue:12970.72,orders:64,avg_order_value:202.67,conversion_rate:3.21,visitors:1991,category:"Sports"},
+      {date:"2026-03-17",revenue:43531.22,orders:240,avg_order_value:181.38,conversion_rate:2.66,visitors:9010,category:"Electronics"},
+      {date:"2026-03-17",revenue:21549.79,orders:99,avg_order_value:217.67,conversion_rate:2.57,visitors:3859,category:"Clothing"},
+      {date:"2026-03-17",revenue:18683.15,orders:89,avg_order_value:209.92,conversion_rate:3.28,visitors:2711,category:"Home & Garden"},
+      {date:"2026-03-17",revenue:12752.44,orders:58,avg_order_value:219.87,conversion_rate:2.59,visitors:2238,category:"Sports"},
+      {date:"2026-03-18",revenue:40065.77,orders:232,avg_order_value:172.7,conversion_rate:3.53,visitors:6573,category:"Electronics"},
+      {date:"2026-03-18",revenue:21536.94,orders:101,avg_order_value:213.24,conversion_rate:2.61,visitors:3869,category:"Clothing"},
+      {date:"2026-03-18",revenue:15106.82,orders:80,avg_order_value:188.84,conversion_rate:2.6,visitors:3078,category:"Home & Garden"},
+      {date:"2026-03-18",revenue:12085.26,orders:63,avg_order_value:191.83,conversion_rate:3.32,visitors:1896,category:"Sports"},
+      {date:"2026-03-19",revenue:38338.1,orders:174,avg_order_value:220.33,conversion_rate:3.3,visitors:5279,category:"Electronics"},
+      {date:"2026-03-19",revenue:21374.03,orders:113,avg_order_value:189.15,conversion_rate:2.65,visitors:4266,category:"Clothing"},
+      {date:"2026-03-19",revenue:18389.66,orders:88,avg_order_value:208.97,conversion_rate:3.48,visitors:2531,category:"Home & Garden"},
+      {date:"2026-03-19",revenue:14054.36,orders:71,avg_order_value:197.95,conversion_rate:2.82,visitors:2515,category:"Sports"},
+    ];
+
+    // ── Constants ──
+    const SERIES_COLORS = [
+      '#E53E3E', '#DD6B20', '#D69E2E', '#38A169', '#319795',
+      '#3182CE', '#5A67D8', '#805AD5', '#D53F8C', '#718096',
+      '#C05621', '#2C7A7B', '#2B6CB0', '#6B46C1', '#B7791F',
+      '#2D3748', '#4A5568', '#B83280', '#276749', '#1A365D',
+    ];
+
+    const CATEGORIES = ['Electronics', 'Clothing', 'Home & Garden', 'Sports'];
+
+    // ── Data Processing Helpers ──
+    function getUniqueDates(data) {
+      return [...new Set(data.map(d => d.date))].sort();
+    }
+
+    function aggregateByDate(data) {
+      const map = {};
+      data.forEach(r => {
+        if (!map[r.date]) {
+          map[r.date] = { date: r.date, revenue: 0, orders: 0, visitors: 0, catRevenue: {}, catOrders: {} };
+          CATEGORIES.forEach(c => { map[r.date].catRevenue[c] = 0; map[r.date].catOrders[c] = 0; });
+        }
+        map[r.date].revenue += r.revenue;
+        map[r.date].orders += r.orders;
+        map[r.date].visitors += r.visitors;
+        map[r.date].catRevenue[r.category] = (map[r.date].catRevenue[r.category] || 0) + r.revenue;
+        map[r.date].catOrders[r.category] = (map[r.date].catOrders[r.category] || 0) + r.orders;
+      });
+      return Object.values(map).sort((a, b) => a.date.localeCompare(b.date));
+    }
+
+    function getChartThemeColors() {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      return {
+        textColor:      isDark ? '#cbd5e1' : '#64748b',
+        axisLineColor:  isDark ? '#475569' : '#e2e8f0',
+        splitLineColor: isDark ? 'rgba(71,85,105,0.4)' : '#f1f5f9',
+        backgroundColor: isDark ? '#1e293b' : '#ffffff',
+      };
+    }
+
+    function getSparklineColors() {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      return isDark
+        ? { lineColor: '#60a5fa', areaColor: 'rgba(96,165,250,0.15)' }
+        : { lineColor: '#2d4a6e', areaColor: 'rgba(45,74,110,0.10)' };
+    }
+
+    // ── State ──
+    let currentDays = 30;
+    let sparkCharts = {};
+    let mainCharts = {};
+
+    // ── Theme ──
+    function initTheme() {
+      const saved = localStorage.getItem('dashboard-theme');
+      if (saved) {
+        document.documentElement.setAttribute('data-theme', saved);
+      } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+      updateToggleIcon();
+    }
+
+    function toggleTheme() {
+      const root = document.documentElement;
+      const current = root.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      localStorage.setItem('dashboard-theme', next);
+      updateToggleIcon();
+    }
+
+    function updateToggleIcon() {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      const btn = document.querySelector('.theme-toggle');
+      if (btn) btn.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+    }
+
+    // ── Chart Initialization ──
+    function initChart(id) {
+      const el = document.getElementById(id);
+      if (!el) return null;
+      const chart = echarts.init(el);
+      window.addEventListener('resize', () => chart.resize());
+      return chart;
+    }
+
+    // ── Date Filtering ──
+    function filterData(days) {
+      const dates = getUniqueDates(RAW_DATA);
+      const maxDate = new Date(dates[dates.length - 1]);
+      const cutoff = new Date(maxDate);
+      cutoff.setDate(cutoff.getDate() - days + 1);
+      return RAW_DATA.filter(r => new Date(r.date) >= cutoff);
+    }
+
+    function setDateRange(days, btn) {
+      currentDays = days;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderAll();
+    }
+
+    // ── Format Helpers ──
+    function fmtCurrency(v) {
+      if (v >= 1e6) return '$' + (v / 1e6).toFixed(1) + 'M';
+      if (v >= 1e3) return '$' + (v / 1e3).toFixed(1) + 'K';
+      return '$' + v.toFixed(0);
+    }
+
+    function fmtNumber(v) {
+      return v.toLocaleString('en-US');
+    }
+
+    function fmtPct(v) {
+      return v.toFixed(1) + '%';
+    }
+
+    function fmtDate(d) {
+      const parts = d.split('-');
+      return parts[1] + '/' + parts[2];
+    }
+
+    // ── KPI Rendering ──
+    function renderKPIs(filteredData) {
+      const agg = aggregateByDate(filteredData);
+      const totalRev = agg.reduce((s, d) => s + d.revenue, 0);
+      const totalOrd = agg.reduce((s, d) => s + d.orders, 0);
+      const avgAOV = totalOrd > 0 ? totalRev / totalOrd : 0;
+
+      // Weighted avg conversion: total orders / total visitors * 100
+      const totalVisitors = agg.reduce((s, d) => s + d.visitors, 0);
+      const convRate = totalVisitors > 0 ? (totalOrd / totalVisitors) * 100 : 0;
+
+      // Week-over-week change
+      const halfLen = Math.floor(agg.length / 2);
+      const recentHalf = agg.slice(halfLen);
+      const priorHalf = agg.slice(0, halfLen);
+
+      function sumField(arr, field) { return arr.reduce((s, d) => s + d[field], 0); }
+
+      const recentRev = sumField(recentHalf, 'revenue');
+      const priorRev = sumField(priorHalf, 'revenue');
+      const revChange = priorRev > 0 ? ((recentRev - priorRev) / priorRev) * 100 : 0;
+
+      const recentOrd = sumField(recentHalf, 'orders');
+      const priorOrd = sumField(priorHalf, 'orders');
+      const ordChange = priorOrd > 0 ? ((recentOrd - priorOrd) / priorOrd) * 100 : 0;
+
+      const recentAOV = recentOrd > 0 ? recentRev / recentOrd : 0;
+      const priorAOV = priorOrd > 0 ? priorRev / priorOrd : 0;
+      const aovChange = priorAOV > 0 ? ((recentAOV - priorAOV) / priorAOV) * 100 : 0;
+
+      const recentVis = sumField(recentHalf, 'visitors');
+      const priorVis = sumField(priorHalf, 'visitors');
+      const recentConv = recentVis > 0 ? (recentOrd / recentVis) * 100 : 0;
+      const priorConv = priorVis > 0 ? (priorOrd / priorVis) * 100 : 0;
+      const convChange = priorConv > 0 ? ((recentConv - priorConv) / priorConv) * 100 : 0;
+
+      // Update DOM
+      document.getElementById('kpi-revenue').textContent = fmtCurrency(totalRev);
+      document.getElementById('kpi-orders').textContent = fmtNumber(totalOrd);
+      document.getElementById('kpi-aov').textContent = '$' + avgAOV.toFixed(0);
+      document.getElementById('kpi-conv').textContent = fmtPct(convRate);
+
+      setChange('kpi-revenue-change', revChange);
+      setChange('kpi-orders-change', ordChange);
+      setChange('kpi-aov-change', aovChange);
+      setChange('kpi-conv-change', convChange);
+
+      // Sparklines (last 30 data points or all if fewer)
+      const sparkData = agg.slice(-30);
+      const sparkDates = sparkData.map(d => d.date);
+
+      renderSparkline('spark-revenue', sparkDates, sparkData.map(d => d.revenue));
+      renderSparkline('spark-orders', sparkDates, sparkData.map(d => d.orders));
+      renderSparkline('spark-aov', sparkDates, sparkData.map(d => d.orders > 0 ? d.revenue / d.orders : 0));
+      renderSparkline('spark-conv', sparkDates, sparkData.map(d => d.visitors > 0 ? (d.orders / d.visitors) * 100 : 0));
+    }
+
+    function setChange(id, pct) {
+      const el = document.getElementById(id);
+      const isPos = pct >= 0;
+      el.className = 'kpi-change ' + (isPos ? 'positive' : 'negative');
+      el.innerHTML = (isPos ? '<i class="fas fa-arrow-up"></i> +' : '<i class="fas fa-arrow-down"></i> ') + Math.abs(pct).toFixed(1) + '% vs prior period';
+    }
+
+    function renderSparkline(id, dates, values) {
+      if (!sparkCharts[id]) {
+        sparkCharts[id] = initChart(id);
+      }
+      const chart = sparkCharts[id];
+      if (!chart) return;
+      const colors = getSparklineColors();
+      chart.setOption({
+        animation: false,
+        grid: { left: 0, right: 0, top: 2, bottom: 2 },
+        xAxis: { type: 'category', show: false, data: dates },
+        yAxis: { type: 'value', show: false },
+        series: [{
+          type: 'line',
+          data: values,
+          symbol: 'none',
+          smooth: true,
+          lineStyle: { color: colors.lineColor, width: 2 },
+          areaStyle: { color: colors.areaColor },
+        }],
+      }, true);
+    }
+
+    // ── Charts Rendering ──
+    function renderCharts(filteredData) {
+      const agg = aggregateByDate(filteredData);
+      const dates = agg.map(d => fmtDate(d.date));
+
+      renderDualAxisChart(agg, dates);
+      renderDonutChart(filteredData);
+      renderStackedAreaChart(agg, dates);
+    }
+
+    function renderDualAxisChart(agg, dates) {
+      if (!mainCharts.dual) mainCharts.dual = initChart('chart-dual');
+      const chart = mainCharts.dual;
+      if (!chart) return;
+      const theme = getChartThemeColors();
+
+      chart.setOption({
+        tooltip: {
+          trigger: 'axis',
+          backgroundColor: theme.backgroundColor,
+          borderColor: theme.axisLineColor,
+          textStyle: { color: theme.textColor },
+          formatter: function(params) {
+            let html = '<strong>' + params[0].axisValue + '</strong><br/>';
+            params.forEach(p => {
+              html += '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:' + p.color + ';margin-right:6px;"></span>';
+              if (p.seriesName === 'Revenue') {
+                html += p.seriesName + ': ' + fmtCurrency(p.value) + '<br/>';
+              } else {
+                html += p.seriesName + ': ' + fmtNumber(p.value) + '<br/>';
+              }
+            });
+            return html;
+          },
+        },
+        legend: {
+          top: 5,
+          textStyle: { fontSize: 12, color: theme.textColor },
+        },
+        grid: { left: 70, right: 70, top: 40, bottom: 40 },
+        xAxis: {
+          type: 'category',
+          data: dates,
+          axisLabel: { rotate: 30, fontSize: 10, color: theme.textColor },
+          axisLine: { lineStyle: { color: theme.axisLineColor } },
+        },
+        yAxis: [
+          {
+            type: 'value',
+            name: 'Revenue ($)',
+            nameTextStyle: { color: theme.textColor },
+            axisLabel: { color: theme.textColor, formatter: v => fmtCurrency(v) },
+            splitLine: { lineStyle: { color: theme.splitLineColor } },
+          },
+          {
+            type: 'value',
+            name: 'Orders',
+            nameTextStyle: { color: theme.textColor },
+            axisLabel: { color: theme.textColor },
+            splitLine: { show: false },
+          },
+        ],
+        series: [
+          {
+            name: 'Revenue',
+            type: 'line',
+            yAxisIndex: 0,
+            smooth: true,
+            symbol: 'circle',
+            symbolSize: 4,
+            lineStyle: { width: 2 },
+            itemStyle: { color: SERIES_COLORS[5] },
+            data: agg.map(d => d.revenue),
+          },
+          {
+            name: 'Orders',
+            type: 'line',
+            yAxisIndex: 1,
+            smooth: true,
+            symbol: 'circle',
+            symbolSize: 4,
+            lineStyle: { width: 2 },
+            itemStyle: { color: SERIES_COLORS[3] },
+            data: agg.map(d => d.orders),
+          },
+        ],
+      }, true);
+    }
+
+    function renderDonutChart(filteredData) {
+      if (!mainCharts.donut) mainCharts.donut = initChart('chart-donut');
+      const chart = mainCharts.donut;
+      if (!chart) return;
+      const theme = getChartThemeColors();
+
+      const catRevs = {};
+      CATEGORIES.forEach(c => { catRevs[c] = 0; });
+      filteredData.forEach(r => { catRevs[r.category] += r.revenue; });
+
+      const items = CATEGORIES.map((c, i) => ({
+        name: c,
+        value: Math.round(catRevs[c] * 100) / 100,
+        itemStyle: { color: SERIES_COLORS[i] },
+      }));
+
+      chart.setOption({
+        tooltip: {
+          trigger: 'item',
+          backgroundColor: theme.backgroundColor,
+          borderColor: theme.axisLineColor,
+          textStyle: { color: theme.textColor },
+          formatter: p => p.name + ': ' + fmtCurrency(p.value) + ' (' + p.percent.toFixed(1) + '%)',
+        },
+        legend: {
+          orient: 'vertical',
+          right: 10,
+          top: 'center',
+          textStyle: { fontSize: 11, color: theme.textColor },
+        },
+        series: [{
+          type: 'pie',
+          radius: ['40%', '70%'],
+          center: ['40%', '50%'],
+          data: items,
+          label: {
+            formatter: p => p.percent.toFixed(1) + '%',
+            fontSize: 11,
+            color: theme.textColor,
+          },
+          emphasis: {
+            itemStyle: {
+              shadowBlur: 8,
+              shadowColor: 'rgba(0,0,0,0.2)',
+            },
+          },
+        }],
+      }, true);
+    }
+
+    function renderStackedAreaChart(agg, dates) {
+      if (!mainCharts.stacked) mainCharts.stacked = initChart('chart-stacked');
+      const chart = mainCharts.stacked;
+      if (!chart) return;
+      const theme = getChartThemeColors();
+
+      const series = CATEGORIES.map((cat, i) => ({
+        name: cat,
+        type: 'line',
+        stack: 'total',
+        smooth: true,
+        symbol: 'none',
+        areaStyle: { opacity: 0.4 },
+        lineStyle: { width: 2 },
+        itemStyle: { color: SERIES_COLORS[i] },
+        data: agg.map(d => d.catRevenue[cat] || 0),
+      }));
+
+      chart.setOption({
+        tooltip: {
+          trigger: 'axis',
+          backgroundColor: theme.backgroundColor,
+          borderColor: theme.axisLineColor,
+          textStyle: { color: theme.textColor },
+          formatter: function(params) {
+            let html = '<strong>' + params[0].axisValue + '</strong><br/>';
+            let total = 0;
+            params.forEach(p => {
+              total += p.value;
+              html += '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:' + p.color + ';margin-right:6px;"></span>';
+              html += p.seriesName + ': ' + fmtCurrency(p.value) + '<br/>';
+            });
+            html += '<strong>Total: ' + fmtCurrency(total) + '</strong>';
+            return html;
+          },
+        },
+        legend: {
+          top: 5,
+          textStyle: { fontSize: 12, color: theme.textColor },
+        },
+        grid: { left: 65, right: 20, top: 36, bottom: 40 },
+        xAxis: {
+          type: 'category',
+          data: dates,
+          boundaryGap: false,
+          axisLabel: { rotate: 30, fontSize: 10, color: theme.textColor },
+          axisLine: { lineStyle: { color: theme.axisLineColor } },
+        },
+        yAxis: {
+          type: 'value',
+          splitLine: { lineStyle: { color: theme.splitLineColor } },
+          axisLabel: { color: theme.textColor, formatter: v => fmtCurrency(v) },
+        },
+        series: series,
+      }, true);
+    }
+
+    // ── Table Rendering ──
+    let sortState = { column: -1, direction: 1 };
+
+    function renderTable(filteredData) {
+      const agg = aggregateByDate(filteredData);
+      const tbody = document.querySelector('#data-table tbody');
+      tbody.innerHTML = '';
+
+      agg.forEach(d => {
+        const aov = d.orders > 0 ? d.revenue / d.orders : 0;
+        const conv = d.visitors > 0 ? (d.orders / d.visitors) * 100 : 0;
+        const tr = document.createElement('tr');
+        tr.innerHTML =
+          '<td data-value="' + d.date + '">' + d.date + '</td>' +
+          '<td data-value="' + d.revenue.toFixed(2) + '">' + fmtCurrency(d.revenue) + '</td>' +
+          '<td data-value="' + d.orders + '">' + fmtNumber(d.orders) + '</td>' +
+          '<td data-value="' + aov.toFixed(2) + '">$' + aov.toFixed(2) + '</td>' +
+          '<td data-value="' + conv.toFixed(2) + '">' + conv.toFixed(2) + '%</td>';
+        tbody.appendChild(tr);
+      });
+
+      // Reset sort state
+      sortState = { column: -1, direction: 1 };
+      document.querySelectorAll('#data-table th').forEach(th => {
+        th.classList.remove('sorted');
+        const icon = th.querySelector('.sort-icon');
+        if (icon) icon.className = 'sort-icon fas fa-sort';
+      });
+    }
+
+    function sortTable(columnIndex) {
+      const tbody = document.querySelector('#data-table tbody');
+      const rows = Array.from(tbody.rows);
+
+      if (sortState.column === columnIndex) {
+        sortState.direction *= -1;
+      } else {
+        sortState.column = columnIndex;
+        sortState.direction = 1;
+      }
+
+      rows.sort((a, b) => {
+        const va = a.cells[columnIndex].getAttribute('data-value') || a.cells[columnIndex].textContent;
+        const vb = b.cells[columnIndex].getAttribute('data-value') || b.cells[columnIndex].textContent;
+        const na = parseFloat(va), nb = parseFloat(vb);
+        if (!isNaN(na) && !isNaN(nb)) return sortState.direction * (na - nb);
+        return sortState.direction * va.localeCompare(vb);
+      });
+
+      rows.forEach(row => tbody.appendChild(row));
+      updateSortIcons(columnIndex);
+    }
+
+    function updateSortIcons(activeCol) {
+      document.querySelectorAll('#data-table th').forEach((th, i) => {
+        th.classList.toggle('sorted', i === activeCol);
+        const icon = th.querySelector('.sort-icon');
+        if (icon) {
+          icon.className = 'sort-icon fas ' +
+            (i === activeCol
+              ? (sortState.direction === 1 ? 'fa-sort-up' : 'fa-sort-down')
+              : 'fa-sort');
+        }
+      });
+    }
+
+    // ── Render All ──
+    function renderAll() {
+      const filtered = filterData(currentDays);
+      renderKPIs(filtered);
+      renderCharts(filtered);
+      renderTable(filtered);
+    }
+
+    // ── Theme Observer ──
+    const observer = new MutationObserver(() => renderAll());
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme'],
+    });
+
+    // ── Initialize ──
+    initTheme();
+    renderAll();
+  </script>
+</body>
+</html>
