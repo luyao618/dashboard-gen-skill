@@ -34,7 +34,7 @@ Activate this skill when the user:
 
 ## Workflow
 
-Follow these 5 steps in order. Do NOT skip steps.
+Follow these 5 steps in order. Do NOT skip steps. Steps 1–2 are MANDATORY interactive steps — you MUST present findings and ask the user before generating any HTML.
 
 ### Step 1: Data Discovery
 
@@ -55,29 +55,37 @@ Read the CSV file and analyze its structure.
    - Key numeric ranges
    - Categorical value lists
 
-### Step 2: User Interview
+**Then immediately proceed to Step 2 in the same message — do NOT generate HTML yet.**
 
-Ask the user targeted questions to define the dashboard. Suggest defaults based on data patterns.
+### Step 2: User Interview (MANDATORY — MUST STOP AND WAIT)
 
-**Questions to ask:**
+**CRITICAL: You MUST present your recommendations and WAIT for the user to respond before proceeding to Step 3. Do NOT silently continue to generate the dashboard. This is the most important interaction point in the entire workflow.**
 
-1. **KPIs**: "Which columns should be highlighted as KPI cards? I suggest: [list top 3-4 numeric columns]"
-2. **Metric computation**: "How should each KPI be computed? (sum, average, latest value, rate)"
-3. **Chart preferences**: "What charts would you like? Based on your data, I recommend:"
-   - Has date column → line/area charts for trends
-   - Has categories → bar charts for comparison, donut for distribution
-   - Has scores/ratings → distribution charts, horizontal bars for ranking
-   - Has performance metrics → threshold-colored KPIs, multi-line trends
-4. **Grouping**: "Should data be grouped by [categorical column]?"
-5. **Filters**: "Should I add filter controls for [categorical columns] or date ranges?"
-6. **Layout suggestion**: Based on data characteristics, recommend one of:
+After presenting the data summary from Step 1, present ALL of the following recommendations at once, then STOP and WAIT:
 
-| Data Pattern | Recommended Layout | Demo Reference |
-|---|---|---|
-| Date + numeric metrics | Time series dashboard | `assets/demo_timeseries.html` |
-| Category + numeric values | Comparison dashboard | `assets/demo_comparison.html` |
-| Timestamp + performance metrics | Monitoring dashboard | `assets/demo_monitoring.html` |
-| Rating/score + categories | Survey/rating dashboard | `assets/demo_survey.html` |
+1. **Dashboard layout**: "Based on your data, I recommend a [type] layout. Options:"
+
+   | Data Pattern | Recommended Layout | Demo Reference |
+   |---|---|---|
+   | Date + numeric metrics | Time series dashboard | `assets/demo_timeseries.html` |
+   | Category + numeric values | Comparison dashboard | `assets/demo_comparison.html` |
+   | Timestamp + performance metrics | Monitoring dashboard | `assets/demo_monitoring.html` |
+   | Rating/score + categories | Survey/rating dashboard | `assets/demo_survey.html` |
+
+2. **KPIs**: "Which metrics as KPI cards? I suggest: [top 3-4 numeric columns + computation method]"
+3. **Charts**: "What visualizations? Based on your data, I recommend:" — list specific charts with reasoning
+4. **Grouping & Filters**: "Filter by [categorical columns]? Group by [column]?"
+5. **Anything else**: "Any specific metrics, thresholds, or features you want?"
+
+**Always end with this option:**
+
+> Or if you'd prefer, just say **"auto"** and I'll generate the entire dashboard using my best judgment.
+
+**STOP HERE. Wait for the user's reply.** The user may:
+- Confirm your suggestions → proceed to Step 3
+- Adjust specific items → incorporate changes, then proceed
+- Say "auto" / "go ahead" / "你来决定" → proceed using your recommended defaults
+- Ask questions → answer them, then wait again
 
 ### Step 3: Metric Computation
 
