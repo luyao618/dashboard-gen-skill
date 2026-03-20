@@ -74,10 +74,10 @@ Ask the user targeted questions to define the dashboard. Suggest defaults based 
 
 | Data Pattern | Recommended Layout | Demo Reference |
 |---|---|---|
-| Date + numeric metrics | Time series dashboard | `demos/demo_timeseries.html` |
-| Category + numeric values | Comparison dashboard | `demos/demo_comparison.html` |
-| Timestamp + performance metrics | Monitoring dashboard | `demos/demo_monitoring.html` |
-| Rating/score + categories | Survey/rating dashboard | `demos/demo_survey.html` |
+| Date + numeric metrics | Time series dashboard | `assets/demo_timeseries.html` |
+| Category + numeric values | Comparison dashboard | `assets/demo_comparison.html` |
+| Timestamp + performance metrics | Monitoring dashboard | `assets/demo_monitoring.html` |
+| Rating/score + categories | Survey/rating dashboard | `assets/demo_survey.html` |
 
 ### Step 3: Metric Computation
 
@@ -100,12 +100,12 @@ Process the full CSV data and prepare it for embedding.
 
 Generate the complete standalone HTML file. **Read the design reference first.**
 
-1. **Read `docs/design-reference.md`** for the complete design system
+1. **Read `references/design-reference.md`** for the complete design system
 2. **Select the closest demo** as a structural reference:
-   - `demos/demo_timeseries.html` — for time-based data
-   - `demos/demo_comparison.html` — for categorical comparisons
-   - `demos/demo_monitoring.html` — for performance/health metrics
-   - `demos/demo_survey.html` — for ratings/scores/surveys
+   - `assets/demo_timeseries.html` — for time-based data
+   - `assets/demo_comparison.html` — for categorical comparisons
+   - `assets/demo_monitoring.html` — for performance/health metrics
+   - `assets/demo_survey.html` — for ratings/scores/surveys
 3. **Generate the HTML file** with:
 
 #### HTML Structure
@@ -142,28 +142,40 @@ Generate the complete standalone HTML file. **Read the design reference first.**
 #### Required CSS (from design-reference.md)
 
 Include these CSS sections in the `<style>` block:
+- **Accent bar**: `body::before` gradient bar across top of page
 - **CSS variables**: both light mode (`:root`) and dark mode (`:root[data-theme="dark"]`)
 - **Typography**: Inter font family, heading/body/label sizes
-- **Layout**: `.dashboard-container`, `.dashboard-header`, `.kpi-row`, `.chart-row`
-- **KPI cards**: `.kpi-card`, `.kpi-label`, `.kpi-value`, `.kpi-change`, `.kpi-sparkline`
-- **Chart cards**: `.chart-card`, `.chart-card-title`, `.chart-container`
-- **Filter controls**: `.filter-bar`, `.filter-btn`, `.filter-select`
-- **Data table**: `.data-table-wrapper`, `.data-table`, th/td styles, sort icons
+- **Layout**: `.dashboard-container`, `.dashboard-header`, `.dashboard-subtitle`, `.kpi-row`, `.chart-row`
+- **KPI cards**: `.kpi-card` (colored left border), `.kpi-header`, `.kpi-icon`, `.kpi-label`, `.kpi-info`, `.kpi-value`, `.kpi-change`, `.kpi-sparkline`
+- **Skeleton loading**: `.skeleton` with `@keyframes shimmer` animation
+- **Chart cards**: `.chart-card` (hover shadow), `.chart-card-title`, `.chart-container`
+- **Filter controls**: `.filter-bar`, `.filter-group`, `.filter-group-label`, `.filter-divider`, `.filter-btn` (`.time-btn` / `.cat-btn`)
+- **Data table**: `.data-table-wrapper`, `.table-toolbar`, `.table-search`, `.table-actions`, `.data-table`, th/td styles, `.row-selected`, sort icons
+- **Pagination**: `.table-pagination` with Prev/Next buttons
 - **Theme toggle**: `.theme-toggle` fixed position button
 - **Status badges**: `.badge-success`, `.badge-warning`, `.badge-danger`
-- **Responsive**: media queries for 1024px and 640px breakpoints
+- **Responsive**: media queries for 1024px and 640px breakpoints (filter wrap, sparkline hide)
 
 #### Required JavaScript
 
 Include these JS sections in the `<script>` block:
-- **Embedded data**: `const DATA = [...]` with pre-processed JSON
-- **Color constants**: `SERIES_COLORS` array (20 colors)
+- **Embedded data**: `const RAW_DATA = [...]` with pre-processed JSON
+- **Color constants**: `SERIES_COLORS` array (20 colors, indigo/amber/emerald/rose palette)
+- **Format helpers**: `fmtCurrency()`, `fmtNumber()`, `fmtPct()`, `fmtDate()`
 - **Theme functions**: `initTheme()`, `toggleTheme()`, `getChartThemeColors()`
-- **Chart functions**: one init+render function per chart
+- **CountUp animation**: `animateValue()` with easeOutCubic easing for KPI values
+- **Chart functions**: one init+render function per chart, using gradient area fills
+- **DataZoom**: slider + inside zoom on time-series charts
+- **Rolling averages**: 7-day rolling average overlay lines on trend charts
+- **Prior period comparison**: dashed lines showing prior-period data
+- **Chart linking**: cross-chart interaction (e.g., donut click → highlight stacked chart)
 - **MutationObserver**: auto-update all charts on theme change
-- **Filter functions**: update KPIs, charts, and table on filter change
-- **Table sorting**: `sortTable()` with ascending/descending toggle
-- **Initialization**: call all render functions on page load
+- **Filter functions**: multi-dimension filtering (date range + category), `renderAll()` centralized
+- **Table**: data-driven `sortTable()`, `filterTableSearch()`, `exportCSV()`, `renderTablePage()` with pagination
+- **Row click → markLine**: clicking a table row places a vertical marker on the trend chart
+- **Dynamic subtitle**: auto-update with data range, last updated time, and active filter
+- **Conditional formatting**: heat-colored backgrounds on numeric table cells
+- **Initialization**: `initTheme()` then `renderAll()`
 
 #### Design Rules (MUST follow)
 
@@ -176,6 +188,12 @@ Include these JS sections in the `<script>` block:
 7. **File size < 200KB** — aggregate data if CSV is large
 8. **No console errors** — clean JavaScript
 9. **Responsive** — no horizontal scroll on 1280px+ screens
+10. **KPI cards** — colored left border, icon header, countUp animation, skeleton loading
+11. **Tables** — toolbar with search + CSV export, data-driven sorting, pagination (15 rows/page)
+12. **Time-series charts** — DataZoom slider, gradient area fill, rolling average overlay
+13. **Cross-chart interaction** — at least one linking pattern (donut→highlight, row→markLine)
+14. **Top accent gradient bar** — every dashboard includes `body::before` accent bar
+15. **Dashboard subtitle** — auto-populated with data range, last updated, and active filter
 
 ### Step 5: Validation
 
@@ -187,7 +205,7 @@ After generating the HTML file:
 
 ## Design Specification Summary
 
-> Full details in `docs/design-reference.md`
+> Full details in `references/design-reference.md`
 
 ### CSS Variables
 
@@ -199,18 +217,22 @@ After generating the HTML file:
 | `--text-secondary` | `#64748b` | `#cbd5e1` |
 | `--accent` | `#4f6ef7` | `#4f6ef7` |
 | `--border` | `#e2e8f0` | `#475569` |
-| `--success` | `#22c55e` | `#22c55e` |
-| `--warning` | `#f59e0b` | `#f59e0b` |
-| `--danger` | `#ef4444` | `#ef4444` |
+| `--success` | `#4ade80` | `#4ade80` |
+| `--warning` | `#fbbf24` | `#fbbf24` |
+| `--danger` | `#f87171` | `#f87171` |
 
 ### Chart Series Colors
 
 ```javascript
 const SERIES_COLORS = [
-  '#E53E3E', '#DD6B20', '#D69E2E', '#38A169', '#319795',
-  '#3182CE', '#5A67D8', '#805AD5', '#D53F8C', '#718096',
-  '#C05621', '#2C7A7B', '#2B6CB0', '#6B46C1', '#B7791F',
-  '#2D3748', '#4A5568', '#B83280', '#276749', '#1A365D',
+  '#818cf8', // Indigo
+  '#fbbf24', // Amber
+  '#34d399', // Emerald
+  '#fb7185', // Rose
+  '#60a5fa', '#a78bfa', '#f472b6', '#2dd4bf',
+  '#fb923c', '#22d3ee', '#a3e635', '#c084fc',
+  '#f87171', '#38bdf8', '#facc15', '#e879f9',
+  '#4ade80', '#94a3b8', '#fda4af', '#67e8f9',
 ];
 ```
 
@@ -219,9 +241,10 @@ const SERIES_COLORS = [
 | Chart Type | Use When | ECharts Pattern |
 |---|---|---|
 | Sparkline | Mini trend in KPI cards | `type: 'line'`, no axis, 40px height |
-| Multi-series line | Trend comparison over time | `type: 'line'`, smooth, dual Y-axis optional |
-| Stacked area | Part-of-whole trends | `type: 'line'`, stack + areaStyle |
-| Donut/pie | Distribution breakdown | `type: 'pie'`, radius ['40%', '70%'] |
+| Multi-series line | Trend comparison over time | `type: 'line'`, smooth, gradient area fill, DataZoom |
+| Dual Y-axis line | Two metrics with different scales | Two `yAxis`, rolling avg + prior period overlays |
+| Stacked area | Part-of-whole trends | `type: 'line'`, `stack: 'total'` + `areaStyle`, R7 avg lines with `stack: 'avg'` |
+| Donut/pie | Distribution breakdown | `type: 'pie'`, radius ['40%', '70%'], click → chart linking |
 | Horizontal bar | Top-N ranking | `type: 'bar'`, category on Y-axis, inverse |
 | Grouped bar | Category comparison | `type: 'bar'`, multiple series same X-axis |
 | Score distribution | Rating/score frequency | `type: 'bar'`, custom colors per bar |
@@ -231,19 +254,34 @@ const SERIES_COLORS = [
 | Feature | Implementation |
 |---|---|
 | Dark mode | `data-theme` attribute + CSS variables + localStorage |
-| Date range filter | Button group, filters all components |
-| Dropdown filter | `<select>` element, filters all components |
-| Table sorting | Click column headers, toggle asc/desc |
+| Top accent bar | `body::before` gradient bar (indigo → emerald → amber → red) |
+| Skeleton loading | `.skeleton` shimmer animation, replaced by JS after data loads |
+| CountUp animation | `animateValue()` with easeOutCubic for KPI numbers |
+| Dashboard subtitle | Auto-populated with date range + last updated + active filter |
+| Date range filter | `.time-btn` button group, filters all components |
+| Category filter | `.cat-btn` button group, combined with date filter |
+| DataZoom slider | Scroll zoom + visual slider handle on time-series charts |
+| Rolling averages | 7-day dashed overlay lines on trend/stacked charts |
+| Prior period comparison | Dashed lines showing prior-period data on trend charts |
+| Gradient area fills | `echarts.graphic.LinearGradient` under line charts |
+| Chart linking | Donut click → highlight stacked chart series (2s) |
+| Table search | Live text filter in table toolbar |
+| CSV export | Download filtered table data as CSV |
+| Table sorting | Click column headers, data-driven sort + re-render |
+| Table pagination | 15 rows/page with Prev/Next controls |
+| Row → markLine | Click table row → vertical marker on trend chart |
+| Conditional formatting | Heat-colored backgrounds on numeric cells |
+| KPI info tooltips | `<i class="fas fa-info-circle kpi-info" title="...">` |
 | Chart resize | `window.addEventListener('resize', chart.resize)` |
 
 ## Demo References
 
 | # | Demo | Data Pattern | File |
 |---|---|---|---|
-| 1 | E-Commerce Sales | Daily data + categories | `demos/demo_timeseries.html` |
-| 2 | Product Comparison | Regions x products x months | `demos/demo_comparison.html` |
-| 3 | API Monitoring | Hourly metrics + thresholds | `demos/demo_monitoring.html` |
-| 4 | NPS Survey | Scores + departments + channels | `demos/demo_survey.html` |
+| 1 | E-Commerce Sales | Daily data + categories | `assets/demo_timeseries.html` |
+| 2 | Product Comparison | Regions x products x months | `assets/demo_comparison.html` |
+| 3 | API Monitoring | Hourly metrics + thresholds | `assets/demo_monitoring.html` |
+| 4 | NPS Survey | Scores + departments + channels | `assets/demo_survey.html` |
 
 When generating a new dashboard, **read the closest demo file** to understand the exact HTML structure, JavaScript patterns, and styling conventions. Use it as a template — adapt the data, charts, and KPIs but keep the same code patterns and design system.
 
@@ -255,6 +293,6 @@ When generating a new dashboard, **read the closest demo file** to understand th
 1. Read `data/monthly_revenue.csv` → discover columns: month, product_line, revenue, units, profit_margin
 2. Ask: "I found 5 columns. I recommend: Revenue and Units as KPI cards, a line chart for monthly trend, a bar chart for product comparison. Sound good?"
 3. User confirms → compute totals, monthly aggregates, product breakdowns
-4. Read `docs/design-reference.md` and `demos/demo_timeseries.html` as references
+4. Read `references/design-reference.md` and `assets/demo_timeseries.html` as references
 5. Generate `data/monthly_revenue_dashboard.html`
 6. Report: "Dashboard created at `data/monthly_revenue_dashboard.html` (45KB). Open it in your browser to see the result."

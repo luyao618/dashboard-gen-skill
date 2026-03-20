@@ -17,10 +17,10 @@
       --accent: #4f6ef7;
       --accent-light: #e8ecff;
       --accent-dark: #3b52c7;
-      --success: #22c55e;
-      --warning: #f59e0b;
-      --danger: #ef4444;
-      --info: #3b82f6;
+      --success: #4ade80;
+      --warning: #fbbf24;
+      --danger: #f87171;
+      --info: #60a5fa;
       --border: #e2e8f0;
       --radius: 10px;
       --shadow-sm: 0 1px 3px rgba(0,0,0,.06);
@@ -75,10 +75,62 @@
       color: var(--text-primary);
     }
 
+    /* ── Dashboard subtitle ── */
+    .dashboard-subtitle {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
     .filter-bar {
       display: flex;
       align-items: center;
       gap: 10px;
+    }
+
+    /* ── Category filter groups ── */
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .filter-group-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-right: 2px;
+    }
+    .filter-divider {
+      width: 1px;
+      height: 24px;
+      background: var(--border);
+      margin: 0 8px;
+    }
+
+    .filter-btn {
+      padding: 6px 14px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition);
+      font-family: inherit;
+    }
+
+    .filter-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .filter-btn.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
     }
 
     .filter-select {
@@ -105,13 +157,40 @@
       border-radius: var(--radius);
       padding: 16px 18px;
       box-shadow: var(--shadow-sm);
-      transition: box-shadow var(--transition);
+      transition: all var(--transition);
       position: relative;
       overflow: hidden;
+      border-left: 4px solid var(--kpi-color, var(--accent));
     }
 
     .kpi-card:hover {
-      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(129, 140, 248, 0.15);
+    }
+
+    .kpi-card:nth-child(1) { --kpi-color: #818cf8; }
+    .kpi-card:nth-child(2) { --kpi-color: #fbbf24; }
+    .kpi-card:nth-child(3) { --kpi-color: #34d399; }
+    .kpi-card:nth-child(4) { --kpi-color: #fb7185; }
+
+    .kpi-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .kpi-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: #fff;
+      background: var(--kpi-color, var(--accent));
+      flex-shrink: 0;
     }
 
     .kpi-label {
@@ -136,6 +215,25 @@
       color: var(--text-secondary);
     }
 
+    /* ── Skeleton loading animation ── */
+    .skeleton {
+      background: linear-gradient(90deg, var(--border) 25%, var(--bg-primary) 50%, var(--border) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 4px;
+      display: inline-block;
+    }
+    @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+
+    /* ── KPI info tooltip ── */
+    .kpi-info {
+      opacity: 0.4;
+      font-size: 10px;
+      margin-left: 4px;
+      cursor: help;
+    }
+    .kpi-info:hover { opacity: 0.8; }
+
     .chart-row {
       display: flex;
       gap: 14px;
@@ -150,6 +248,11 @@
       border-radius: var(--radius);
       padding: 16px 18px;
       box-shadow: var(--shadow-sm);
+      transition: box-shadow var(--transition);
+    }
+
+    .chart-card:hover {
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
     }
 
     .chart-card.wide { flex: 2; }
@@ -187,6 +290,75 @@
 
     .data-table-wrapper .chart-card-title {
       margin-bottom: 12px;
+    }
+
+    /* ── Table toolbar (search + export) ── */
+    .table-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .table-search {
+      padding: 6px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color var(--transition);
+      width: 200px;
+    }
+    .table-search:focus {
+      border-color: var(--accent);
+    }
+    .table-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    /* ── Table pagination ── */
+    .table-pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    .table-pagination button {
+      padding: 4px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      font-size: 12px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all var(--transition);
+    }
+    .table-pagination button:hover:not(:disabled) {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .table-pagination button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* ── Table row click highlight ── */
+    .data-table tbody tr {
+      cursor: pointer;
+      transition: background var(--transition);
+    }
+    .data-table tbody tr.row-selected {
+      background: var(--accent-light) !important;
     }
 
     .data-table {
@@ -259,6 +431,16 @@
       transform: scale(1.05);
     }
 
+    /* ── Accent bar at top ── */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #818cf8, #4ade80, #fbbf24, #f87171);
+      z-index: 9999;
+    }
+
     @media (max-width: 1024px) {
       .kpi-row {
         grid-template-columns: repeat(2, 1fr);
@@ -275,51 +457,79 @@
       body {
         padding: 12px;
       }
+      .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+      .filter-bar {
+        flex-wrap: wrap;
+      }
+      .filter-divider { display: none; }
+      .table-search { width: 100%; }
     }
   </style>
 </head>
 <body>
   <div class="dashboard-container">
     <div class="dashboard-header">
-      <h1 class="dashboard-title">Sales Comparison Dashboard</h1>
+      <div>
+        <h1 class="dashboard-title">Sales Comparison Dashboard</h1>
+        <p class="dashboard-subtitle" id="dashboard-subtitle">Loading data...</p>
+      </div>
       <div class="filter-bar">
-        <select class="filter-select" id="filter-region" onchange="applyFilters()">
-          <option value="All">All Regions</option>
-          <option value="North">North</option>
-          <option value="South">South</option>
-          <option value="East">East</option>
-          <option value="West">West</option>
-        </select>
-        <select class="filter-select" id="filter-month" onchange="applyFilters()">
-          <option value="All">All Months</option>
-          <option value="2025-11">2025-11</option>
-          <option value="2025-12">2025-12</option>
-          <option value="2026-01">2026-01</option>
-          <option value="2026-02">2026-02</option>
-          <option value="2026-03">2026-03</option>
-        </select>
+        <div class="filter-group">
+          <span class="filter-group-label">Region</span>
+          <button class="filter-btn region-btn active" onclick="setRegionFilter('All', this)">All</button>
+          <button class="filter-btn region-btn" onclick="setRegionFilter('North', this)">North</button>
+          <button class="filter-btn region-btn" onclick="setRegionFilter('South', this)">South</button>
+          <button class="filter-btn region-btn" onclick="setRegionFilter('East', this)">East</button>
+          <button class="filter-btn region-btn" onclick="setRegionFilter('West', this)">West</button>
+        </div>
+        <div class="filter-divider"></div>
+        <div class="filter-group">
+          <span class="filter-group-label">Month</span>
+          <button class="filter-btn month-btn active" onclick="setMonthFilter('All', this)">All</button>
+          <button class="filter-btn month-btn" onclick="setMonthFilter('2025-11', this)">Nov</button>
+          <button class="filter-btn month-btn" onclick="setMonthFilter('2025-12', this)">Dec</button>
+          <button class="filter-btn month-btn" onclick="setMonthFilter('2026-01', this)">Jan</button>
+          <button class="filter-btn month-btn" onclick="setMonthFilter('2026-02', this)">Feb</button>
+          <button class="filter-btn month-btn" onclick="setMonthFilter('2026-03', this)">Mar</button>
+        </div>
       </div>
     </div>
 
     <div class="kpi-row">
       <div class="kpi-card">
-        <div class="kpi-label">Total Revenue</div>
-        <div class="kpi-value" id="kpi-revenue">--</div>
+        <div class="kpi-header">
+          <div class="kpi-icon"><i class="fas fa-dollar-sign"></i></div>
+          <div class="kpi-label">Total Revenue <i class="fas fa-info-circle kpi-info" title="Total revenue across all filtered records"></i></div>
+        </div>
+        <div class="kpi-value" id="kpi-revenue"><span class="skeleton" style="width:120px;height:28px;">&nbsp;</span></div>
         <div class="kpi-sub" id="kpi-revenue-sub"></div>
       </div>
       <div class="kpi-card">
-        <div class="kpi-label">Total Units Sold</div>
-        <div class="kpi-value" id="kpi-units">--</div>
+        <div class="kpi-header">
+          <div class="kpi-icon"><i class="fas fa-boxes-stacked"></i></div>
+          <div class="kpi-label">Total Units Sold <i class="fas fa-info-circle kpi-info" title="Number of units sold in the selected period"></i></div>
+        </div>
+        <div class="kpi-value" id="kpi-units"><span class="skeleton" style="width:100px;height:28px;">&nbsp;</span></div>
         <div class="kpi-sub" id="kpi-units-sub"></div>
       </div>
       <div class="kpi-card">
-        <div class="kpi-label">Avg Price Per Unit</div>
-        <div class="kpi-value" id="kpi-price">--</div>
+        <div class="kpi-header">
+          <div class="kpi-icon"><i class="fas fa-tag"></i></div>
+          <div class="kpi-label">Avg Price Per Unit <i class="fas fa-info-circle kpi-info" title="Average revenue per unit (Total Revenue / Total Units)"></i></div>
+        </div>
+        <div class="kpi-value" id="kpi-price"><span class="skeleton" style="width:80px;height:28px;">&nbsp;</span></div>
         <div class="kpi-sub" id="kpi-price-sub"></div>
       </div>
       <div class="kpi-card">
-        <div class="kpi-label">Avg Return Rate</div>
-        <div class="kpi-value" id="kpi-return">--</div>
+        <div class="kpi-header">
+          <div class="kpi-icon"><i class="fas fa-rotate-left"></i></div>
+          <div class="kpi-label">Avg Return Rate <i class="fas fa-info-circle kpi-info" title="Average product return rate across all records"></i></div>
+        </div>
+        <div class="kpi-value" id="kpi-return"><span class="skeleton" style="width:60px;height:28px;">&nbsp;</span></div>
         <div class="kpi-sub" id="kpi-return-sub"></div>
       </div>
     </div>
@@ -346,7 +556,13 @@
     </div>
 
     <div class="data-table-wrapper full-width">
-      <div class="chart-card-title">Detail Table</div>
+      <div class="table-toolbar">
+        <div class="chart-card-title">Detail Table</div>
+        <div class="table-actions">
+          <input type="text" placeholder="Search..." class="table-search" oninput="filterTableSearch(this.value)">
+          <button class="filter-btn" onclick="exportCSV()"><i class="fas fa-download"></i> Export</button>
+        </div>
+      </div>
       <table class="data-table" id="detail-table">
         <thead>
           <tr>
@@ -360,6 +576,7 @@
         </thead>
         <tbody id="table-body"></tbody>
       </table>
+      <div class="table-pagination" id="table-pagination"></div>
     </div>
   </div>
 
@@ -495,15 +712,24 @@
 
     // ── Constants ──
     const SERIES_COLORS = [
-      '#E53E3E','#DD6B20','#D69E2E','#38A169','#319795',
-      '#3182CE','#5A67D8','#805AD5','#D53F8C','#718096',
-      '#C05621','#2C7A7B','#2B6CB0','#6B46C1','#B7791F',
-      '#2D3748','#4A5568','#B83280','#276749','#1A365D'
+      '#818cf8', '#fbbf24', '#34d399', '#fb7185',
+      '#60a5fa', '#a78bfa', '#f472b6', '#2dd4bf',
+      '#fb923c', '#22d3ee', '#a3e635', '#c084fc',
+      '#f87171', '#38bdf8', '#facc15', '#e879f9',
+      '#4ade80', '#94a3b8', '#fda4af', '#67e8f9',
     ];
 
     const REGIONS = ['North','South','East','West'];
     const PRODUCTS = ['Laptop Pro','Phone X','Tablet Air','Headphones Elite','Smart Watch','Camera Zoom'];
     const MONTHS = ['2025-11','2025-12','2026-01','2026-02','2026-03'];
+
+    // ── State ──
+    let currentRegion = 'All';
+    let currentMonth = 'All';
+    let tableDataArr = [];
+    let tablePage = 1;
+    const PAGE_SIZE = 15;
+    let tableSearchQuery = '';
 
     // ── Theme ──
     function getChartThemeColors() {
@@ -573,14 +799,40 @@
       return (val * 100).toFixed(1) + '%';
     }
 
+    // ── CountUp Animation ──
+    function animateValue(el, end, formatter, duration = 800) {
+      const start = 0;
+      const range = end - start;
+      const startTime = performance.now();
+      function step(timestamp) {
+        const progress = Math.min((timestamp - startTime) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+        el.textContent = formatter(start + range * eased);
+        if (progress < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+
     // ── Filter Logic ──
     function getFilteredData() {
-      const region = document.getElementById('filter-region').value;
-      const month = document.getElementById('filter-month').value;
       let filtered = DATA;
-      if (region !== 'All') filtered = filtered.filter(d => d.region === region);
-      if (month !== 'All') filtered = filtered.filter(d => d.month === month);
+      if (currentRegion !== 'All') filtered = filtered.filter(d => d.region === currentRegion);
+      if (currentMonth !== 'All') filtered = filtered.filter(d => d.month === currentMonth);
       return filtered;
+    }
+
+    function setRegionFilter(region, btn) {
+      currentRegion = region;
+      document.querySelectorAll('.region-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      applyFilters();
+    }
+
+    function setMonthFilter(month, btn) {
+      currentMonth = month;
+      document.querySelectorAll('.month-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      applyFilters();
     }
 
     function applyFilters() {
@@ -591,6 +843,17 @@
       renderDonut(filtered);
       renderTrend(filtered);
       renderTable(filtered);
+      updateSubtitle(filtered);
+    }
+
+    // ── Subtitle ──
+    function updateSubtitle(data) {
+      const now = new Date();
+      const updated = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      const regionLabel = currentRegion === 'All' ? 'All Regions' : currentRegion;
+      const monthLabel = currentMonth === 'All' ? 'All Months' : currentMonth;
+      document.getElementById('dashboard-subtitle').textContent =
+        'Last updated: ' + updated + ' \u00b7 ' + regionLabel + ' \u00b7 ' + monthLabel + ' \u00b7 ' + data.length + ' records';
     }
 
     // ── KPIs ──
@@ -600,13 +863,16 @@
       const avgPrice = totalUnits > 0 ? totalRevenue / totalUnits : 0;
       const avgReturn = data.length > 0 ? data.reduce((s, d) => s + d.return_rate, 0) / data.length : 0;
 
-      document.getElementById('kpi-revenue').textContent = fmtCurrency(totalRevenue);
+      animateValue(document.getElementById('kpi-revenue'), totalRevenue, v => fmtCurrency(v));
       document.getElementById('kpi-revenue-sub').textContent = fmtCurrencyFull(totalRevenue);
-      document.getElementById('kpi-units').textContent = fmtNumber(totalUnits);
+
+      animateValue(document.getElementById('kpi-units'), totalUnits, v => fmtNumber(Math.round(v)));
       document.getElementById('kpi-units-sub').textContent = data.length + ' records';
-      document.getElementById('kpi-price').textContent = '$' + avgPrice.toFixed(2);
+
+      animateValue(document.getElementById('kpi-price'), avgPrice, v => '$' + v.toFixed(2));
       document.getElementById('kpi-price-sub').textContent = 'per unit average';
-      document.getElementById('kpi-return').textContent = fmtPercent(avgReturn);
+
+      animateValue(document.getElementById('kpi-return'), avgReturn * 100, v => v.toFixed(1) + '%');
       document.getElementById('kpi-return-sub').textContent = 'across all products';
     }
 
@@ -800,6 +1066,12 @@
           symbolSize: 6,
           lineStyle: { width: 2 },
           itemStyle: { color: SERIES_COLORS[i] },
+          areaStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: SERIES_COLORS[i] + '40' },
+              { offset: 1, color: SERIES_COLORS[i] + '05' },
+            ]),
+          },
           data: values,
         };
       });
@@ -824,7 +1096,14 @@
           top: 5,
           textStyle: { fontSize: 12, color: theme.textColor },
         },
-        grid: { left: 70, right: 20, top: 36, bottom: 40 },
+        grid: { left: 70, right: 20, top: 36, bottom: 60 },
+        dataZoom: [
+          { type: 'inside', start: 0, end: 100 },
+          { type: 'slider', bottom: 5, height: 20, start: 0, end: 100,
+            borderColor: theme.axisLineColor,
+            textStyle: { color: theme.textColor },
+          },
+        ],
         xAxis: {
           type: 'category',
           data: activeMonths,
@@ -847,54 +1126,140 @@
 
     // ── Table ──
     let sortState = { column: -1, direction: 1 };
-    let currentTableData = [];
 
     function renderTable(data) {
-      currentTableData = data;
+      tableDataArr = data.slice();
+      tablePage = 1;
+      tableSearchQuery = '';
+      const searchInput = document.querySelector('.table-search');
+      if (searchInput) searchInput.value = '';
       sortState = { column: -1, direction: 1 };
-      updateSortIcons(-1);
-      buildTableRows(data);
+      document.querySelectorAll('#detail-table th').forEach(th => {
+        th.classList.remove('sorted');
+        const icon = th.querySelector('.sort-icon');
+        if (icon) icon.className = 'sort-icon fas fa-sort';
+      });
+      renderTablePage();
     }
 
-    function buildTableRows(data) {
+    function getFilteredTableData() {
+      if (!tableSearchQuery) return tableDataArr;
+      const q = tableSearchQuery.toLowerCase();
+      return tableDataArr.filter(d =>
+        d.month.includes(q) ||
+        d.region.toLowerCase().includes(q) ||
+        d.product.toLowerCase().includes(q) ||
+        fmtCurrencyFull(d.revenue).toLowerCase().includes(q) ||
+        String(d.units_sold).includes(q)
+      );
+    }
+
+    function renderTablePage() {
+      const data = getFilteredTableData();
+      const totalPages = Math.max(1, Math.ceil(data.length / PAGE_SIZE));
+      if (tablePage > totalPages) tablePage = totalPages;
+      const start = (tablePage - 1) * PAGE_SIZE;
+      const pageData = data.slice(start, start + PAGE_SIZE);
+
+      // Compute min/max revenue for conditional heat formatting
+      const allRevs = data.map(d => d.revenue);
+      const maxRev = Math.max(...allRevs);
+      const minRev = Math.min(...allRevs);
+      const revRange = maxRev - minRev || 1;
+
       const tbody = document.getElementById('table-body');
-      tbody.innerHTML = data.map(d =>
-        '<tr>'
-        + '<td data-value="' + d.month + '">' + d.month + '</td>'
-        + '<td data-value="' + d.region + '">' + d.region + '</td>'
-        + '<td data-value="' + d.product + '">' + d.product + '</td>'
-        + '<td data-value="' + d.units_sold + '">' + fmtNumber(d.units_sold) + '</td>'
-        + '<td data-value="' + d.revenue + '">' + fmtCurrencyFull(d.revenue) + '</td>'
-        + '<td data-value="' + d.return_rate + '">' + fmtPercent(d.return_rate) + '</td>'
-        + '</tr>'
-      ).join('');
+      tbody.innerHTML = '';
+
+      pageData.forEach(d => {
+        const tr = document.createElement('tr');
+        const normalized = (d.revenue - minRev) / revRange;
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        const heatBg = isDark
+          ? 'rgba(52, 211, 153, ' + (normalized * 0.25) + ')'
+          : 'rgba(74, 222, 128, ' + (normalized * 0.2) + ')';
+        tr.innerHTML =
+          '<td data-value="' + d.month + '">' + d.month + '</td>' +
+          '<td data-value="' + d.region + '">' + d.region + '</td>' +
+          '<td data-value="' + d.product + '">' + d.product + '</td>' +
+          '<td data-value="' + d.units_sold + '">' + fmtNumber(d.units_sold) + '</td>' +
+          '<td data-value="' + d.revenue + '" style="background:' + heatBg + '">' + fmtCurrencyFull(d.revenue) + '</td>' +
+          '<td data-value="' + d.return_rate + '">' + fmtPercent(d.return_rate) + '</td>';
+
+        // Row click → markLine on grouped bar chart
+        tr.addEventListener('click', function() {
+          document.querySelectorAll('#detail-table tbody tr').forEach(r => r.classList.remove('row-selected'));
+          tr.classList.add('row-selected');
+          if (chartGroupedBar) {
+            chartGroupedBar.dispatchAction({ type: 'highlight', name: d.product });
+            setTimeout(() => {
+              chartGroupedBar.dispatchAction({ type: 'downplay', name: d.product });
+            }, 2000);
+          }
+        });
+
+        tbody.appendChild(tr);
+      });
+
+      // Pagination controls
+      const paginationEl = document.getElementById('table-pagination');
+      if (totalPages <= 1) {
+        paginationEl.innerHTML = '';
+        return;
+      }
+      paginationEl.innerHTML =
+        '<button onclick="changePage(-1)"' + (tablePage <= 1 ? ' disabled' : '') + '><i class="fas fa-chevron-left"></i> Prev</button>' +
+        '<span>Page ' + tablePage + ' of ' + totalPages + '</span>' +
+        '<button onclick="changePage(1)"' + (tablePage >= totalPages ? ' disabled' : '') + '>Next <i class="fas fa-chevron-right"></i></button>';
+    }
+
+    function changePage(delta) {
+      const data = getFilteredTableData();
+      const totalPages = Math.max(1, Math.ceil(data.length / PAGE_SIZE));
+      tablePage = Math.max(1, Math.min(totalPages, tablePage + delta));
+      renderTablePage();
+    }
+
+    function filterTableSearch(query) {
+      tableSearchQuery = query;
+      tablePage = 1;
+      renderTablePage();
+    }
+
+    function exportCSV() {
+      const data = getFilteredTableData();
+      let csv = 'Month,Region,Product,Units Sold,Revenue,Return Rate\n';
+      data.forEach(d => {
+        csv += d.month + ',' + d.region + ',' + d.product + ',' + d.units_sold + ',' + d.revenue.toFixed(2) + ',' + fmtPercent(d.return_rate) + '\n';
+      });
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'sales_comparison_data.csv';
+      a.click();
+      URL.revokeObjectURL(url);
     }
 
     function sortTable(columnIndex) {
-      const tbody = document.getElementById('table-body');
-      const rows = Array.from(tbody.rows);
-
+      const fields = ['month', 'region', 'product', 'units_sold', 'revenue', 'return_rate'];
       if (sortState.column === columnIndex) {
         sortState.direction *= -1;
       } else {
         sortState.column = columnIndex;
         sortState.direction = 1;
       }
-
-      rows.sort((a, b) => {
-        const va = a.cells[columnIndex].getAttribute('data-value') || a.cells[columnIndex].textContent;
-        const vb = b.cells[columnIndex].getAttribute('data-value') || b.cells[columnIndex].textContent;
-        const na = parseFloat(va), nb = parseFloat(vb);
-        if (!isNaN(na) && !isNaN(nb)) return sortState.direction * (na - nb);
-        return sortState.direction * va.localeCompare(vb);
+      const field = fields[columnIndex];
+      tableDataArr.sort((a, b) => {
+        const va = a[field], vb = b[field];
+        if (typeof va === 'string') return sortState.direction * va.localeCompare(vb);
+        return sortState.direction * (va - vb);
       });
-
-      rows.forEach(row => tbody.appendChild(row));
       updateSortIcons(columnIndex);
+      renderTablePage();
     }
 
     function updateSortIcons(activeCol) {
-      document.querySelectorAll('.data-table th').forEach((th, i) => {
+      document.querySelectorAll('#detail-table th').forEach((th, i) => {
         th.classList.toggle('sorted', i === activeCol);
         const icon = th.querySelector('.sort-icon');
         if (icon) {
@@ -908,11 +1273,7 @@
 
     // ── Re-render all charts on theme change ──
     function updateAllCharts() {
-      const filtered = getFilteredData();
-      renderGroupedBar(filtered);
-      renderHBar(filtered);
-      renderDonut(filtered);
-      renderTrend(filtered);
+      applyFilters();
     }
 
     const observer = new MutationObserver(() => updateAllCharts());
