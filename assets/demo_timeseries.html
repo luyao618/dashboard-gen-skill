@@ -17,10 +17,10 @@
       --accent: #4f6ef7;
       --accent-light: #e8ecff;
       --accent-dark: #3b52c7;
-      --success: #22c55e;
-      --warning: #f59e0b;
-      --danger: #ef4444;
-      --info: #3b82f6;
+      --success: #4ade80;
+      --warning: #fbbf24;
+      --danger: #f87171;
+      --info: #60a5fa;
       --border: #e2e8f0;
       --radius: 10px;
       --shadow-sm: 0 1px 3px rgba(0,0,0,.06);
@@ -116,13 +116,40 @@
       border-radius: var(--radius);
       padding: 16px 18px;
       box-shadow: var(--shadow-sm);
-      transition: box-shadow var(--transition);
+      transition: all var(--transition);
       position: relative;
       overflow: hidden;
+      border-left: 4px solid var(--kpi-color, var(--accent));
     }
 
     .kpi-card:hover {
-      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(129, 140, 248, 0.15);
+    }
+
+    .kpi-card:nth-child(1) { --kpi-color: #818cf8; }
+    .kpi-card:nth-child(2) { --kpi-color: #fbbf24; }
+    .kpi-card:nth-child(3) { --kpi-color: #34d399; }
+    .kpi-card:nth-child(4) { --kpi-color: #fb7185; }
+
+    .kpi-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .kpi-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: #fff;
+      background: var(--kpi-color, var(--accent));
+      flex-shrink: 0;
     }
 
     .kpi-label {
@@ -169,6 +196,11 @@
       border-radius: var(--radius);
       padding: 16px 18px;
       box-shadow: var(--shadow-sm);
+      transition: box-shadow var(--transition);
+    }
+
+    .chart-card:hover {
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
     }
 
     .chart-card.full-width {
@@ -271,6 +303,132 @@
       transform: scale(1.05);
     }
 
+    /* ── Accent bar at top ── */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #818cf8, #4ade80, #fbbf24, #f87171);
+      z-index: 9999;
+    }
+
+    /* ── Skeleton loading animation ── */
+    .skeleton {
+      background: linear-gradient(90deg, var(--border) 25%, var(--bg-primary) 50%, var(--border) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 4px;
+      display: inline-block;
+    }
+    @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+
+    /* ── KPI info tooltip ── */
+    .kpi-info {
+      opacity: 0.4;
+      font-size: 10px;
+      margin-left: 4px;
+      cursor: help;
+    }
+    .kpi-info:hover { opacity: 0.8; }
+
+    /* ── Dashboard subtitle ── */
+    .dashboard-subtitle {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    /* ── Category filter ── */
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .filter-group-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-right: 2px;
+    }
+    .filter-divider {
+      width: 1px;
+      height: 24px;
+      background: var(--border);
+      margin: 0 8px;
+    }
+
+    /* ── Table toolbar (search + export) ── */
+    .table-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .table-search {
+      padding: 6px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color var(--transition);
+      width: 200px;
+    }
+    .table-search:focus {
+      border-color: var(--accent);
+    }
+    .table-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    /* ── Table pagination ── */
+    .table-pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    .table-pagination button {
+      padding: 4px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      font-size: 12px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all var(--transition);
+    }
+    .table-pagination button:hover:not(:disabled) {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .table-pagination button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* ── Table row click highlight ── */
+    .data-table tbody tr {
+      cursor: pointer;
+      transition: background var(--transition);
+    }
+    .data-table tbody tr.row-selected {
+      background: var(--accent-light) !important;
+    }
+
     @media (max-width: 1024px) {
       .kpi-row {
         grid-template-columns: repeat(2, 1fr);
@@ -292,45 +450,78 @@
         align-items: flex-start;
         gap: 12px;
       }
+      .filter-bar {
+        flex-wrap: wrap;
+      }
+      .filter-divider { display: none; }
+      .kpi-sparkline { display: none; }
+      .table-search { width: 100%; }
     }
   </style>
 </head>
 <body>
   <div class="dashboard-container">
     <div class="dashboard-header">
-      <h1 class="dashboard-title">E-Commerce Sales Dashboard</h1>
+      <div>
+        <h1 class="dashboard-title">E-Commerce Sales Dashboard</h1>
+        <p class="dashboard-subtitle" id="dashboard-subtitle">Loading data...</p>
+      </div>
       <div class="filter-bar">
-        <button class="filter-btn" onclick="setDateRange(7, this)">7d</button>
-        <button class="filter-btn" onclick="setDateRange(14, this)">14d</button>
-        <button class="filter-btn active" onclick="setDateRange(30, this)">30d</button>
-        <button class="filter-btn" onclick="setDateRange(60, this)">60d</button>
-        <button class="filter-btn" onclick="setDateRange(90, this)">90d</button>
+        <div class="filter-group">
+          <span class="filter-group-label">Period</span>
+          <button class="filter-btn time-btn" onclick="setDateRange(7, this)">7d</button>
+          <button class="filter-btn time-btn" onclick="setDateRange(14, this)">14d</button>
+          <button class="filter-btn time-btn active" onclick="setDateRange(30, this)">30d</button>
+          <button class="filter-btn time-btn" onclick="setDateRange(60, this)">60d</button>
+          <button class="filter-btn time-btn" onclick="setDateRange(90, this)">90d</button>
+        </div>
+        <div class="filter-divider"></div>
+        <div class="filter-group">
+          <span class="filter-group-label">Category</span>
+          <button class="filter-btn cat-btn active" onclick="setCategoryFilter('all', this)">All</button>
+          <button class="filter-btn cat-btn" onclick="setCategoryFilter('Electronics', this)">Electronics</button>
+          <button class="filter-btn cat-btn" onclick="setCategoryFilter('Clothing', this)">Clothing</button>
+          <button class="filter-btn cat-btn" onclick="setCategoryFilter('Home & Garden', this)">Home & Garden</button>
+          <button class="filter-btn cat-btn" onclick="setCategoryFilter('Sports', this)">Sports</button>
+        </div>
       </div>
     </div>
 
     <div class="kpi-row">
       <div class="kpi-card">
-        <div class="kpi-label">Total Revenue</div>
-        <div class="kpi-value" id="kpi-revenue">—</div>
-        <div class="kpi-change" id="kpi-revenue-change">—</div>
+        <div class="kpi-header">
+          <div class="kpi-icon"><i class="fas fa-dollar-sign"></i></div>
+          <div class="kpi-label">Total Revenue <i class="fas fa-info-circle kpi-info" title="Total revenue across all categories in the selected period"></i></div>
+        </div>
+        <div class="kpi-value" id="kpi-revenue"><span class="skeleton" style="width:120px;height:28px;">&nbsp;</span></div>
+        <div class="kpi-change" id="kpi-revenue-change"><span class="skeleton" style="width:140px;height:14px;">&nbsp;</span></div>
         <div class="kpi-sparkline" id="spark-revenue"></div>
       </div>
       <div class="kpi-card">
-        <div class="kpi-label">Total Orders</div>
-        <div class="kpi-value" id="kpi-orders">—</div>
-        <div class="kpi-change" id="kpi-orders-change">—</div>
+        <div class="kpi-header">
+          <div class="kpi-icon"><i class="fas fa-shopping-cart"></i></div>
+          <div class="kpi-label">Total Orders <i class="fas fa-info-circle kpi-info" title="Number of completed orders in the selected period"></i></div>
+        </div>
+        <div class="kpi-value" id="kpi-orders"><span class="skeleton" style="width:100px;height:28px;">&nbsp;</span></div>
+        <div class="kpi-change" id="kpi-orders-change"><span class="skeleton" style="width:140px;height:14px;">&nbsp;</span></div>
         <div class="kpi-sparkline" id="spark-orders"></div>
       </div>
       <div class="kpi-card">
-        <div class="kpi-label">Avg Order Value</div>
-        <div class="kpi-value" id="kpi-aov">—</div>
-        <div class="kpi-change" id="kpi-aov-change">—</div>
+        <div class="kpi-header">
+          <div class="kpi-icon"><i class="fas fa-chart-bar"></i></div>
+          <div class="kpi-label">Avg Order Value <i class="fas fa-info-circle kpi-info" title="Average revenue per order (Total Revenue / Total Orders)"></i></div>
+        </div>
+        <div class="kpi-value" id="kpi-aov"><span class="skeleton" style="width:80px;height:28px;">&nbsp;</span></div>
+        <div class="kpi-change" id="kpi-aov-change"><span class="skeleton" style="width:140px;height:14px;">&nbsp;</span></div>
         <div class="kpi-sparkline" id="spark-aov"></div>
       </div>
       <div class="kpi-card">
-        <div class="kpi-label">Conversion Rate</div>
-        <div class="kpi-value" id="kpi-conv">—</div>
-        <div class="kpi-change" id="kpi-conv-change">—</div>
+        <div class="kpi-header">
+          <div class="kpi-icon"><i class="fas fa-chart-line"></i></div>
+          <div class="kpi-label">Conversion Rate <i class="fas fa-info-circle kpi-info" title="Percentage of visitors who placed an order"></i></div>
+        </div>
+        <div class="kpi-value" id="kpi-conv"><span class="skeleton" style="width:60px;height:28px;">&nbsp;</span></div>
+        <div class="kpi-change" id="kpi-conv-change"><span class="skeleton" style="width:140px;height:14px;">&nbsp;</span></div>
         <div class="kpi-sparkline" id="spark-conv"></div>
       </div>
     </div>
@@ -354,7 +545,13 @@
     </div>
 
     <div class="data-table-wrapper">
-      <div class="chart-card-title">Daily Data</div>
+      <div class="table-toolbar">
+        <div class="chart-card-title">Daily Data</div>
+        <div class="table-actions">
+          <input type="text" placeholder="Search..." class="table-search" oninput="filterTableSearch(this.value)">
+          <button class="filter-btn" onclick="exportCSV()"><i class="fas fa-download"></i> Export</button>
+        </div>
+      </div>
       <table class="data-table" id="data-table">
         <thead>
           <tr>
@@ -367,6 +564,7 @@
         </thead>
         <tbody></tbody>
       </table>
+      <div class="table-pagination" id="table-pagination"></div>
     </div>
   </div>
 
@@ -742,10 +940,14 @@
 
     // ── Constants ──
     const SERIES_COLORS = [
-      '#E53E3E', '#DD6B20', '#D69E2E', '#38A169', '#319795',
-      '#3182CE', '#5A67D8', '#805AD5', '#D53F8C', '#718096',
-      '#C05621', '#2C7A7B', '#2B6CB0', '#6B46C1', '#B7791F',
-      '#2D3748', '#4A5568', '#B83280', '#276749', '#1A365D',
+      '#818cf8', // Indigo - Electronics
+      '#fbbf24', // Amber - Clothing
+      '#34d399', // Emerald - Home & Garden
+      '#fb7185', // Rose - Sports
+      '#60a5fa', '#a78bfa', '#f472b6', '#2dd4bf',
+      '#fb923c', '#22d3ee', '#a3e635', '#c084fc',
+      '#f87171', '#38bdf8', '#facc15', '#e879f9',
+      '#4ade80', '#94a3b8', '#fda4af', '#67e8f9',
     ];
 
     const CATEGORIES = ['Electronics', 'Clothing', 'Home & Garden', 'Sports'];
@@ -790,8 +992,14 @@
 
     // ── State ──
     let currentDays = 30;
+    let currentCategory = 'all';
     let sparkCharts = {};
     let mainCharts = {};
+    let tableData = [];
+    let tablePage = 1;
+    const PAGE_SIZE = 15;
+    let tableSearchQuery = '';
+    let selectedDate = null;
 
     // ── Theme ──
     function initTheme() {
@@ -828,18 +1036,29 @@
       return chart;
     }
 
-    // ── Date Filtering ──
+    // ── Date & Category Filtering ──
     function filterData(days) {
       const dates = getUniqueDates(RAW_DATA);
       const maxDate = new Date(dates[dates.length - 1]);
       const cutoff = new Date(maxDate);
       cutoff.setDate(cutoff.getDate() - days + 1);
-      return RAW_DATA.filter(r => new Date(r.date) >= cutoff);
+      let filtered = RAW_DATA.filter(r => new Date(r.date) >= cutoff);
+      if (currentCategory !== 'all') {
+        filtered = filtered.filter(r => r.category === currentCategory);
+      }
+      return filtered;
     }
 
     function setDateRange(days, btn) {
       currentDays = days;
-      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderAll();
+    }
+
+    function setCategoryFilter(cat, btn) {
+      currentCategory = cat;
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       renderAll();
     }
@@ -862,6 +1081,20 @@
     function fmtDate(d) {
       const parts = d.split('-');
       return parts[1] + '/' + parts[2];
+    }
+
+    // ── CountUp Animation ──
+    function animateValue(el, end, formatter, duration = 800) {
+      const start = 0;
+      const range = end - start;
+      const startTime = performance.now();
+      function step(timestamp) {
+        const progress = Math.min((timestamp - startTime) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+        el.textContent = formatter(start + range * eased);
+        if (progress < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
     }
 
     // ── KPI Rendering ──
@@ -900,11 +1133,11 @@
       const priorConv = priorVis > 0 ? (priorOrd / priorVis) * 100 : 0;
       const convChange = priorConv > 0 ? ((recentConv - priorConv) / priorConv) * 100 : 0;
 
-      // Update DOM
-      document.getElementById('kpi-revenue').textContent = fmtCurrency(totalRev);
-      document.getElementById('kpi-orders').textContent = fmtNumber(totalOrd);
-      document.getElementById('kpi-aov').textContent = '$' + avgAOV.toFixed(0);
-      document.getElementById('kpi-conv').textContent = fmtPct(convRate);
+      // Update DOM with countUp animation
+      animateValue(document.getElementById('kpi-revenue'), totalRev, v => fmtCurrency(v));
+      animateValue(document.getElementById('kpi-orders'), totalOrd, v => fmtNumber(Math.round(v)));
+      animateValue(document.getElementById('kpi-aov'), avgAOV, v => '$' + Math.round(v));
+      animateValue(document.getElementById('kpi-conv'), convRate, v => fmtPct(v));
 
       setChange('kpi-revenue-change', revChange);
       setChange('kpi-orders-change', ordChange);
@@ -967,6 +1200,26 @@
       if (!chart) return;
       const theme = getChartThemeColors();
 
+      // Build prior period comparison data
+      const halfLen = Math.floor(agg.length / 2);
+      const priorRevData = [];
+      for (let i = 0; i < agg.length; i++) {
+        if (i < halfLen) {
+          priorRevData.push(null);
+        } else {
+          priorRevData.push(agg[i - halfLen] ? agg[i - halfLen].revenue : null);
+        }
+      }
+
+      // Build rolling 7-day average for revenue
+      const revenueArr = agg.map(d => d.revenue);
+      const rolling7 = revenueArr.map((_, i) => {
+        if (i < 6) return null;
+        let sum = 0;
+        for (let j = i - 6; j <= i; j++) sum += revenueArr[j];
+        return Math.round(sum / 7 * 100) / 100;
+      });
+
       chart.setOption({
         tooltip: {
           trigger: 'axis',
@@ -976,8 +1229,9 @@
           formatter: function(params) {
             let html = '<strong>' + params[0].axisValue + '</strong><br/>';
             params.forEach(p => {
+              if (p.value == null) return;
               html += '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:' + p.color + ';margin-right:6px;"></span>';
-              if (p.seriesName === 'Revenue') {
+              if (p.seriesName === 'Revenue' || p.seriesName === 'Revenue (Prior Period)' || p.seriesName === 'Revenue (7d Avg)') {
                 html += p.seriesName + ': ' + fmtCurrency(p.value) + '<br/>';
               } else {
                 html += p.seriesName + ': ' + fmtNumber(p.value) + '<br/>';
@@ -990,7 +1244,7 @@
           top: 5,
           textStyle: { fontSize: 12, color: theme.textColor },
         },
-        grid: { left: 70, right: 70, top: 40, bottom: 40 },
+        grid: { left: 70, right: 70, top: 40, bottom: 60 },
         xAxis: {
           type: 'category',
           data: dates,
@@ -1013,6 +1267,13 @@
             splitLine: { show: false },
           },
         ],
+        dataZoom: [
+          { type: 'inside', start: 0, end: 100 },
+          { type: 'slider', bottom: 5, height: 20, start: 0, end: 100,
+            borderColor: theme.axisLineColor,
+            textStyle: { color: theme.textColor },
+          },
+        ],
         series: [
           {
             name: 'Revenue',
@@ -1022,8 +1283,34 @@
             symbol: 'circle',
             symbolSize: 4,
             lineStyle: { width: 2 },
-            itemStyle: { color: SERIES_COLORS[5] },
+            itemStyle: { color: SERIES_COLORS[0] },
+            areaStyle: {
+              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                { offset: 0, color: 'rgba(129, 140, 248, 0.3)' },
+                { offset: 1, color: 'rgba(129, 140, 248, 0.02)' },
+              ]),
+            },
             data: agg.map(d => d.revenue),
+          },
+          {
+            name: 'Revenue (Prior Period)',
+            type: 'line',
+            yAxisIndex: 0,
+            smooth: true,
+            symbol: 'none',
+            lineStyle: { type: 'dashed', width: 1, color: '#cbd5e1' },
+            itemStyle: { color: '#cbd5e1' },
+            data: priorRevData,
+          },
+          {
+            name: 'Revenue (7d Avg)',
+            type: 'line',
+            yAxisIndex: 0,
+            smooth: true,
+            symbol: 'none',
+             lineStyle: { width: 2.5, color: '#fbbf24' },
+             itemStyle: { color: '#fbbf24' },
+            data: rolling7,
           },
           {
             name: 'Orders',
@@ -1033,7 +1320,7 @@
             symbol: 'circle',
             symbolSize: 4,
             lineStyle: { width: 2 },
-            itemStyle: { color: SERIES_COLORS[3] },
+            itemStyle: { color: SERIES_COLORS[2] },
             data: agg.map(d => d.orders),
           },
         ],
@@ -1088,6 +1375,20 @@
           },
         }],
       }, true);
+
+      // Chart linking: click donut → highlight category in stacked chart
+      chart.off('click');
+      chart.on('click', function(params) {
+        if (mainCharts.stacked) {
+          const catIndex = CATEGORIES.indexOf(params.name);
+          if (catIndex >= 0) {
+            mainCharts.stacked.dispatchAction({ type: 'highlight', seriesIndex: catIndex });
+            setTimeout(() => {
+              mainCharts.stacked.dispatchAction({ type: 'downplay', seriesIndex: catIndex });
+            }, 2000);
+          }
+        }
+      });
     }
 
     function renderStackedAreaChart(agg, dates) {
@@ -1096,6 +1397,7 @@
       if (!chart) return;
       const theme = getChartThemeColors();
 
+      // Stacked area series
       const series = CATEGORIES.map((cat, i) => ({
         name: cat,
         type: 'line',
@@ -1108,6 +1410,28 @@
         data: agg.map(d => d.catRevenue[cat] || 0),
       }));
 
+      // Rolling 7-day average per category (stacked to match area chart)
+      CATEGORIES.forEach((cat, i) => {
+        const catData = agg.map(d => d.catRevenue[cat] || 0);
+        const r7 = catData.map((_, idx) => {
+          if (idx < 6) return null;
+          let sum = 0;
+          for (let j = idx - 6; j <= idx; j++) sum += catData[j];
+          return Math.round(sum / 7 * 100) / 100;
+        });
+        series.push({
+          name: cat + ' (7d Avg)',
+          type: 'line',
+          stack: 'avg',
+          smooth: true,
+          symbol: 'none',
+          lineStyle: { width: 2, type: 'dashed', color: SERIES_COLORS[i] },
+          itemStyle: { color: SERIES_COLORS[i] },
+          areaStyle: { opacity: 0 },
+          data: r7,
+        });
+      });
+
       chart.setOption({
         tooltip: {
           trigger: 'axis',
@@ -1118,7 +1442,9 @@
             let html = '<strong>' + params[0].axisValue + '</strong><br/>';
             let total = 0;
             params.forEach(p => {
-              total += p.value;
+              if (p.value == null) return;
+              // Only sum stacked series (not the 7d avg lines)
+              if (!p.seriesName.includes('7d Avg')) total += p.value;
               html += '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:' + p.color + ';margin-right:6px;"></span>';
               html += p.seriesName + ': ' + fmtCurrency(p.value) + '<br/>';
             });
@@ -1152,52 +1478,144 @@
 
     function renderTable(filteredData) {
       const agg = aggregateByDate(filteredData);
-      const tbody = document.querySelector('#data-table tbody');
-      tbody.innerHTML = '';
-
-      agg.forEach(d => {
-        const aov = d.orders > 0 ? d.revenue / d.orders : 0;
-        const conv = d.visitors > 0 ? (d.orders / d.visitors) * 100 : 0;
-        const tr = document.createElement('tr');
-        tr.innerHTML =
-          '<td data-value="' + d.date + '">' + d.date + '</td>' +
-          '<td data-value="' + d.revenue.toFixed(2) + '">' + fmtCurrency(d.revenue) + '</td>' +
-          '<td data-value="' + d.orders + '">' + fmtNumber(d.orders) + '</td>' +
-          '<td data-value="' + aov.toFixed(2) + '">$' + aov.toFixed(2) + '</td>' +
-          '<td data-value="' + conv.toFixed(2) + '">' + conv.toFixed(2) + '%</td>';
-        tbody.appendChild(tr);
-      });
-
-      // Reset sort state
+      tableData = agg.map(d => ({
+        date: d.date,
+        revenue: d.revenue,
+        orders: d.orders,
+        aov: d.orders > 0 ? d.revenue / d.orders : 0,
+        conv: d.visitors > 0 ? (d.orders / d.visitors) * 100 : 0,
+      }));
+      tablePage = 1;
+      tableSearchQuery = '';
+      const searchInput = document.querySelector('.table-search');
+      if (searchInput) searchInput.value = '';
       sortState = { column: -1, direction: 1 };
       document.querySelectorAll('#data-table th').forEach(th => {
         th.classList.remove('sorted');
         const icon = th.querySelector('.sort-icon');
         if (icon) icon.className = 'sort-icon fas fa-sort';
       });
+      renderTablePage();
+    }
+
+    function getFilteredTableData() {
+      if (!tableSearchQuery) return tableData;
+      const q = tableSearchQuery.toLowerCase();
+      return tableData.filter(d =>
+        d.date.includes(q) ||
+        fmtCurrency(d.revenue).toLowerCase().includes(q) ||
+        String(d.orders).includes(q)
+      );
+    }
+
+    function renderTablePage() {
+      const data = getFilteredTableData();
+      const totalPages = Math.max(1, Math.ceil(data.length / PAGE_SIZE));
+      if (tablePage > totalPages) tablePage = totalPages;
+      const start = (tablePage - 1) * PAGE_SIZE;
+      const pageData = data.slice(start, start + PAGE_SIZE);
+
+      // Compute min/max revenue for conditional formatting
+      const allRevs = data.map(d => d.revenue);
+      const maxRev = Math.max(...allRevs);
+      const minRev = Math.min(...allRevs);
+      const revRange = maxRev - minRev || 1;
+
+      const tbody = document.querySelector('#data-table tbody');
+      tbody.innerHTML = '';
+
+      pageData.forEach(d => {
+        const tr = document.createElement('tr');
+        const normalized = (d.revenue - minRev) / revRange;
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        const heatBg = isDark
+          ? 'rgba(52, 211, 153, ' + (normalized * 0.25) + ')'
+          : 'rgba(74, 222, 128, ' + (normalized * 0.2) + ')';
+        tr.innerHTML =
+          '<td data-value="' + d.date + '">' + d.date + '</td>' +
+          '<td data-value="' + d.revenue.toFixed(2) + '" style="background:' + heatBg + '">' + fmtCurrency(d.revenue) + '</td>' +
+          '<td data-value="' + d.orders + '">' + fmtNumber(d.orders) + '</td>' +
+          '<td data-value="' + d.aov.toFixed(2) + '">$' + d.aov.toFixed(2) + '</td>' +
+          '<td data-value="' + d.conv.toFixed(2) + '">' + d.conv.toFixed(2) + '%</td>';
+
+        // Row click → markLine on dual axis chart
+        tr.addEventListener('click', function() {
+          document.querySelectorAll('#data-table tbody tr').forEach(r => r.classList.remove('row-selected'));
+          tr.classList.add('row-selected');
+          if (mainCharts.dual) {
+            mainCharts.dual.setOption({
+              series: [{
+                markLine: {
+                  silent: true,
+                  symbol: 'none',
+                  lineStyle: { color: '#fb7185', type: 'solid', width: 2 },
+                  label: { formatter: d.date, fontSize: 10 },
+                  data: [{ xAxis: fmtDate(d.date) }],
+                },
+              }],
+            });
+          }
+        });
+
+        tbody.appendChild(tr);
+      });
+
+      // Pagination controls
+      const paginationEl = document.getElementById('table-pagination');
+      if (totalPages <= 1) {
+        paginationEl.innerHTML = '';
+        return;
+      }
+      paginationEl.innerHTML =
+        '<button onclick="changePage(-1)"' + (tablePage <= 1 ? ' disabled' : '') + '><i class="fas fa-chevron-left"></i> Prev</button>' +
+        '<span>Page ' + tablePage + ' of ' + totalPages + '</span>' +
+        '<button onclick="changePage(1)"' + (tablePage >= totalPages ? ' disabled' : '') + '>Next <i class="fas fa-chevron-right"></i></button>';
+    }
+
+    function changePage(delta) {
+      const data = getFilteredTableData();
+      const totalPages = Math.max(1, Math.ceil(data.length / PAGE_SIZE));
+      tablePage = Math.max(1, Math.min(totalPages, tablePage + delta));
+      renderTablePage();
+    }
+
+    function filterTableSearch(query) {
+      tableSearchQuery = query;
+      tablePage = 1;
+      renderTablePage();
+    }
+
+    function exportCSV() {
+      const data = getFilteredTableData();
+      let csv = 'Date,Revenue,Orders,Avg Order Value,Conversion Rate\n';
+      data.forEach(d => {
+        csv += d.date + ',' + d.revenue.toFixed(2) + ',' + d.orders + ',' + d.aov.toFixed(2) + ',' + d.conv.toFixed(2) + '%\n';
+      });
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'dashboard_data.csv';
+      a.click();
+      URL.revokeObjectURL(url);
     }
 
     function sortTable(columnIndex) {
-      const tbody = document.querySelector('#data-table tbody');
-      const rows = Array.from(tbody.rows);
-
+      const fields = ['date', 'revenue', 'orders', 'aov', 'conv'];
       if (sortState.column === columnIndex) {
         sortState.direction *= -1;
       } else {
         sortState.column = columnIndex;
         sortState.direction = 1;
       }
-
-      rows.sort((a, b) => {
-        const va = a.cells[columnIndex].getAttribute('data-value') || a.cells[columnIndex].textContent;
-        const vb = b.cells[columnIndex].getAttribute('data-value') || b.cells[columnIndex].textContent;
-        const na = parseFloat(va), nb = parseFloat(vb);
-        if (!isNaN(na) && !isNaN(nb)) return sortState.direction * (na - nb);
-        return sortState.direction * va.localeCompare(vb);
+      const field = fields[columnIndex];
+      tableData.sort((a, b) => {
+        const va = a[field], vb = b[field];
+        if (typeof va === 'string') return sortState.direction * va.localeCompare(vb);
+        return sortState.direction * (va - vb);
       });
-
-      rows.forEach(row => tbody.appendChild(row));
       updateSortIcons(columnIndex);
+      renderTablePage();
     }
 
     function updateSortIcons(activeCol) {
@@ -1219,6 +1637,18 @@
       renderKPIs(filtered);
       renderCharts(filtered);
       renderTable(filtered);
+
+      // Update subtitle with data range
+      const dates = getUniqueDates(filtered);
+      if (dates.length > 0) {
+        const first = dates[0];
+        const last = dates[dates.length - 1];
+        const now = new Date();
+        const updated = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        const catLabel = currentCategory === 'all' ? 'All Categories' : currentCategory;
+        document.getElementById('dashboard-subtitle').textContent =
+          'Last updated: ' + updated + ' \u00b7 Data range: ' + first + ' \u2013 ' + last + ' \u00b7 ' + catLabel;
+      }
     }
 
     // ── Theme Observer ──
