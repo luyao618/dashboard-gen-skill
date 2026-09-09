@@ -3,1664 +3,681 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>E-Commerce Sales Dashboard</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg-primary: #f4f6f9;
-      --bg-card: #ffffff;
-      --text-primary: #1e293b;
-      --text-secondary: #64748b;
-      --accent: #4f6ef7;
-      --accent-light: #e8ecff;
-      --accent-dark: #3b52c7;
-      --success: #4ade80;
-      --warning: #fbbf24;
-      --danger: #f87171;
-      --info: #60a5fa;
-      --border: #e2e8f0;
-      --radius: 10px;
-      --shadow-sm: 0 1px 3px rgba(0,0,0,.06);
-      --shadow-md: 0 4px 12px rgba(0,0,0,.08);
-      --shadow-lg: 0 10px 30px rgba(0,0,0,.1);
-      --transition: .2s ease;
-    }
-
-    :root[data-theme="dark"] {
-      --bg-primary: #0f172a;
-      --bg-card: #1e293b;
-      --text-primary: #f8fafc;
-      --text-secondary: #cbd5e1;
-      --accent-light: #1e3a5f;
-      --border: #475569;
-      --shadow-sm: 0 1px 3px rgba(0,0,0,.3);
-      --shadow-md: 0 4px 12px rgba(0,0,0,.4);
-      --shadow-lg: 0 10px 30px rgba(0,0,0,.5);
-    }
-
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      font-size: 14px;
-      font-weight: 400;
-      line-height: 1.5;
-      color: var(--text-primary);
-      background: var(--bg-primary);
-      margin: 0;
-      padding: 20px 24px;
-      min-height: 100vh;
-    }
-
-    .dashboard-container {
-      max-width: 1400px;
-      margin: 0 auto;
-    }
-
-    .dashboard-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-
-    .dashboard-title {
-      font-size: 24px;
-      font-weight: 700;
-      color: var(--text-primary);
-    }
-
-    .filter-bar {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .filter-btn {
-      padding: 6px 14px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      background: var(--bg-card);
-      color: var(--text-secondary);
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all var(--transition);
-      font-family: inherit;
-    }
-
-    .filter-btn:hover {
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-
-    .filter-btn.active {
-      background: var(--accent);
-      color: #fff;
-      border-color: var(--accent);
-    }
-
-    .kpi-row {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 14px;
-      margin-bottom: 20px;
-    }
-
-    .kpi-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 16px 18px;
-      box-shadow: var(--shadow-sm);
-      transition: all var(--transition);
-      position: relative;
-      overflow: hidden;
-      border-left: 4px solid var(--kpi-color, var(--accent));
-    }
-
-    .kpi-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(129, 140, 248, 0.15);
-    }
-
-    .kpi-card:nth-child(1) { --kpi-color: #818cf8; }
-    .kpi-card:nth-child(2) { --kpi-color: #fbbf24; }
-    .kpi-card:nth-child(3) { --kpi-color: #34d399; }
-    .kpi-card:nth-child(4) { --kpi-color: #fb7185; }
-
-    .kpi-header {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 6px;
-    }
-
-    .kpi-icon {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      color: #fff;
-      background: var(--kpi-color, var(--accent));
-      flex-shrink: 0;
-    }
-
-    .kpi-label {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-secondary);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 6px;
-    }
-
-    .kpi-value {
-      font-size: 28px;
-      font-weight: 700;
-      color: var(--text-primary);
-      margin-bottom: 4px;
-    }
-
-    .kpi-change {
-      font-size: 12px;
-      font-weight: 600;
-    }
-
-    .kpi-change.positive { color: var(--success); }
-    .kpi-change.negative { color: var(--danger); }
-
-    .kpi-sparkline {
-      width: 100%;
-      height: 40px;
-      margin-top: 8px;
-    }
-
-    .chart-row {
-      display: flex;
-      gap: 14px;
-      margin-bottom: 20px;
-    }
-
-    .chart-card {
-      flex: 1;
-      min-width: 0;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 16px 18px;
-      box-shadow: var(--shadow-sm);
-      transition: box-shadow var(--transition);
-    }
-
-    .chart-card:hover {
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-    }
-
-    .chart-card.full-width {
-      width: 100%;
-    }
-
-    .chart-card-title {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--text-primary);
-      margin-bottom: 12px;
-    }
-
-    .chart-container {
-      width: 100%;
-      height: 300px;
-    }
-
-    .data-table-wrapper {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 16px 18px;
-      box-shadow: var(--shadow-sm);
-      overflow-x: auto;
-      margin-bottom: 20px;
-    }
-
-    .data-table-wrapper .chart-card-title {
-      margin-bottom: 12px;
-    }
-
-    .data-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-    }
-
-    .data-table th {
-      text-align: left;
-      padding: 10px 12px;
-      font-weight: 600;
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--text-secondary);
-      border-bottom: 2px solid var(--border);
-      cursor: pointer;
-      user-select: none;
-      white-space: nowrap;
-    }
-
-    .data-table th:hover {
-      color: var(--accent);
-    }
-
-    .data-table th .sort-icon {
-      margin-left: 4px;
-      font-size: 10px;
-      opacity: 0.4;
-    }
-
-    .data-table th.sorted .sort-icon {
-      opacity: 1;
-      color: var(--accent);
-    }
-
-    .data-table td {
-      padding: 8px 12px;
-      border-bottom: 1px solid var(--border);
-      color: var(--text-primary);
-    }
-
-    .data-table tbody tr:hover {
-      background: var(--accent-light);
-    }
-
-    .theme-toggle {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      border: 1px solid var(--border);
-      background: var(--bg-card);
-      color: var(--text-primary);
-      font-size: 18px;
-      cursor: pointer;
-      box-shadow: var(--shadow-md);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all var(--transition);
-      z-index: 1000;
-    }
-
-    .theme-toggle:hover {
-      box-shadow: var(--shadow-lg);
-      transform: scale(1.05);
-    }
-
-    /* ── Accent bar at top ── */
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      height: 3px;
-      background: linear-gradient(90deg, #818cf8, #4ade80, #fbbf24, #f87171);
-      z-index: 9999;
-    }
-
-    /* ── Skeleton loading animation ── */
-    .skeleton {
-      background: linear-gradient(90deg, var(--border) 25%, var(--bg-primary) 50%, var(--border) 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.5s infinite;
-      border-radius: 4px;
-      display: inline-block;
-    }
-    @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
-
-    /* ── KPI info tooltip ── */
-    .kpi-info {
-      opacity: 0.4;
-      font-size: 10px;
-      margin-left: 4px;
-      cursor: help;
-    }
-    .kpi-info:hover { opacity: 0.8; }
-
-    /* ── Dashboard subtitle ── */
-    .dashboard-subtitle {
-      font-size: 12px;
-      color: var(--text-secondary);
-      margin-top: 2px;
-    }
-
-    /* ── Category filter ── */
-    .filter-group {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .filter-group-label {
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--text-secondary);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-right: 2px;
-    }
-    .filter-divider {
-      width: 1px;
-      height: 24px;
-      background: var(--border);
-      margin: 0 8px;
-    }
-
-    /* ── Table toolbar (search + export) ── */
-    .table-toolbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-    .table-search {
-      padding: 6px 12px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      background: var(--bg-primary);
-      color: var(--text-primary);
-      font-size: 13px;
-      font-family: inherit;
-      outline: none;
-      transition: border-color var(--transition);
-      width: 200px;
-    }
-    .table-search:focus {
-      border-color: var(--accent);
-    }
-    .table-actions {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-
-    /* ── Table pagination ── */
-    .table-pagination {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 12px;
-      margin-top: 12px;
-      font-size: 13px;
-      color: var(--text-secondary);
-    }
-    .table-pagination button {
-      padding: 4px 12px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      background: var(--bg-card);
-      color: var(--text-secondary);
-      font-size: 12px;
-      cursor: pointer;
-      font-family: inherit;
-      transition: all var(--transition);
-    }
-    .table-pagination button:hover:not(:disabled) {
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-    .table-pagination button:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-    }
-
-    /* ── Table row click highlight ── */
-    .data-table tbody tr {
-      cursor: pointer;
-      transition: background var(--transition);
-    }
-    .data-table tbody tr.row-selected {
-      background: var(--accent-light) !important;
-    }
-
-    @media (max-width: 1024px) {
-      .kpi-row {
-        grid-template-columns: repeat(2, 1fr);
-      }
-      .chart-row {
-        flex-direction: column;
-      }
-    }
-
-    @media (max-width: 640px) {
-      .kpi-row {
-        grid-template-columns: 1fr;
-      }
-      body {
-        padding: 12px;
-      }
-      .dashboard-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 12px;
-      }
-      .filter-bar {
-        flex-wrap: wrap;
-      }
-      .filter-divider { display: none; }
-      .kpi-sparkline { display: none; }
-      .table-search { width: 100%; }
-    }
-  </style>
-</head>
-<body>
-  <div class="dashboard-container">
-    <div class="dashboard-header">
-      <div>
-        <h1 class="dashboard-title">E-Commerce Sales Dashboard</h1>
-        <p class="dashboard-subtitle" id="dashboard-subtitle">Loading data...</p>
-      </div>
-      <div class="filter-bar">
-        <div class="filter-group">
-          <span class="filter-group-label">Period</span>
-          <button class="filter-btn time-btn" onclick="setDateRange(7, this)">7d</button>
-          <button class="filter-btn time-btn" onclick="setDateRange(14, this)">14d</button>
-          <button class="filter-btn time-btn active" onclick="setDateRange(30, this)">30d</button>
-          <button class="filter-btn time-btn" onclick="setDateRange(60, this)">60d</button>
-          <button class="filter-btn time-btn" onclick="setDateRange(90, this)">90d</button>
-        </div>
-        <div class="filter-divider"></div>
-        <div class="filter-group">
-          <span class="filter-group-label">Category</span>
-          <button class="filter-btn cat-btn active" onclick="setCategoryFilter('all', this)">All</button>
-          <button class="filter-btn cat-btn" onclick="setCategoryFilter('Electronics', this)">Electronics</button>
-          <button class="filter-btn cat-btn" onclick="setCategoryFilter('Clothing', this)">Clothing</button>
-          <button class="filter-btn cat-btn" onclick="setCategoryFilter('Home & Garden', this)">Home & Garden</button>
-          <button class="filter-btn cat-btn" onclick="setCategoryFilter('Sports', this)">Sports</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="kpi-row">
-      <div class="kpi-card">
-        <div class="kpi-header">
-          <div class="kpi-icon"><i class="fas fa-dollar-sign"></i></div>
-          <div class="kpi-label">Total Revenue <i class="fas fa-info-circle kpi-info" title="Total revenue across all categories in the selected period"></i></div>
-        </div>
-        <div class="kpi-value" id="kpi-revenue"><span class="skeleton" style="width:120px;height:28px;">&nbsp;</span></div>
-        <div class="kpi-change" id="kpi-revenue-change"><span class="skeleton" style="width:140px;height:14px;">&nbsp;</span></div>
-        <div class="kpi-sparkline" id="spark-revenue"></div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-header">
-          <div class="kpi-icon"><i class="fas fa-shopping-cart"></i></div>
-          <div class="kpi-label">Total Orders <i class="fas fa-info-circle kpi-info" title="Number of completed orders in the selected period"></i></div>
-        </div>
-        <div class="kpi-value" id="kpi-orders"><span class="skeleton" style="width:100px;height:28px;">&nbsp;</span></div>
-        <div class="kpi-change" id="kpi-orders-change"><span class="skeleton" style="width:140px;height:14px;">&nbsp;</span></div>
-        <div class="kpi-sparkline" id="spark-orders"></div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-header">
-          <div class="kpi-icon"><i class="fas fa-chart-bar"></i></div>
-          <div class="kpi-label">Avg Order Value <i class="fas fa-info-circle kpi-info" title="Average revenue per order (Total Revenue / Total Orders)"></i></div>
-        </div>
-        <div class="kpi-value" id="kpi-aov"><span class="skeleton" style="width:80px;height:28px;">&nbsp;</span></div>
-        <div class="kpi-change" id="kpi-aov-change"><span class="skeleton" style="width:140px;height:14px;">&nbsp;</span></div>
-        <div class="kpi-sparkline" id="spark-aov"></div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-header">
-          <div class="kpi-icon"><i class="fas fa-chart-line"></i></div>
-          <div class="kpi-label">Conversion Rate <i class="fas fa-info-circle kpi-info" title="Percentage of visitors who placed an order"></i></div>
-        </div>
-        <div class="kpi-value" id="kpi-conv"><span class="skeleton" style="width:60px;height:28px;">&nbsp;</span></div>
-        <div class="kpi-change" id="kpi-conv-change"><span class="skeleton" style="width:140px;height:14px;">&nbsp;</span></div>
-        <div class="kpi-sparkline" id="spark-conv"></div>
-      </div>
-    </div>
-
-    <div class="chart-row" style="margin-bottom: 20px;">
-      <div class="chart-card full-width">
-        <div class="chart-card-title">Revenue & Orders Trend</div>
-        <div class="chart-container" id="chart-dual"></div>
-      </div>
-    </div>
-
-    <div class="chart-row">
-      <div class="chart-card">
-        <div class="chart-card-title">Revenue by Category</div>
-        <div class="chart-container" id="chart-donut"></div>
-      </div>
-      <div class="chart-card">
-        <div class="chart-card-title">Daily Revenue by Category</div>
-        <div class="chart-container" id="chart-stacked"></div>
-      </div>
-    </div>
-
-    <div class="data-table-wrapper">
-      <div class="table-toolbar">
-        <div class="chart-card-title">Daily Data</div>
-        <div class="table-actions">
-          <input type="text" placeholder="Search..." class="table-search" oninput="filterTableSearch(this.value)">
-          <button class="filter-btn" onclick="exportCSV()"><i class="fas fa-download"></i> Export</button>
-        </div>
-      </div>
-      <table class="data-table" id="data-table">
-        <thead>
-          <tr>
-            <th onclick="sortTable(0)">Date <i class="sort-icon fas fa-sort"></i></th>
-            <th onclick="sortTable(1)">Revenue <i class="sort-icon fas fa-sort"></i></th>
-            <th onclick="sortTable(2)">Orders <i class="sort-icon fas fa-sort"></i></th>
-            <th onclick="sortTable(3)">Avg Order Value <i class="sort-icon fas fa-sort"></i></th>
-            <th onclick="sortTable(4)">Conv. Rate <i class="sort-icon fas fa-sort"></i></th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-      <div class="table-pagination" id="table-pagination"></div>
-    </div>
-  </div>
-
-  <button class="theme-toggle" onclick="toggleTheme()">
-    <i class="fas fa-moon"></i>
-  </button>
-
-  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+  <meta name="color-scheme" content="light dark">
+  <title>Sales performance</title>
+  <style>:root {
+  color-scheme: light;
+  --page: #f2f5f8; --surface: #ffffff; --surface-soft: #f7f9fc;
+  --ink: #192b43; --muted: #57687d; --border: #dce3eb; --grid: #e9eef4;
+  --accent: #315cce; --accent-soft: #eaf0ff; --accent-ink: #2448aa;
+  --teal: #087e8b; --amber: #a86a12; --rose: #bb466b; --purple: #7f56b0; --orange: #bd5828;
+  --positive: #087568; --negative: #b93851; --focus: #315cce;
+  --font: 'Avenir Next', 'Segoe UI', 'PingFang SC', sans-serif;
+  --data-font: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+  --radius: 14px;
+}
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --page: #101a28; --surface: #172438; --surface-soft: #1c2c42;
+  --ink: #e6edf7; --muted: #a5b6cc; --border: #31445d; --grid: #2a3b52;
+  --accent: #90adff; --accent-soft: #24395f; --accent-ink: #b8cbff;
+  --teal: #5bc8cb; --amber: #e7b75e; --rose: #f189a9; --purple: #bc9fe9; --orange: #efab86;
+  --positive: #67d5bb; --negative: #ff9bab; --focus: #a5beff;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--ink); font: 14px/1.5 var(--font); }
+button, input, select { font: inherit; }
+button, select, summary { cursor: pointer; }
+a { color: var(--accent-ink); }
+button, input, select { color: var(--ink); }
+button { min-height: 40px; padding: 8px 14px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); font-weight: 600; }
+button:hover { background: var(--accent-soft); border-color: var(--accent); }
+button:disabled { cursor: default; opacity: .45; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+[hidden] { display: none !important; }
+.skip-link { position: fixed; top: -80px; left: 20px; z-index: 10; padding: 12px; background: var(--surface); }
+.skip-link:focus { top: 12px; }
+.appbar { border-bottom: 1px solid var(--border); background: var(--surface); }
+.appbar-inner { max-width: 1440px; padding: 15px 40px; margin: auto; display: flex; align-items: center; gap: 28px; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: -.3px; white-space: nowrap; }
+.brand svg { color: var(--accent); width: 26px; height: 26px; }
+nav { display: flex; gap: 24px; margin-right: auto; }
+nav a { text-decoration: none; color: var(--muted); font-size: 13px; padding: 8px 0; }
+nav a:hover { color: var(--accent-ink); }
+.sample-tag, .eyebrow, .section-label { font-family: var(--data-font); font-size: 11px; letter-spacing: .07em; text-transform: uppercase; }
+.sample-tag { color: var(--muted); padding: 4px 9px; border: 1px solid var(--border); border-radius: 5px; white-space: nowrap; }
+#theme-toggle { font-size: 12px; min-width: 108px; }
+main { max-width: 1440px; padding: 36px 40px 28px; margin: auto; }
+.page-heading { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; margin-bottom: 26px; }
+.eyebrow { color: var(--accent-ink); margin: 0 0 10px; font-weight: 600; }
+h1 { font-size: clamp(28px, 3vw, 42px); line-height: 1.15; font-weight: 650; letter-spacing: -1.6px; margin: 0 0 11px; }
+.description { color: var(--muted); font-size: 14px; margin: 0; max-width: 720px; }
+.scope { color: var(--muted); text-align: right; flex-shrink: 0; font-size: 12px; }
+.scope strong { display: block; color: var(--ink); font-family: var(--data-font); font-size: 12px; font-weight: 500; margin-bottom: 6px; }
+.filter-bar { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 22px; padding: 14px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; }
+.filter-label { color: var(--muted); font-size: 12px; margin-right: 3px; }
+.control { display: flex; align-items: center; gap: 8px; }
+.control label { color: var(--muted); font-size: 12px; }
+select, input { min-height: 38px; border: 1px solid var(--border); border-radius: 7px; background: var(--surface-soft); padding: 8px 10px; max-width: 100%; }
+#reset { margin-left: auto; min-height: 36px; font-size: 12px; border-color: transparent; color: var(--accent-ink); }
+.kpi-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin-bottom: 26px; gap: 1px; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: var(--border); }
+.kpi { background: var(--surface); padding: 22px 24px 19px; min-width: 0; }
+.kpi-label { margin: 0 0 9px; color: var(--muted); font-size: 13px; font-weight: 500; }
+.kpi-value { font-size: clamp(26px, 2.7vw, 38px); line-height: 1.25; font-weight: 600; letter-spacing: -1.5px; font-variant-numeric: tabular-nums; margin: 0 0 9px; }
+.kpi:first-child .kpi-value { color: var(--accent-ink); }
+.kpi-note { min-height: 36px; color: var(--muted); font-size: 11px; line-height: 1.6; }
+.kpi-note .delta { font-weight: 650; }
+.positive { color: var(--positive); } .negative { color: var(--negative); }
+.analysis-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin: 0 0 12px; }
+.analysis-heading h2 { font-size: 16px; margin: 0; font-weight: 650; }
+.analysis-heading span { color: var(--muted); font-size: 12px; }
+.primary-grid { display: grid; grid-template-columns: minmax(0, 2.5fr) minmax(260px, 1fr); gap: 18px; margin-bottom: 18px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); min-width: 0; overflow: hidden; }
+.card-heading { padding: 22px 24px 0; }
+h3 { font-size: 15px; line-height: 1.4; font-weight: 650; margin: 0 0 5px; }
+.chart-description { margin: 0; color: var(--muted); font-size: 12px; }
+.chart { height: 320px; width: 100%; }
+.primary-chart { height: 340px; }
+.chart-summary { border-top: 1px solid var(--grid); color: var(--muted); font-size: 11px; padding: 11px 24px; margin: 0; line-height: 1.6; }
+.insight { background: var(--accent-soft); border: 1px solid var(--border); border-radius: var(--radius); padding: 25px 26px; display: flex; flex-direction: column; min-width: 0; }
+.insight .section-label { color: var(--accent-ink); margin: 0 0 27px; }
+.insight-value { font-size: 48px; line-height: 1.12; font-weight: 600; letter-spacing: -2px; color: var(--accent-ink); font-variant-numeric: tabular-nums; margin: 0 0 12px; overflow-wrap: anywhere; }
+.insight h3 { font-size: 19px; letter-spacing: -.4px; margin-bottom: 10px; overflow-wrap: anywhere; }
+.insight-copy { color: var(--muted); font-size: 13px; margin: 0 0 24px; }
+.insight-list { margin-top: auto; border-top: 1px solid var(--border); padding-top: 17px; }
+.insight-row { display: flex; justify-content: space-between; gap: 12px; font-size: 12px; margin: 9px 0; }
+.insight-row span { color: var(--muted); }
+.insight-row strong { font-variant-numeric: tabular-nums; font-weight: 600; white-space: nowrap; }
+.support-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 28px; }
+#empty-state, #chart-error { padding: 24px; margin-bottom: 20px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
+#chart-error { color: var(--negative); }
+.table-card { margin-top: 24px; }
+.table-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 20px 24px; }
+.table-toolbar h2 { font-size: 16px; margin: 0 0 4px; }
+.table-toolbar p { color: var(--muted); font-size: 12px; margin: 0; }
+.table-actions { display: flex; align-items: center; gap: 10px; }
+#search { width: 210px; }
+.table-scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; white-space: nowrap; font-size: 12px; }
+caption { text-align: left; padding: 0 24px 10px; color: var(--muted); font-size: 11px; }
+th { text-align: left; background: var(--surface-soft); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 0 16px; font-weight: 500; }
+th button { border: 0; background: transparent; padding: 11px 0; font-size: 11px; min-height: 44px; color: var(--muted); border-radius: 0; white-space: nowrap; }
+th button:hover { background: transparent; color: var(--accent-ink); }
+th[aria-sort='ascending'] button, th[aria-sort='descending'] button { color: var(--accent-ink); }
+td { padding: 12px 16px; border-bottom: 1px solid var(--grid); }
+th:first-child, td:first-child { padding-left: 24px; }
+th:last-child, td:last-child { padding-right: 24px; }
+.num { text-align: right; font-variant-numeric: tabular-nums; font-family: var(--data-font); font-size: 11px; }
+.num button { font-family: var(--font); }
+tr:hover td { background: var(--surface-soft); }
+.empty-cell { text-align: center; padding: 36px !important; color: var(--muted); }
+.table-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 24px; font-size: 12px; color: var(--muted); }
+.pagination { display: flex; align-items: center; gap: 12px; }
+.pagination button { min-height: 34px; font-size: 12px; padding: 6px 12px; }
+.methodology { margin-top: 24px; padding: 18px 0; border-top: 1px solid var(--border); color: var(--muted); font-size: 12px; }
+summary { color: var(--ink); font-weight: 600; padding: 4px 0; }
+.methodology p { max-width: 1000px; line-height: 1.8; }
+footer { display: flex; justify-content: space-between; gap: 16px; padding: 10px 0; color: var(--muted); font-family: var(--data-font); font-size: 10px; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+body[data-kind='monitoring'] .insight { background: var(--surface-soft); }
+body[data-kind='survey'] .insight-value { color: var(--teal); }
+@media (min-width: 1500px) { .primary-chart { height: 375px; } }
+@media (max-width: 1100px) {
+  .appbar-inner { padding: 13px 24px; } main { padding: 28px 24px; }
+  .page-heading { align-items: flex-start; } .scope { font-size: 11px; }
+  .kpi { padding: 18px; } .primary-grid { grid-template-columns: minmax(0, 2fr) minmax(245px, 1fr); }
+  .insight { padding: 22px; } .insight-value { font-size: 40px; }
+}
+@media (max-width: 800px) {
+  nav { display: none; } .brand { margin-right: auto; }
+  .page-heading { display: block; } .scope { text-align: left; margin-top: 16px; }
+  .scope strong { display: inline; margin-right: 8px; }
+  .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .primary-grid { grid-template-columns: 1fr; }
+  .insight { display: grid; grid-template-columns: 1fr 1fr; column-gap: 20px; }
+  .insight .section-label { grid-column: 1 / -1; margin-bottom: 12px; }
+  .insight-value { grid-column: 1; } .insight h3 { grid-column: 1; }
+  .insight-copy { grid-column: 2; grid-row: 2 / 4; } .insight-list { grid-column: 1 / -1; }
+  .support-grid { grid-template-columns: 1fr; }
+  .table-toolbar { flex-wrap: wrap; }
+}
+@media (max-width: 480px) {
+  .appbar-inner { padding: 12px 16px; gap: 12px; } .sample-tag { display: none; }
+  main { padding: 24px 16px; } h1 { letter-spacing: -1px; }
+  .description { font-size: 13px; } .scope strong { display: block; }
+  .filter-bar { gap: 10px; padding: 12px; } .filter-label { display: none; }
+  .control { width: 100%; justify-content: space-between; } .control select { width: 66%; }
+  #reset { margin-left: 0; padding-left: 0; }
+  .kpi { padding: 16px 14px; } .kpi-label { font-size: 11px; }
+  .kpi-value { font-size: 29px; letter-spacing: -1px; } .kpi-note { font-size: 10px; }
+  .analysis-heading span { display: none; } .card-heading { padding: 19px 18px 0; }
+  .chart { height: 290px; } .primary-chart { height: 325px; }
+  .chart-summary { padding: 11px 18px; } .insight { display: block; }
+  .insight-copy { margin-bottom: 20px; }
+  .table-toolbar { padding: 18px; gap: 14px; } .table-actions { width: 100%; flex-wrap: wrap; }
+  #search { flex: 1; min-width: 120px; width: 150px; } .table-actions button { font-size: 12px; }
+  .table-footer { padding: 14px 18px; flex-wrap: wrap; } footer { flex-direction: column; gap: 4px; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; } }
+@media print {
+  :root, :root[data-theme='dark'] { color-scheme: light; --page: #fff; --surface: #fff; --ink: #192b43; --muted: #57687d; --border: #ccd4df; }
+  .appbar, .filter-bar, .table-actions, .pagination { display: none; } main { padding: 0; }
+  .card, .kpi-grid, .insight { break-inside: avoid; } .primary-grid { grid-template-columns: 2fr 1fr; }
+}
+</style>
   <script>
-    // ── Embedded CSV Data ──
-    const RAW_DATA = [
-      {date:"2025-12-20",revenue:20419.83,orders:143,avg_order_value:142.8,conversion_rate:2.91,visitors:4909,category:"Electronics"},
-      {date:"2025-12-20",revenue:9628.11,orders:48,avg_order_value:200.59,conversion_rate:3.52,visitors:1365,category:"Clothing"},
-      {date:"2025-12-20",revenue:9388.29,orders:63,avg_order_value:149.02,conversion_rate:3.13,visitors:2010,category:"Home & Garden"},
-      {date:"2025-12-20",revenue:5411.32,orders:34,avg_order_value:159.16,conversion_rate:3.26,visitors:1043,category:"Sports"},
-      {date:"2025-12-21",revenue:16900.11,orders:108,avg_order_value:156.48,conversion_rate:3.47,visitors:3108,category:"Electronics"},
-      {date:"2025-12-21",revenue:10694.77,orders:67,avg_order_value:159.62,conversion_rate:3.39,visitors:1979,category:"Clothing"},
-      {date:"2025-12-21",revenue:9225.66,orders:65,avg_order_value:141.93,conversion_rate:3.71,visitors:1752,category:"Home & Garden"},
-      {date:"2025-12-21",revenue:6707.86,orders:40,avg_order_value:167.7,conversion_rate:2.73,visitors:1463,category:"Sports"},
-      {date:"2025-12-22",revenue:32159.0,orders:192,avg_order_value:167.49,conversion_rate:2.64,visitors:7275,category:"Electronics"},
-      {date:"2025-12-22",revenue:13317.08,orders:64,avg_order_value:208.08,conversion_rate:3.41,visitors:1879,category:"Clothing"},
-      {date:"2025-12-22",revenue:13236.72,orders:66,avg_order_value:200.56,conversion_rate:3.3,visitors:1997,category:"Home & Garden"},
-      {date:"2025-12-22",revenue:10380.19,orders:60,avg_order_value:173.0,conversion_rate:3.33,visitors:1802,category:"Sports"},
-      {date:"2025-12-23",revenue:31228.5,orders:164,avg_order_value:190.42,conversion_rate:3.79,visitors:4324,category:"Electronics"},
-      {date:"2025-12-23",revenue:15578.31,orders:79,avg_order_value:197.19,conversion_rate:2.57,visitors:3075,category:"Clothing"},
-      {date:"2025-12-23",revenue:11185.74,orders:68,avg_order_value:164.5,conversion_rate:2.62,visitors:2595,category:"Home & Garden"},
-      {date:"2025-12-23",revenue:8402.71,orders:56,avg_order_value:150.05,conversion_rate:2.92,visitors:1919,category:"Sports"},
-      {date:"2025-12-24",revenue:53500.58,orders:316,avg_order_value:169.31,conversion_rate:3.06,visitors:10342,category:"Electronics"},
-      {date:"2025-12-24",revenue:25139.95,orders:155,avg_order_value:162.19,conversion_rate:3.91,visitors:3969,category:"Clothing"},
-      {date:"2025-12-24",revenue:23010.45,orders:121,avg_order_value:190.17,conversion_rate:2.76,visitors:4389,category:"Home & Garden"},
-      {date:"2025-12-24",revenue:17659.83,orders:115,avg_order_value:153.56,conversion_rate:3.07,visitors:3746,category:"Sports"},
-      {date:"2025-12-25",revenue:59246.63,orders:309,avg_order_value:191.74,conversion_rate:3.34,visitors:9264,category:"Electronics"},
-      {date:"2025-12-25",revenue:29207.76,orders:140,avg_order_value:208.63,conversion_rate:3.66,visitors:3820,category:"Clothing"},
-      {date:"2025-12-25",revenue:20340.34,orders:142,avg_order_value:143.24,conversion_rate:2.97,visitors:4776,category:"Home & Garden"},
-      {date:"2025-12-25",revenue:15448.0,orders:98,avg_order_value:157.63,conversion_rate:3.92,visitors:2503,category:"Sports"},
-      {date:"2025-12-26",revenue:57773.4,orders:349,avg_order_value:165.54,conversion_rate:3.48,visitors:10019,category:"Electronics"},
-      {date:"2025-12-26",revenue:26939.26,orders:126,avg_order_value:213.8,conversion_rate:3.19,visitors:3951,category:"Clothing"},
-      {date:"2025-12-26",revenue:20678.72,orders:129,avg_order_value:160.3,conversion_rate:3.34,visitors:3859,category:"Home & Garden"},
-      {date:"2025-12-26",revenue:15498.33,orders:82,avg_order_value:189.0,conversion_rate:3.85,visitors:2131,category:"Sports"},
-      {date:"2025-12-27",revenue:19673.77,orders:124,avg_order_value:158.66,conversion_rate:4.0,visitors:3102,category:"Electronics"},
-      {date:"2025-12-27",revenue:10898.56,orders:74,avg_order_value:147.28,conversion_rate:2.57,visitors:2878,category:"Clothing"},
-      {date:"2025-12-27",revenue:7675.89,orders:40,avg_order_value:191.9,conversion_rate:3.69,visitors:1084,category:"Home & Garden"},
-      {date:"2025-12-27",revenue:6368.23,orders:43,avg_order_value:148.1,conversion_rate:3.07,visitors:1399,category:"Sports"},
-      {date:"2025-12-28",revenue:23417.88,orders:128,avg_order_value:182.95,conversion_rate:3.96,visitors:3235,category:"Electronics"},
-      {date:"2025-12-28",revenue:12101.91,orders:85,avg_order_value:142.38,conversion_rate:3.58,visitors:2373,category:"Clothing"},
-      {date:"2025-12-28",revenue:9212.23,orders:50,avg_order_value:184.24,conversion_rate:2.9,visitors:1723,category:"Home & Garden"},
-      {date:"2025-12-28",revenue:6829.07,orders:45,avg_order_value:151.76,conversion_rate:3.15,visitors:1427,category:"Sports"},
-      {date:"2025-12-29",revenue:28853.79,orders:133,avg_order_value:216.95,conversion_rate:3.81,visitors:3487,category:"Electronics"},
-      {date:"2025-12-29",revenue:14562.34,orders:80,avg_order_value:182.03,conversion_rate:2.77,visitors:2890,category:"Clothing"},
-      {date:"2025-12-29",revenue:14092.31,orders:67,avg_order_value:210.33,conversion_rate:2.95,visitors:2272,category:"Home & Garden"},
-      {date:"2025-12-29",revenue:9797.05,orders:51,avg_order_value:192.1,conversion_rate:2.73,visitors:1868,category:"Sports"},
-      {date:"2025-12-30",revenue:31715.35,orders:173,avg_order_value:183.33,conversion_rate:3.67,visitors:4716,category:"Electronics"},
-      {date:"2025-12-30",revenue:15893.42,orders:113,avg_order_value:140.65,conversion_rate:2.99,visitors:3784,category:"Clothing"},
-      {date:"2025-12-30",revenue:10783.62,orders:50,avg_order_value:215.67,conversion_rate:3.82,visitors:1309,category:"Home & Garden"},
-      {date:"2025-12-30",revenue:10390.27,orders:63,avg_order_value:164.92,conversion_rate:2.59,visitors:2435,category:"Sports"},
-      {date:"2025-12-31",revenue:49334.88,orders:228,avg_order_value:216.38,conversion_rate:2.63,visitors:8674,category:"Electronics"},
-      {date:"2025-12-31",revenue:23637.73,orders:162,avg_order_value:145.91,conversion_rate:3.64,visitors:4449,category:"Clothing"},
-      {date:"2025-12-31",revenue:20504.46,orders:136,avg_order_value:150.77,conversion_rate:3.21,visitors:4232,category:"Home & Garden"},
-      {date:"2025-12-31",revenue:14455.3,orders:89,avg_order_value:162.42,conversion_rate:3.81,visitors:2336,category:"Sports"},
-      {date:"2026-01-01",revenue:43493.43,orders:277,avg_order_value:157.02,conversion_rate:3.31,visitors:8371,category:"Electronics"},
-      {date:"2026-01-01",revenue:25495.16,orders:163,avg_order_value:156.41,conversion_rate:2.97,visitors:5492,category:"Clothing"},
-      {date:"2026-01-01",revenue:21914.23,orders:114,avg_order_value:192.23,conversion_rate:3.16,visitors:3610,category:"Home & Garden"},
-      {date:"2026-01-01",revenue:14385.45,orders:96,avg_order_value:149.85,conversion_rate:2.84,visitors:3383,category:"Sports"},
-      {date:"2026-01-02",revenue:42557.27,orders:227,avg_order_value:187.48,conversion_rate:2.85,visitors:7978,category:"Electronics"},
-      {date:"2026-01-02",revenue:21951.21,orders:150,avg_order_value:146.34,conversion_rate:3.45,visitors:4352,category:"Clothing"},
-      {date:"2026-01-02",revenue:17611.14,orders:82,avg_order_value:214.77,conversion_rate:3.79,visitors:2163,category:"Home & Garden"},
-      {date:"2026-01-02",revenue:12526.5,orders:78,avg_order_value:160.6,conversion_rate:3.5,visitors:2226,category:"Sports"},
-      {date:"2026-01-03",revenue:19174.09,orders:127,avg_order_value:150.98,conversion_rate:3.9,visitors:3253,category:"Electronics"},
-      {date:"2026-01-03",revenue:11474.45,orders:64,avg_order_value:179.29,conversion_rate:3.68,visitors:1740,category:"Clothing"},
-      {date:"2026-01-03",revenue:9817.13,orders:63,avg_order_value:155.83,conversion_rate:2.65,visitors:2381,category:"Home & Garden"},
-      {date:"2026-01-03",revenue:6601.56,orders:37,avg_order_value:178.42,conversion_rate:3.2,visitors:1156,category:"Sports"},
-      {date:"2026-01-04",revenue:22517.99,orders:116,avg_order_value:194.12,conversion_rate:3.98,visitors:2917,category:"Electronics"},
-      {date:"2026-01-04",revenue:9927.64,orders:57,avg_order_value:174.17,conversion_rate:3.01,visitors:1894,category:"Clothing"},
-      {date:"2026-01-04",revenue:10009.77,orders:62,avg_order_value:161.45,conversion_rate:2.79,visitors:2225,category:"Home & Garden"},
-      {date:"2026-01-04",revenue:6668.1,orders:38,avg_order_value:175.48,conversion_rate:2.92,visitors:1302,category:"Sports"},
-      {date:"2026-01-05",revenue:27970.24,orders:130,avg_order_value:215.16,conversion_rate:3.17,visitors:4107,category:"Electronics"},
-      {date:"2026-01-05",revenue:17956.16,orders:97,avg_order_value:185.12,conversion_rate:2.58,visitors:3765,category:"Clothing"},
-      {date:"2026-01-05",revenue:14901.21,orders:72,avg_order_value:206.96,conversion_rate:3.95,visitors:1821,category:"Home & Garden"},
-      {date:"2026-01-05",revenue:10963.29,orders:52,avg_order_value:210.83,conversion_rate:2.75,visitors:1891,category:"Sports"},
-      {date:"2026-01-06",revenue:30249.13,orders:192,avg_order_value:157.55,conversion_rate:3.1,visitors:6190,category:"Electronics"},
-      {date:"2026-01-06",revenue:14120.04,orders:82,avg_order_value:172.2,conversion_rate:3.98,visitors:2061,category:"Clothing"},
-      {date:"2026-01-06",revenue:12102.88,orders:59,avg_order_value:205.13,conversion_rate:3.18,visitors:1853,category:"Home & Garden"},
-      {date:"2026-01-06",revenue:9539.45,orders:44,avg_order_value:216.81,conversion_rate:4.0,visitors:1101,category:"Sports"},
-      {date:"2026-01-07",revenue:31030.61,orders:157,avg_order_value:197.65,conversion_rate:2.73,visitors:5746,category:"Electronics"},
-      {date:"2026-01-07",revenue:15352.85,orders:70,avg_order_value:219.33,conversion_rate:3.37,visitors:2077,category:"Clothing"},
-      {date:"2026-01-07",revenue:13245.57,orders:66,avg_order_value:200.69,conversion_rate:2.59,visitors:2552,category:"Home & Garden"},
-      {date:"2026-01-07",revenue:10057.73,orders:55,avg_order_value:182.87,conversion_rate:3.78,visitors:1455,category:"Sports"},
-      {date:"2026-01-08",revenue:27509.07,orders:126,avg_order_value:218.33,conversion_rate:2.62,visitors:4808,category:"Electronics"},
-      {date:"2026-01-08",revenue:14876.9,orders:79,avg_order_value:188.32,conversion_rate:3.51,visitors:2248,category:"Clothing"},
-      {date:"2026-01-08",revenue:12096.17,orders:80,avg_order_value:151.2,conversion_rate:3.84,visitors:2085,category:"Home & Garden"},
-      {date:"2026-01-08",revenue:9104.69,orders:48,avg_order_value:189.68,conversion_rate:3.43,visitors:1399,category:"Sports"},
-      {date:"2026-01-09",revenue:30053.64,orders:160,avg_order_value:187.84,conversion_rate:3.28,visitors:4871,category:"Electronics"},
-      {date:"2026-01-09",revenue:18651.8,orders:119,avg_order_value:156.74,conversion_rate:3.57,visitors:3329,category:"Clothing"},
-      {date:"2026-01-09",revenue:12165.2,orders:70,avg_order_value:173.79,conversion_rate:3.51,visitors:1995,category:"Home & Garden"},
-      {date:"2026-01-09",revenue:9305.99,orders:56,avg_order_value:166.18,conversion_rate:3.63,visitors:1543,category:"Sports"},
-      {date:"2026-01-10",revenue:18880.64,orders:106,avg_order_value:178.12,conversion_rate:4.0,visitors:2651,category:"Electronics"},
-      {date:"2026-01-10",revenue:13329.29,orders:91,avg_order_value:146.48,conversion_rate:2.82,visitors:3227,category:"Clothing"},
-      {date:"2026-01-10",revenue:8628.18,orders:40,avg_order_value:215.7,conversion_rate:3.82,visitors:1046,category:"Home & Garden"},
-      {date:"2026-01-10",revenue:7753.59,orders:45,avg_order_value:172.3,conversion_rate:2.74,visitors:1644,category:"Sports"},
-      {date:"2026-01-11",revenue:23934.29,orders:121,avg_order_value:197.8,conversion_rate:3.42,visitors:3540,category:"Electronics"},
-      {date:"2026-01-11",revenue:13358.61,orders:69,avg_order_value:193.6,conversion_rate:2.51,visitors:2747,category:"Clothing"},
-      {date:"2026-01-11",revenue:10211.0,orders:62,avg_order_value:164.69,conversion_rate:3.5,visitors:1773,category:"Home & Garden"},
-      {date:"2026-01-11",revenue:7913.83,orders:52,avg_order_value:152.19,conversion_rate:2.67,visitors:1945,category:"Sports"},
-      {date:"2026-01-12",revenue:27539.5,orders:149,avg_order_value:184.83,conversion_rate:2.91,visitors:5122,category:"Electronics"},
-      {date:"2026-01-12",revenue:17250.98,orders:87,avg_order_value:198.29,conversion_rate:2.81,visitors:3101,category:"Clothing"},
-      {date:"2026-01-12",revenue:13918.83,orders:86,avg_order_value:161.85,conversion_rate:3.23,visitors:2660,category:"Home & Garden"},
-      {date:"2026-01-12",revenue:11255.27,orders:54,avg_order_value:208.43,conversion_rate:2.64,visitors:2046,category:"Sports"},
-      {date:"2026-01-13",revenue:30641.0,orders:188,avg_order_value:162.98,conversion_rate:2.51,visitors:7504,category:"Electronics"},
-      {date:"2026-01-13",revenue:18166.44,orders:95,avg_order_value:191.23,conversion_rate:2.89,visitors:3283,category:"Clothing"},
-      {date:"2026-01-13",revenue:14412.64,orders:78,avg_order_value:184.78,conversion_rate:3.14,visitors:2482,category:"Home & Garden"},
-      {date:"2026-01-13",revenue:8597.24,orders:58,avg_order_value:148.23,conversion_rate:3.83,visitors:1516,category:"Sports"},
-      {date:"2026-01-14",revenue:35317.13,orders:192,avg_order_value:183.94,conversion_rate:3.75,visitors:5117,category:"Electronics"},
-      {date:"2026-01-14",revenue:17292.7,orders:113,avg_order_value:153.03,conversion_rate:2.69,visitors:4198,category:"Clothing"},
-      {date:"2026-01-14",revenue:12723.45,orders:60,avg_order_value:212.06,conversion_rate:3.69,visitors:1624,category:"Home & Garden"},
-      {date:"2026-01-14",revenue:11220.63,orders:52,avg_order_value:215.78,conversion_rate:2.82,visitors:1847,category:"Sports"},
-      {date:"2026-01-15",revenue:29262.54,orders:197,avg_order_value:148.54,conversion_rate:3.67,visitors:5367,category:"Electronics"},
-      {date:"2026-01-15",revenue:18903.32,orders:109,avg_order_value:173.42,conversion_rate:3.43,visitors:3176,category:"Clothing"},
-      {date:"2026-01-15",revenue:12154.72,orders:56,avg_order_value:217.05,conversion_rate:3.8,visitors:1474,category:"Home & Garden"},
-      {date:"2026-01-15",revenue:11622.9,orders:56,avg_order_value:207.55,conversion_rate:3.82,visitors:1465,category:"Sports"},
-      {date:"2026-01-16",revenue:27249.31,orders:136,avg_order_value:200.36,conversion_rate:3.0,visitors:4535,category:"Electronics"},
-      {date:"2026-01-16",revenue:19225.39,orders:94,avg_order_value:204.53,conversion_rate:3.8,visitors:2476,category:"Clothing"},
-      {date:"2026-01-16",revenue:14889.72,orders:92,avg_order_value:161.84,conversion_rate:3.68,visitors:2499,category:"Home & Garden"},
-      {date:"2026-01-16",revenue:9014.01,orders:42,avg_order_value:214.62,conversion_rate:3.79,visitors:1108,category:"Sports"},
-      {date:"2026-01-17",revenue:20483.42,orders:99,avg_order_value:206.9,conversion_rate:3.19,visitors:3103,category:"Electronics"},
-      {date:"2026-01-17",revenue:11270.44,orders:55,avg_order_value:204.92,conversion_rate:2.84,visitors:1935,category:"Clothing"},
-      {date:"2026-01-17",revenue:8207.58,orders:52,avg_order_value:157.84,conversion_rate:2.99,visitors:1737,category:"Home & Garden"},
-      {date:"2026-01-17",revenue:7967.03,orders:36,avg_order_value:221.31,conversion_rate:2.92,visitors:1233,category:"Sports"},
-      {date:"2026-01-18",revenue:23394.54,orders:136,avg_order_value:172.02,conversion_rate:3.97,visitors:3424,category:"Electronics"},
-      {date:"2026-01-18",revenue:12153.12,orders:56,avg_order_value:217.02,conversion_rate:2.67,visitors:2095,category:"Clothing"},
-      {date:"2026-01-18",revenue:10975.29,orders:71,avg_order_value:154.58,conversion_rate:3.94,visitors:1800,category:"Home & Garden"},
-      {date:"2026-01-18",revenue:6705.96,orders:45,avg_order_value:149.02,conversion_rate:3.15,visitors:1427,category:"Sports"},
-      {date:"2026-01-19",revenue:34407.75,orders:208,avg_order_value:165.42,conversion_rate:3.41,visitors:6100,category:"Electronics"},
-      {date:"2026-01-19",revenue:17309.11,orders:101,avg_order_value:171.38,conversion_rate:3.37,visitors:3001,category:"Clothing"},
-      {date:"2026-01-19",revenue:12784.55,orders:64,avg_order_value:199.76,conversion_rate:2.5,visitors:2557,category:"Home & Garden"},
-      {date:"2026-01-19",revenue:11671.41,orders:63,avg_order_value:185.26,conversion_rate:3.58,visitors:1760,category:"Sports"},
-      {date:"2026-01-20",revenue:34687.4,orders:179,avg_order_value:193.78,conversion_rate:3.05,visitors:5875,category:"Electronics"},
-      {date:"2026-01-20",revenue:15089.94,orders:78,avg_order_value:193.46,conversion_rate:3.0,visitors:2604,category:"Clothing"},
-      {date:"2026-01-20",revenue:13086.26,orders:62,avg_order_value:211.07,conversion_rate:3.58,visitors:1732,category:"Home & Garden"},
-      {date:"2026-01-20",revenue:9772.3,orders:59,avg_order_value:165.63,conversion_rate:3.11,visitors:1895,category:"Sports"},
-      {date:"2026-01-21",revenue:31528.99,orders:192,avg_order_value:164.21,conversion_rate:2.69,visitors:7135,category:"Electronics"},
-      {date:"2026-01-21",revenue:16984.73,orders:78,avg_order_value:217.75,conversion_rate:3.52,visitors:2218,category:"Clothing"},
-      {date:"2026-01-21",revenue:15602.12,orders:82,avg_order_value:190.27,conversion_rate:2.95,visitors:2778,category:"Home & Garden"},
-      {date:"2026-01-21",revenue:10590.14,orders:75,avg_order_value:141.2,conversion_rate:2.93,visitors:2559,category:"Sports"},
-      {date:"2026-01-22",revenue:31933.89,orders:171,avg_order_value:186.75,conversion_rate:3.48,visitors:4910,category:"Electronics"},
-      {date:"2026-01-22",revenue:17291.45,orders:98,avg_order_value:176.44,conversion_rate:2.82,visitors:3474,category:"Clothing"},
-      {date:"2026-01-22",revenue:13867.54,orders:65,avg_order_value:213.35,conversion_rate:3.7,visitors:1759,category:"Home & Garden"},
-      {date:"2026-01-22",revenue:9446.01,orders:64,avg_order_value:147.59,conversion_rate:3.27,visitors:1955,category:"Sports"},
-      {date:"2026-01-23",revenue:34066.54,orders:204,avg_order_value:166.99,conversion_rate:3.73,visitors:5472,category:"Electronics"},
-      {date:"2026-01-23",revenue:18872.24,orders:97,avg_order_value:194.56,conversion_rate:2.84,visitors:3419,category:"Clothing"},
-      {date:"2026-01-23",revenue:12772.74,orders:89,avg_order_value:143.51,conversion_rate:2.87,visitors:3104,category:"Home & Garden"},
-      {date:"2026-01-23",revenue:10451.46,orders:50,avg_order_value:209.03,conversion_rate:2.61,visitors:1916,category:"Sports"},
-      {date:"2026-01-24",revenue:22438.87,orders:117,avg_order_value:191.79,conversion_rate:2.79,visitors:4191,category:"Electronics"},
-      {date:"2026-01-24",revenue:13064.26,orders:72,avg_order_value:181.45,conversion_rate:2.87,visitors:2512,category:"Clothing"},
-      {date:"2026-01-24",revenue:10332.09,orders:73,avg_order_value:141.54,conversion_rate:3.63,visitors:2012,category:"Home & Garden"},
-      {date:"2026-01-24",revenue:8002.21,orders:53,avg_order_value:150.99,conversion_rate:3.14,visitors:1689,category:"Sports"},
-      {date:"2026-01-25",revenue:20879.17,orders:96,avg_order_value:217.49,conversion_rate:3.28,visitors:2929,category:"Electronics"},
-      {date:"2026-01-25",revenue:10718.16,orders:67,avg_order_value:159.97,conversion_rate:3.77,visitors:1776,category:"Clothing"},
-      {date:"2026-01-25",revenue:9782.53,orders:47,avg_order_value:208.14,conversion_rate:3.5,visitors:1342,category:"Home & Garden"},
-      {date:"2026-01-25",revenue:8522.1,orders:45,avg_order_value:189.38,conversion_rate:3.93,visitors:1146,category:"Sports"},
-      {date:"2026-01-26",revenue:37076.25,orders:196,avg_order_value:189.16,conversion_rate:3.58,visitors:5476,category:"Electronics"},
-      {date:"2026-01-26",revenue:17800.48,orders:86,avg_order_value:206.98,conversion_rate:3.32,visitors:2588,category:"Clothing"},
-      {date:"2026-01-26",revenue:15914.49,orders:79,avg_order_value:201.45,conversion_rate:3.21,visitors:2459,category:"Home & Garden"},
-      {date:"2026-01-26",revenue:9894.53,orders:61,avg_order_value:162.21,conversion_rate:3.46,visitors:1764,category:"Sports"},
-      {date:"2026-01-27",revenue:35977.07,orders:197,avg_order_value:182.62,conversion_rate:3.44,visitors:5726,category:"Electronics"},
-      {date:"2026-01-27",revenue:16642.97,orders:113,avg_order_value:147.28,conversion_rate:2.93,visitors:3858,category:"Clothing"},
-      {date:"2026-01-27",revenue:13302.03,orders:80,avg_order_value:166.28,conversion_rate:3.31,visitors:2416,category:"Home & Garden"},
-      {date:"2026-01-27",revenue:9548.1,orders:60,avg_order_value:159.14,conversion_rate:3.54,visitors:1694,category:"Sports"},
-      {date:"2026-01-28",revenue:35532.04,orders:244,avg_order_value:145.62,conversion_rate:3.11,visitors:7842,category:"Electronics"},
-      {date:"2026-01-28",revenue:18154.14,orders:104,avg_order_value:174.56,conversion_rate:2.81,visitors:3700,category:"Clothing"},
-      {date:"2026-01-28",revenue:13996.46,orders:65,avg_order_value:215.33,conversion_rate:3.38,visitors:1925,category:"Home & Garden"},
-      {date:"2026-01-28",revenue:11385.85,orders:54,avg_order_value:210.85,conversion_rate:3.65,visitors:1480,category:"Sports"},
-      {date:"2026-01-29",revenue:32394.24,orders:230,avg_order_value:140.84,conversion_rate:3.03,visitors:7596,category:"Electronics"},
-      {date:"2026-01-29",revenue:19368.77,orders:92,avg_order_value:210.53,conversion_rate:3.93,visitors:2340,category:"Clothing"},
-      {date:"2026-01-29",revenue:14050.17,orders:70,avg_order_value:200.72,conversion_rate:3.32,visitors:2108,category:"Home & Garden"},
-      {date:"2026-01-29",revenue:11134.54,orders:70,avg_order_value:159.06,conversion_rate:2.83,visitors:2474,category:"Sports"},
-      {date:"2026-01-30",revenue:33090.53,orders:232,avg_order_value:142.63,conversion_rate:3.0,visitors:7722,category:"Electronics"},
-      {date:"2026-01-30",revenue:19046.4,orders:110,avg_order_value:173.15,conversion_rate:2.75,visitors:4003,category:"Clothing"},
-      {date:"2026-01-30",revenue:14318.54,orders:95,avg_order_value:150.72,conversion_rate:3.43,visitors:2766,category:"Home & Garden"},
-      {date:"2026-01-30",revenue:9305.99,orders:54,avg_order_value:172.33,conversion_rate:3.35,visitors:1613,category:"Sports"},
-      {date:"2026-01-31",revenue:20351.43,orders:106,avg_order_value:191.99,conversion_rate:2.7,visitors:3920,category:"Electronics"},
-      {date:"2026-01-31",revenue:12559.01,orders:87,avg_order_value:144.36,conversion_rate:3.07,visitors:2835,category:"Clothing"},
-      {date:"2026-01-31",revenue:9284.79,orders:55,avg_order_value:168.81,conversion_rate:3.64,visitors:1510,category:"Home & Garden"},
-      {date:"2026-01-31",revenue:7346.57,orders:36,avg_order_value:204.07,conversion_rate:3.75,visitors:960,category:"Sports"},
-      {date:"2026-02-01",revenue:22044.18,orders:150,avg_order_value:146.96,conversion_rate:2.53,visitors:5931,category:"Electronics"},
-      {date:"2026-02-01",revenue:12908.37,orders:58,avg_order_value:222.56,conversion_rate:3.03,visitors:1917,category:"Clothing"},
-      {date:"2026-02-01",revenue:10665.71,orders:52,avg_order_value:205.11,conversion_rate:3.48,visitors:1495,category:"Home & Garden"},
-      {date:"2026-02-01",revenue:8238.31,orders:38,avg_order_value:216.8,conversion_rate:2.8,visitors:1357,category:"Sports"},
-      {date:"2026-02-02",revenue:29244.85,orders:192,avg_order_value:152.32,conversion_rate:2.69,visitors:7139,category:"Electronics"},
-      {date:"2026-02-02",revenue:19230.33,orders:103,avg_order_value:186.7,conversion_rate:2.83,visitors:3643,category:"Clothing"},
-      {date:"2026-02-02",revenue:15516.05,orders:77,avg_order_value:201.51,conversion_rate:2.75,visitors:2798,category:"Home & Garden"},
-      {date:"2026-02-02",revenue:11333.27,orders:56,avg_order_value:202.38,conversion_rate:2.67,visitors:2095,category:"Sports"},
-      {date:"2026-02-03",revenue:37585.61,orders:173,avg_order_value:217.26,conversion_rate:2.66,visitors:6498,category:"Electronics"},
-      {date:"2026-02-03",revenue:15760.3,orders:95,avg_order_value:165.9,conversion_rate:3.52,visitors:2701,category:"Clothing"},
-      {date:"2026-02-03",revenue:16720.54,orders:97,avg_order_value:172.38,conversion_rate:3.57,visitors:2715,category:"Home & Garden"},
-      {date:"2026-02-03",revenue:9622.61,orders:49,avg_order_value:196.38,conversion_rate:3.44,visitors:1424,category:"Sports"},
-      {date:"2026-02-04",revenue:30326.84,orders:150,avg_order_value:202.18,conversion_rate:3.78,visitors:3973,category:"Electronics"},
-      {date:"2026-02-04",revenue:19005.78,orders:126,avg_order_value:150.84,conversion_rate:3.98,visitors:3169,category:"Clothing"},
-      {date:"2026-02-04",revenue:16011.51,orders:95,avg_order_value:168.54,conversion_rate:3.14,visitors:3023,category:"Home & Garden"},
-      {date:"2026-02-04",revenue:10640.17,orders:58,avg_order_value:183.45,conversion_rate:3.01,visitors:1925,category:"Sports"},
-      {date:"2026-02-05",revenue:38206.5,orders:185,avg_order_value:206.52,conversion_rate:2.66,visitors:6959,category:"Electronics"},
-      {date:"2026-02-05",revenue:21085.83,orders:110,avg_order_value:191.69,conversion_rate:3.74,visitors:2938,category:"Clothing"},
-      {date:"2026-02-05",revenue:15741.69,orders:90,avg_order_value:174.91,conversion_rate:3.6,visitors:2499,category:"Home & Garden"},
-      {date:"2026-02-05",revenue:12667.12,orders:78,avg_order_value:162.4,conversion_rate:3.71,visitors:2101,category:"Sports"},
-      {date:"2026-02-06",revenue:35117.61,orders:196,avg_order_value:179.17,conversion_rate:3.15,visitors:6215,category:"Electronics"},
-      {date:"2026-02-06",revenue:19889.13,orders:123,avg_order_value:161.7,conversion_rate:3.78,visitors:3256,category:"Clothing"},
-      {date:"2026-02-06",revenue:16356.38,orders:111,avg_order_value:147.35,conversion_rate:3.82,visitors:2903,category:"Home & Garden"},
-      {date:"2026-02-06",revenue:10302.45,orders:58,avg_order_value:177.63,conversion_rate:3.42,visitors:1698,category:"Sports"},
-      {date:"2026-02-07",revenue:23516.13,orders:165,avg_order_value:142.52,conversion_rate:3.78,visitors:4369,category:"Electronics"},
-      {date:"2026-02-07",revenue:11824.76,orders:75,avg_order_value:157.66,conversion_rate:3.7,visitors:2028,category:"Clothing"},
-      {date:"2026-02-07",revenue:9957.08,orders:47,avg_order_value:211.85,conversion_rate:3.55,visitors:1323,category:"Home & Garden"},
-      {date:"2026-02-07",revenue:7317.05,orders:51,avg_order_value:143.47,conversion_rate:3.92,visitors:1300,category:"Sports"},
-      {date:"2026-02-08",revenue:21454.26,orders:108,avg_order_value:198.65,conversion_rate:3.23,visitors:3340,category:"Electronics"},
-      {date:"2026-02-08",revenue:14141.52,orders:72,avg_order_value:196.41,conversion_rate:3.47,visitors:2075,category:"Clothing"},
-      {date:"2026-02-08",revenue:10471.09,orders:51,avg_order_value:205.32,conversion_rate:2.64,visitors:1932,category:"Home & Garden"},
-      {date:"2026-02-08",revenue:7217.27,orders:36,avg_order_value:200.48,conversion_rate:2.96,visitors:1216,category:"Sports"},
-      {date:"2026-02-09",revenue:35999.76,orders:202,avg_order_value:178.22,conversion_rate:3.3,visitors:6127,category:"Electronics"},
-      {date:"2026-02-09",revenue:18404.28,orders:92,avg_order_value:200.05,conversion_rate:3.0,visitors:3070,category:"Clothing"},
-      {date:"2026-02-09",revenue:15976.5,orders:98,avg_order_value:163.03,conversion_rate:2.88,visitors:3406,category:"Home & Garden"},
-      {date:"2026-02-09",revenue:10009.59,orders:64,avg_order_value:156.4,conversion_rate:2.68,visitors:2388,category:"Sports"},
-      {date:"2026-02-10",revenue:35659.58,orders:177,avg_order_value:201.47,conversion_rate:2.78,visitors:6372,category:"Electronics"},
-      {date:"2026-02-10",revenue:17291.9,orders:96,avg_order_value:180.12,conversion_rate:3.59,visitors:2676,category:"Clothing"},
-      {date:"2026-02-10",revenue:17281.89,orders:94,avg_order_value:183.85,conversion_rate:2.92,visitors:3214,category:"Home & Garden"},
-      {date:"2026-02-10",revenue:9980.99,orders:64,avg_order_value:155.95,conversion_rate:2.84,visitors:2252,category:"Sports"},
-      {date:"2026-02-11",revenue:32013.75,orders:226,avg_order_value:141.65,conversion_rate:3.3,visitors:6845,category:"Electronics"},
-      {date:"2026-02-11",revenue:17690.27,orders:81,avg_order_value:218.4,conversion_rate:3.33,visitors:2432,category:"Clothing"},
-      {date:"2026-02-11",revenue:16079.04,orders:107,avg_order_value:150.27,conversion_rate:3.8,visitors:2813,category:"Home & Garden"},
-      {date:"2026-02-11",revenue:11353.85,orders:54,avg_order_value:210.26,conversion_rate:3.36,visitors:1606,category:"Sports"},
-      {date:"2026-02-12",revenue:35233.53,orders:201,avg_order_value:175.29,conversion_rate:2.78,visitors:7239,category:"Electronics"},
-      {date:"2026-02-12",revenue:16486.12,orders:76,avg_order_value:216.92,conversion_rate:3.22,visitors:2362,category:"Clothing"},
-      {date:"2026-02-12",revenue:16712.71,orders:97,avg_order_value:172.3,conversion_rate:2.61,visitors:3714,category:"Home & Garden"},
-      {date:"2026-02-12",revenue:11873.87,orders:82,avg_order_value:144.8,conversion_rate:2.72,visitors:3010,category:"Sports"},
-      {date:"2026-02-13",revenue:36373.01,orders:221,avg_order_value:164.58,conversion_rate:3.99,visitors:5537,category:"Electronics"},
-      {date:"2026-02-13",revenue:16935.87,orders:84,avg_order_value:201.62,conversion_rate:3.41,visitors:2463,category:"Clothing"},
-      {date:"2026-02-13",revenue:16634.5,orders:105,avg_order_value:158.42,conversion_rate:3.28,visitors:3197,category:"Home & Garden"},
-      {date:"2026-02-13",revenue:11304.65,orders:64,avg_order_value:176.64,conversion_rate:3.79,visitors:1688,category:"Sports"},
-      {date:"2026-02-14",revenue:37409.02,orders:227,avg_order_value:164.8,conversion_rate:3.43,visitors:6615,category:"Electronics"},
-      {date:"2026-02-14",revenue:18046.64,orders:90,avg_order_value:200.52,conversion_rate:3.92,visitors:2295,category:"Clothing"},
-      {date:"2026-02-14",revenue:12752.27,orders:81,avg_order_value:157.44,conversion_rate:3.49,visitors:2320,category:"Home & Garden"},
-      {date:"2026-02-14",revenue:9404.66,orders:61,avg_order_value:154.17,conversion_rate:2.61,visitors:2334,category:"Sports"},
-      {date:"2026-02-15",revenue:21428.32,orders:121,avg_order_value:177.09,conversion_rate:3.39,visitors:3568,category:"Electronics"},
-      {date:"2026-02-15",revenue:12647.57,orders:79,avg_order_value:160.1,conversion_rate:3.56,visitors:2218,category:"Clothing"},
-      {date:"2026-02-15",revenue:11451.31,orders:64,avg_order_value:178.93,conversion_rate:3.53,visitors:1812,category:"Home & Garden"},
-      {date:"2026-02-15",revenue:9125.03,orders:44,avg_order_value:207.39,conversion_rate:3.44,visitors:1279,category:"Sports"},
-      {date:"2026-02-16",revenue:37866.58,orders:176,avg_order_value:215.15,conversion_rate:3.14,visitors:5609,category:"Electronics"},
-      {date:"2026-02-16",revenue:19608.68,orders:102,avg_order_value:192.24,conversion_rate:3.86,visitors:2640,category:"Clothing"},
-      {date:"2026-02-16",revenue:16996.88,orders:116,avg_order_value:146.52,conversion_rate:2.75,visitors:4219,category:"Home & Garden"},
-      {date:"2026-02-16",revenue:10939.91,orders:54,avg_order_value:202.59,conversion_rate:3.35,visitors:1610,category:"Sports"},
-      {date:"2026-02-17",revenue:33960.51,orders:226,avg_order_value:150.27,conversion_rate:3.53,visitors:6396,category:"Electronics"},
-      {date:"2026-02-17",revenue:20588.95,orders:95,avg_order_value:216.73,conversion_rate:3.25,visitors:2922,category:"Clothing"},
-      {date:"2026-02-17",revenue:15511.07,orders:105,avg_order_value:147.72,conversion_rate:2.56,visitors:4101,category:"Home & Garden"},
-      {date:"2026-02-17",revenue:11417.34,orders:68,avg_order_value:167.9,conversion_rate:2.88,visitors:2364,category:"Sports"},
-      {date:"2026-02-18",revenue:31937.29,orders:147,avg_order_value:217.26,conversion_rate:3.75,visitors:3915,category:"Electronics"},
-      {date:"2026-02-18",revenue:19939.91,orders:92,avg_order_value:216.74,conversion_rate:4.0,visitors:2300,category:"Clothing"},
-      {date:"2026-02-18",revenue:16406.28,orders:101,avg_order_value:162.44,conversion_rate:2.56,visitors:3944,category:"Home & Garden"},
-      {date:"2026-02-18",revenue:12599.5,orders:70,avg_order_value:179.99,conversion_rate:3.48,visitors:2013,category:"Sports"},
-      {date:"2026-02-19",revenue:41100.99,orders:265,avg_order_value:155.1,conversion_rate:3.38,visitors:7844,category:"Electronics"},
-      {date:"2026-02-19",revenue:20366.52,orders:113,avg_order_value:180.23,conversion_rate:2.64,visitors:4285,category:"Clothing"},
-      {date:"2026-02-19",revenue:14945.72,orders:89,avg_order_value:167.93,conversion_rate:3.51,visitors:2539,category:"Home & Garden"},
-      {date:"2026-02-19",revenue:13005.47,orders:78,avg_order_value:166.74,conversion_rate:3.54,visitors:2203,category:"Sports"},
-      {date:"2026-02-20",revenue:34349.55,orders:159,avg_order_value:216.03,conversion_rate:3.72,visitors:4273,category:"Electronics"},
-      {date:"2026-02-20",revenue:19945.32,orders:113,avg_order_value:176.51,conversion_rate:2.97,visitors:3802,category:"Clothing"},
-      {date:"2026-02-20",revenue:14886.56,orders:68,avg_order_value:218.92,conversion_rate:3.11,visitors:2189,category:"Home & Garden"},
-      {date:"2026-02-20",revenue:11841.63,orders:54,avg_order_value:219.29,conversion_rate:3.49,visitors:1548,category:"Sports"},
-      {date:"2026-02-21",revenue:26103.34,orders:150,avg_order_value:174.02,conversion_rate:2.78,visitors:5393,category:"Electronics"},
-      {date:"2026-02-21",revenue:13234.96,orders:66,avg_order_value:200.53,conversion_rate:3.44,visitors:1919,category:"Clothing"},
-      {date:"2026-02-21",revenue:11907.56,orders:76,avg_order_value:156.68,conversion_rate:3.32,visitors:2286,category:"Home & Garden"},
-      {date:"2026-02-21",revenue:9347.42,orders:53,avg_order_value:176.37,conversion_rate:3.55,visitors:1494,category:"Sports"},
-      {date:"2026-02-22",revenue:22933.66,orders:105,avg_order_value:218.42,conversion_rate:3.41,visitors:3076,category:"Electronics"},
-      {date:"2026-02-22",revenue:12776.0,orders:83,avg_order_value:153.93,conversion_rate:3.33,visitors:2495,category:"Clothing"},
-      {date:"2026-02-22",revenue:11261.81,orders:76,avg_order_value:148.18,conversion_rate:3.99,visitors:1905,category:"Home & Garden"},
-      {date:"2026-02-22",revenue:9346.18,orders:52,avg_order_value:179.73,conversion_rate:2.68,visitors:1943,category:"Sports"},
-      {date:"2026-02-23",revenue:40796.75,orders:226,avg_order_value:180.52,conversion_rate:3.58,visitors:6321,category:"Electronics"},
-      {date:"2026-02-23",revenue:19927.9,orders:123,avg_order_value:162.02,conversion_rate:3.75,visitors:3278,category:"Clothing"},
-      {date:"2026-02-23",revenue:18190.77,orders:114,avg_order_value:159.57,conversion_rate:3.33,visitors:3426,category:"Home & Garden"},
-      {date:"2026-02-23",revenue:11508.53,orders:53,avg_order_value:217.14,conversion_rate:3.26,visitors:1624,category:"Sports"},
-      {date:"2026-02-24",revenue:41477.83,orders:198,avg_order_value:209.48,conversion_rate:2.91,visitors:6793,category:"Electronics"},
-      {date:"2026-02-24",revenue:21685.69,orders:125,avg_order_value:173.49,conversion_rate:3.9,visitors:3204,category:"Clothing"},
-      {date:"2026-02-24",revenue:15997.05,orders:77,avg_order_value:207.75,conversion_rate:2.92,visitors:2633,category:"Home & Garden"},
-      {date:"2026-02-24",revenue:11246.61,orders:60,avg_order_value:187.44,conversion_rate:4.0,visitors:1500,category:"Sports"},
-      {date:"2026-02-25",revenue:37263.83,orders:245,avg_order_value:152.1,conversion_rate:3.31,visitors:7406,category:"Electronics"},
-      {date:"2026-02-25",revenue:19094.58,orders:103,avg_order_value:185.38,conversion_rate:3.32,visitors:3106,category:"Clothing"},
-      {date:"2026-02-25",revenue:15805.39,orders:95,avg_order_value:166.37,conversion_rate:2.78,visitors:3413,category:"Home & Garden"},
-      {date:"2026-02-25",revenue:12726.88,orders:68,avg_order_value:187.16,conversion_rate:2.85,visitors:2385,category:"Sports"},
-      {date:"2026-02-26",revenue:40621.53,orders:283,avg_order_value:143.54,conversion_rate:3.62,visitors:7824,category:"Electronics"},
-      {date:"2026-02-26",revenue:21337.52,orders:104,avg_order_value:205.17,conversion_rate:3.08,visitors:3377,category:"Clothing"},
-      {date:"2026-02-26",revenue:16869.63,orders:82,avg_order_value:205.73,conversion_rate:3.97,visitors:2064,category:"Home & Garden"},
-      {date:"2026-02-26",revenue:12043.1,orders:84,avg_order_value:143.37,conversion_rate:3.25,visitors:2581,category:"Sports"},
-      {date:"2026-02-27",revenue:38678.86,orders:184,avg_order_value:210.21,conversion_rate:3.81,visitors:4827,category:"Electronics"},
-      {date:"2026-02-27",revenue:19813.7,orders:108,avg_order_value:183.46,conversion_rate:3.19,visitors:3390,category:"Clothing"},
-      {date:"2026-02-27",revenue:17217.07,orders:99,avg_order_value:173.91,conversion_rate:3.48,visitors:2843,category:"Home & Garden"},
-      {date:"2026-02-27",revenue:10849.81,orders:61,avg_order_value:177.87,conversion_rate:3.96,visitors:1542,category:"Sports"},
-      {date:"2026-02-28",revenue:25178.5,orders:128,avg_order_value:196.71,conversion_rate:3.48,visitors:3683,category:"Electronics"},
-      {date:"2026-02-28",revenue:15670.88,orders:75,avg_order_value:208.95,conversion_rate:3.79,visitors:1979,category:"Clothing"},
-      {date:"2026-02-28",revenue:10931.79,orders:66,avg_order_value:165.63,conversion_rate:3.58,visitors:1844,category:"Home & Garden"},
-      {date:"2026-02-28",revenue:9166.86,orders:43,avg_order_value:213.18,conversion_rate:2.55,visitors:1683,category:"Sports"},
-      {date:"2026-03-01",revenue:23119.44,orders:121,avg_order_value:191.07,conversion_rate:3.88,visitors:3117,category:"Electronics"},
-      {date:"2026-03-01",revenue:16350.64,orders:81,avg_order_value:201.86,conversion_rate:3.15,visitors:2570,category:"Clothing"},
-      {date:"2026-03-01",revenue:10010.84,orders:52,avg_order_value:192.52,conversion_rate:3.81,visitors:1365,category:"Home & Garden"},
-      {date:"2026-03-01",revenue:8392.26,orders:42,avg_order_value:199.82,conversion_rate:3.86,visitors:1089,category:"Sports"},
-      {date:"2026-03-02",revenue:32893.4,orders:161,avg_order_value:204.31,conversion_rate:2.94,visitors:5476,category:"Electronics"},
-      {date:"2026-03-02",revenue:19634.03,orders:129,avg_order_value:152.2,conversion_rate:3.3,visitors:3912,category:"Clothing"},
-      {date:"2026-03-02",revenue:16642.78,orders:81,avg_order_value:205.47,conversion_rate:2.76,visitors:2940,category:"Home & Garden"},
-      {date:"2026-03-02",revenue:10693.97,orders:51,avg_order_value:209.69,conversion_rate:3.43,visitors:1487,category:"Sports"},
-      {date:"2026-03-03",revenue:35248.35,orders:165,avg_order_value:213.63,conversion_rate:2.71,visitors:6078,category:"Electronics"},
-      {date:"2026-03-03",revenue:20236.36,orders:126,avg_order_value:160.61,conversion_rate:2.88,visitors:4370,category:"Clothing"},
-      {date:"2026-03-03",revenue:13969.18,orders:68,avg_order_value:205.43,conversion_rate:3.85,visitors:1765,category:"Home & Garden"},
-      {date:"2026-03-03",revenue:12939.58,orders:84,avg_order_value:154.04,conversion_rate:3.16,visitors:2656,category:"Sports"},
-      {date:"2026-03-04",revenue:36582.77,orders:195,avg_order_value:187.6,conversion_rate:3.46,visitors:5638,category:"Electronics"},
-      {date:"2026-03-04",revenue:20083.36,orders:125,avg_order_value:160.67,conversion_rate:3.77,visitors:3317,category:"Clothing"},
-      {date:"2026-03-04",revenue:14956.54,orders:87,avg_order_value:171.91,conversion_rate:3.23,visitors:2697,category:"Home & Garden"},
-      {date:"2026-03-04",revenue:11357.92,orders:61,avg_order_value:186.2,conversion_rate:3.36,visitors:1814,category:"Sports"},
-      {date:"2026-03-05",revenue:44190.59,orders:270,avg_order_value:163.67,conversion_rate:3.97,visitors:6806,category:"Electronics"},
-      {date:"2026-03-05",revenue:21604.05,orders:133,avg_order_value:162.44,conversion_rate:3.35,visitors:3971,category:"Clothing"},
-      {date:"2026-03-05",revenue:17419.71,orders:87,avg_order_value:200.23,conversion_rate:2.57,visitors:3380,category:"Home & Garden"},
-      {date:"2026-03-05",revenue:12770.03,orders:71,avg_order_value:179.86,conversion_rate:3.86,visitors:1841,category:"Sports"},
-      {date:"2026-03-06",revenue:36161.56,orders:177,avg_order_value:204.3,conversion_rate:3.41,visitors:5189,category:"Electronics"},
-      {date:"2026-03-06",revenue:19782.91,orders:103,avg_order_value:192.07,conversion_rate:3.43,visitors:3001,category:"Clothing"},
-      {date:"2026-03-06",revenue:17443.13,orders:88,avg_order_value:198.22,conversion_rate:3.49,visitors:2522,category:"Home & Garden"},
-      {date:"2026-03-06",revenue:13680.64,orders:71,avg_order_value:192.69,conversion_rate:3.86,visitors:1841,category:"Sports"},
-      {date:"2026-03-07",revenue:28337.77,orders:172,avg_order_value:164.75,conversion_rate:3.16,visitors:5440,category:"Electronics"},
-      {date:"2026-03-07",revenue:14889.66,orders:74,avg_order_value:201.21,conversion_rate:2.64,visitors:2808,category:"Clothing"},
-      {date:"2026-03-07",revenue:10918.89,orders:54,avg_order_value:202.2,conversion_rate:2.76,visitors:1954,category:"Home & Garden"},
-      {date:"2026-03-07",revenue:7762.62,orders:42,avg_order_value:184.82,conversion_rate:3.96,visitors:1061,category:"Sports"},
-      {date:"2026-03-08",revenue:27496.16,orders:129,avg_order_value:213.15,conversion_rate:3.75,visitors:3443,category:"Electronics"},
-      {date:"2026-03-08",revenue:13530.89,orders:65,avg_order_value:208.17,conversion_rate:3.22,visitors:2016,category:"Clothing"},
-      {date:"2026-03-08",revenue:12749.57,orders:63,avg_order_value:202.37,conversion_rate:3.01,visitors:2094,category:"Home & Garden"},
-      {date:"2026-03-08",revenue:7746.01,orders:35,avg_order_value:221.31,conversion_rate:2.71,visitors:1290,category:"Sports"},
-      {date:"2026-03-09",revenue:44526.45,orders:213,avg_order_value:209.04,conversion_rate:3.59,visitors:5939,category:"Electronics"},
-      {date:"2026-03-09",revenue:23937.84,orders:110,avg_order_value:217.62,conversion_rate:3.71,visitors:2967,category:"Clothing"},
-      {date:"2026-03-09",revenue:16065.92,orders:79,avg_order_value:203.37,conversion_rate:2.52,visitors:3133,category:"Home & Garden"},
-      {date:"2026-03-09",revenue:12692.75,orders:71,avg_order_value:178.77,conversion_rate:3.51,visitors:2023,category:"Sports"},
-      {date:"2026-03-10",revenue:41226.73,orders:220,avg_order_value:187.39,conversion_rate:3.73,visitors:5892,category:"Electronics"},
-      {date:"2026-03-10",revenue:23773.84,orders:159,avg_order_value:149.52,conversion_rate:2.85,visitors:5577,category:"Clothing"},
-      {date:"2026-03-10",revenue:14406.12,orders:68,avg_order_value:211.85,conversion_rate:3.34,visitors:2034,category:"Home & Garden"},
-      {date:"2026-03-10",revenue:14169.67,orders:89,avg_order_value:159.21,conversion_rate:2.6,visitors:3429,category:"Sports"},
-      {date:"2026-03-11",revenue:43162.14,orders:202,avg_order_value:213.67,conversion_rate:2.95,visitors:6839,category:"Electronics"},
-      {date:"2026-03-11",revenue:20495.2,orders:135,avg_order_value:151.82,conversion_rate:3.92,visitors:3444,category:"Clothing"},
-      {date:"2026-03-11",revenue:15870.48,orders:88,avg_order_value:180.35,conversion_rate:2.65,visitors:3326,category:"Home & Garden"},
-      {date:"2026-03-11",revenue:14114.07,orders:93,avg_order_value:151.76,conversion_rate:3.18,visitors:2924,category:"Sports"},
-      {date:"2026-03-12",revenue:41499.24,orders:208,avg_order_value:199.52,conversion_rate:3.92,visitors:5307,category:"Electronics"},
-      {date:"2026-03-12",revenue:20636.86,orders:103,avg_order_value:200.36,conversion_rate:2.73,visitors:3770,category:"Clothing"},
-      {date:"2026-03-12",revenue:16487.95,orders:111,avg_order_value:148.54,conversion_rate:3.23,visitors:3432,category:"Home & Garden"},
-      {date:"2026-03-12",revenue:12340.2,orders:57,avg_order_value:216.49,conversion_rate:2.55,visitors:2236,category:"Sports"},
-      {date:"2026-03-13",revenue:38081.12,orders:217,avg_order_value:175.49,conversion_rate:3.93,visitors:5527,category:"Electronics"},
-      {date:"2026-03-13",revenue:23488.33,orders:158,avg_order_value:148.66,conversion_rate:3.53,visitors:4477,category:"Clothing"},
-      {date:"2026-03-13",revenue:17206.51,orders:78,avg_order_value:220.6,conversion_rate:3.04,visitors:2567,category:"Home & Garden"},
-      {date:"2026-03-13",revenue:12345.84,orders:79,avg_order_value:156.28,conversion_rate:2.68,visitors:2944,category:"Sports"},
-      {date:"2026-03-14",revenue:30737.94,orders:174,avg_order_value:176.65,conversion_rate:3.49,visitors:4979,category:"Electronics"},
-      {date:"2026-03-14",revenue:15543.84,orders:82,avg_order_value:189.56,conversion_rate:2.53,visitors:3238,category:"Clothing"},
-      {date:"2026-03-14",revenue:12954.27,orders:81,avg_order_value:159.93,conversion_rate:2.69,visitors:3012,category:"Home & Garden"},
-      {date:"2026-03-14",revenue:9119.31,orders:62,avg_order_value:147.09,conversion_rate:3.65,visitors:1699,category:"Sports"},
-      {date:"2026-03-15",revenue:25476.27,orders:161,avg_order_value:158.24,conversion_rate:3.81,visitors:4231,category:"Electronics"},
-      {date:"2026-03-15",revenue:14192.95,orders:93,avg_order_value:152.61,conversion_rate:3.85,visitors:2415,category:"Clothing"},
-      {date:"2026-03-15",revenue:10184.68,orders:48,avg_order_value:212.18,conversion_rate:2.72,visitors:1766,category:"Home & Garden"},
-      {date:"2026-03-15",revenue:7980.98,orders:49,avg_order_value:162.88,conversion_rate:2.76,visitors:1774,category:"Sports"},
-      {date:"2026-03-16",revenue:41974.62,orders:295,avg_order_value:142.29,conversion_rate:2.52,visitors:11695,category:"Electronics"},
-      {date:"2026-03-16",revenue:23316.05,orders:146,avg_order_value:159.7,conversion_rate:2.99,visitors:4890,category:"Clothing"},
-      {date:"2026-03-16",revenue:15483.02,orders:107,avg_order_value:144.7,conversion_rate:3.61,visitors:2961,category:"Home & Garden"},
-      {date:"2026-03-16",revenue:12970.72,orders:64,avg_order_value:202.67,conversion_rate:3.21,visitors:1991,category:"Sports"},
-      {date:"2026-03-17",revenue:43531.22,orders:240,avg_order_value:181.38,conversion_rate:2.66,visitors:9010,category:"Electronics"},
-      {date:"2026-03-17",revenue:21549.79,orders:99,avg_order_value:217.67,conversion_rate:2.57,visitors:3859,category:"Clothing"},
-      {date:"2026-03-17",revenue:18683.15,orders:89,avg_order_value:209.92,conversion_rate:3.28,visitors:2711,category:"Home & Garden"},
-      {date:"2026-03-17",revenue:12752.44,orders:58,avg_order_value:219.87,conversion_rate:2.59,visitors:2238,category:"Sports"},
-      {date:"2026-03-18",revenue:40065.77,orders:232,avg_order_value:172.7,conversion_rate:3.53,visitors:6573,category:"Electronics"},
-      {date:"2026-03-18",revenue:21536.94,orders:101,avg_order_value:213.24,conversion_rate:2.61,visitors:3869,category:"Clothing"},
-      {date:"2026-03-18",revenue:15106.82,orders:80,avg_order_value:188.84,conversion_rate:2.6,visitors:3078,category:"Home & Garden"},
-      {date:"2026-03-18",revenue:12085.26,orders:63,avg_order_value:191.83,conversion_rate:3.32,visitors:1896,category:"Sports"},
-      {date:"2026-03-19",revenue:38338.1,orders:174,avg_order_value:220.33,conversion_rate:3.3,visitors:5279,category:"Electronics"},
-      {date:"2026-03-19",revenue:21374.03,orders:113,avg_order_value:189.15,conversion_rate:2.65,visitors:4266,category:"Clothing"},
-      {date:"2026-03-19",revenue:18389.66,orders:88,avg_order_value:208.97,conversion_rate:3.48,visitors:2531,category:"Home & Garden"},
-      {date:"2026-03-19",revenue:14054.36,orders:71,avg_order_value:197.95,conversion_rate:2.82,visitors:2515,category:"Sports"},
-    ];
-
-    // ── Constants ──
-    const SERIES_COLORS = [
-      '#818cf8', // Indigo - Electronics
-      '#fbbf24', // Amber - Clothing
-      '#34d399', // Emerald - Home & Garden
-      '#fb7185', // Rose - Sports
-      '#60a5fa', '#a78bfa', '#f472b6', '#2dd4bf',
-      '#fb923c', '#22d3ee', '#a3e635', '#c084fc',
-      '#f87171', '#38bdf8', '#facc15', '#e879f9',
-      '#4ade80', '#94a3b8', '#fda4af', '#67e8f9',
-    ];
-
-    const CATEGORIES = ['Electronics', 'Clothing', 'Home & Garden', 'Sports'];
-
-    // ── Data Processing Helpers ──
-    function getUniqueDates(data) {
-      return [...new Set(data.map(d => d.date))].sort();
-    }
-
-    function aggregateByDate(data) {
-      const map = {};
-      data.forEach(r => {
-        if (!map[r.date]) {
-          map[r.date] = { date: r.date, revenue: 0, orders: 0, visitors: 0, catRevenue: {}, catOrders: {} };
-          CATEGORIES.forEach(c => { map[r.date].catRevenue[c] = 0; map[r.date].catOrders[c] = 0; });
-        }
-        map[r.date].revenue += r.revenue;
-        map[r.date].orders += r.orders;
-        map[r.date].visitors += r.visitors;
-        map[r.date].catRevenue[r.category] = (map[r.date].catRevenue[r.category] || 0) + r.revenue;
-        map[r.date].catOrders[r.category] = (map[r.date].catOrders[r.category] || 0) + r.orders;
-      });
-      return Object.values(map).sort((a, b) => a.date.localeCompare(b.date));
-    }
-
-    function getChartThemeColors() {
-      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-      return {
-        textColor:      isDark ? '#cbd5e1' : '#64748b',
-        axisLineColor:  isDark ? '#475569' : '#e2e8f0',
-        splitLineColor: isDark ? 'rgba(71,85,105,0.4)' : '#f1f5f9',
-        backgroundColor: isDark ? '#1e293b' : '#ffffff',
-      };
-    }
-
-    function getSparklineColors() {
-      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-      return isDark
-        ? { lineColor: '#60a5fa', areaColor: 'rgba(96,165,250,0.15)' }
-        : { lineColor: '#2d4a6e', areaColor: 'rgba(45,74,110,0.10)' };
-    }
-
-    // ── State ──
-    let currentDays = 30;
-    let currentCategory = 'all';
-    let sparkCharts = {};
-    let mainCharts = {};
-    let tableData = [];
-    let tablePage = 1;
-    const PAGE_SIZE = 15;
-    let tableSearchQuery = '';
-    let selectedDate = null;
-
-    // ── Theme ──
-    function initTheme() {
-      const saved = localStorage.getItem('dashboard-theme');
-      if (saved) {
-        document.documentElement.setAttribute('data-theme', saved);
-      } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        document.documentElement.setAttribute('data-theme', 'dark');
-      }
-      updateToggleIcon();
-    }
-
-    function toggleTheme() {
-      const root = document.documentElement;
-      const current = root.getAttribute('data-theme');
-      const next = current === 'dark' ? 'light' : 'dark';
-      root.setAttribute('data-theme', next);
-      localStorage.setItem('dashboard-theme', next);
-      updateToggleIcon();
-    }
-
-    function updateToggleIcon() {
-      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-      const btn = document.querySelector('.theme-toggle');
-      if (btn) btn.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
-    }
-
-    // ── Chart Initialization ──
-    function initChart(id) {
-      const el = document.getElementById(id);
-      if (!el) return null;
-      const chart = echarts.init(el);
-      window.addEventListener('resize', () => chart.resize());
-      return chart;
-    }
-
-    // ── Date & Category Filtering ──
-    function filterData(days) {
-      const dates = getUniqueDates(RAW_DATA);
-      const maxDate = new Date(dates[dates.length - 1]);
-      const cutoff = new Date(maxDate);
-      cutoff.setDate(cutoff.getDate() - days + 1);
-      let filtered = RAW_DATA.filter(r => new Date(r.date) >= cutoff);
-      if (currentCategory !== 'all') {
-        filtered = filtered.filter(r => r.category === currentCategory);
-      }
-      return filtered;
-    }
-
-    function setDateRange(days, btn) {
-      currentDays = days;
-      document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      renderAll();
-    }
-
-    function setCategoryFilter(cat, btn) {
-      currentCategory = cat;
-      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      renderAll();
-    }
-
-    // ── Format Helpers ──
-    function fmtCurrency(v) {
-      if (v >= 1e6) return '$' + (v / 1e6).toFixed(1) + 'M';
-      if (v >= 1e3) return '$' + (v / 1e3).toFixed(1) + 'K';
-      return '$' + v.toFixed(0);
-    }
-
-    function fmtNumber(v) {
-      return v.toLocaleString('en-US');
-    }
-
-    function fmtPct(v) {
-      return v.toFixed(1) + '%';
-    }
-
-    function fmtDate(d) {
-      const parts = d.split('-');
-      return parts[1] + '/' + parts[2];
-    }
-
-    // ── CountUp Animation ──
-    function animateValue(el, end, formatter, duration = 800) {
-      const start = 0;
-      const range = end - start;
-      const startTime = performance.now();
-      function step(timestamp) {
-        const progress = Math.min((timestamp - startTime) / duration, 1);
-        const eased = 1 - Math.pow(1 - progress, 3); // easeOutCubic
-        el.textContent = formatter(start + range * eased);
-        if (progress < 1) requestAnimationFrame(step);
-      }
-      requestAnimationFrame(step);
-    }
-
-    // ── KPI Rendering ──
-    function renderKPIs(filteredData) {
-      const agg = aggregateByDate(filteredData);
-      const totalRev = agg.reduce((s, d) => s + d.revenue, 0);
-      const totalOrd = agg.reduce((s, d) => s + d.orders, 0);
-      const avgAOV = totalOrd > 0 ? totalRev / totalOrd : 0;
-
-      // Weighted avg conversion: total orders / total visitors * 100
-      const totalVisitors = agg.reduce((s, d) => s + d.visitors, 0);
-      const convRate = totalVisitors > 0 ? (totalOrd / totalVisitors) * 100 : 0;
-
-      // Week-over-week change
-      const halfLen = Math.floor(agg.length / 2);
-      const recentHalf = agg.slice(halfLen);
-      const priorHalf = agg.slice(0, halfLen);
-
-      function sumField(arr, field) { return arr.reduce((s, d) => s + d[field], 0); }
-
-      const recentRev = sumField(recentHalf, 'revenue');
-      const priorRev = sumField(priorHalf, 'revenue');
-      const revChange = priorRev > 0 ? ((recentRev - priorRev) / priorRev) * 100 : 0;
-
-      const recentOrd = sumField(recentHalf, 'orders');
-      const priorOrd = sumField(priorHalf, 'orders');
-      const ordChange = priorOrd > 0 ? ((recentOrd - priorOrd) / priorOrd) * 100 : 0;
-
-      const recentAOV = recentOrd > 0 ? recentRev / recentOrd : 0;
-      const priorAOV = priorOrd > 0 ? priorRev / priorOrd : 0;
-      const aovChange = priorAOV > 0 ? ((recentAOV - priorAOV) / priorAOV) * 100 : 0;
-
-      const recentVis = sumField(recentHalf, 'visitors');
-      const priorVis = sumField(priorHalf, 'visitors');
-      const recentConv = recentVis > 0 ? (recentOrd / recentVis) * 100 : 0;
-      const priorConv = priorVis > 0 ? (priorOrd / priorVis) * 100 : 0;
-      const convChange = priorConv > 0 ? ((recentConv - priorConv) / priorConv) * 100 : 0;
-
-      // Update DOM with countUp animation
-      animateValue(document.getElementById('kpi-revenue'), totalRev, v => fmtCurrency(v));
-      animateValue(document.getElementById('kpi-orders'), totalOrd, v => fmtNumber(Math.round(v)));
-      animateValue(document.getElementById('kpi-aov'), avgAOV, v => '$' + Math.round(v));
-      animateValue(document.getElementById('kpi-conv'), convRate, v => fmtPct(v));
-
-      setChange('kpi-revenue-change', revChange);
-      setChange('kpi-orders-change', ordChange);
-      setChange('kpi-aov-change', aovChange);
-      setChange('kpi-conv-change', convChange);
-
-      // Sparklines (last 30 data points or all if fewer)
-      const sparkData = agg.slice(-30);
-      const sparkDates = sparkData.map(d => d.date);
-
-      renderSparkline('spark-revenue', sparkDates, sparkData.map(d => d.revenue));
-      renderSparkline('spark-orders', sparkDates, sparkData.map(d => d.orders));
-      renderSparkline('spark-aov', sparkDates, sparkData.map(d => d.orders > 0 ? d.revenue / d.orders : 0));
-      renderSparkline('spark-conv', sparkDates, sparkData.map(d => d.visitors > 0 ? (d.orders / d.visitors) * 100 : 0));
-    }
-
-    function setChange(id, pct) {
-      const el = document.getElementById(id);
-      const isPos = pct >= 0;
-      el.className = 'kpi-change ' + (isPos ? 'positive' : 'negative');
-      el.innerHTML = (isPos ? '<i class="fas fa-arrow-up"></i> +' : '<i class="fas fa-arrow-down"></i> ') + Math.abs(pct).toFixed(1) + '% vs prior period';
-    }
-
-    function renderSparkline(id, dates, values) {
-      if (!sparkCharts[id]) {
-        sparkCharts[id] = initChart(id);
-      }
-      const chart = sparkCharts[id];
-      if (!chart) return;
-      const colors = getSparklineColors();
-      chart.setOption({
-        animation: false,
-        grid: { left: 0, right: 0, top: 2, bottom: 2 },
-        xAxis: { type: 'category', show: false, data: dates },
-        yAxis: { type: 'value', show: false },
-        series: [{
-          type: 'line',
-          data: values,
-          symbol: 'none',
-          smooth: true,
-          lineStyle: { color: colors.lineColor, width: 2 },
-          areaStyle: { color: colors.areaColor },
-        }],
-      }, true);
-    }
-
-    // ── Charts Rendering ──
-    function renderCharts(filteredData) {
-      const agg = aggregateByDate(filteredData);
-      const dates = agg.map(d => fmtDate(d.date));
-
-      renderDualAxisChart(agg, dates);
-      renderDonutChart(filteredData);
-      renderStackedAreaChart(agg, dates);
-    }
-
-    function renderDualAxisChart(agg, dates) {
-      if (!mainCharts.dual) mainCharts.dual = initChart('chart-dual');
-      const chart = mainCharts.dual;
-      if (!chart) return;
-      const theme = getChartThemeColors();
-
-      // Build prior period comparison data
-      const halfLen = Math.floor(agg.length / 2);
-      const priorRevData = [];
-      for (let i = 0; i < agg.length; i++) {
-        if (i < halfLen) {
-          priorRevData.push(null);
-        } else {
-          priorRevData.push(agg[i - halfLen] ? agg[i - halfLen].revenue : null);
-        }
-      }
-
-      // Build rolling 7-day average for revenue
-      const revenueArr = agg.map(d => d.revenue);
-      const rolling7 = revenueArr.map((_, i) => {
-        if (i < 6) return null;
-        let sum = 0;
-        for (let j = i - 6; j <= i; j++) sum += revenueArr[j];
-        return Math.round(sum / 7 * 100) / 100;
-      });
-
-      chart.setOption({
-        tooltip: {
-          trigger: 'axis',
-          backgroundColor: theme.backgroundColor,
-          borderColor: theme.axisLineColor,
-          textStyle: { color: theme.textColor },
-          formatter: function(params) {
-            let html = '<strong>' + params[0].axisValue + '</strong><br/>';
-            params.forEach(p => {
-              if (p.value == null) return;
-              html += '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:' + p.color + ';margin-right:6px;"></span>';
-              if (p.seriesName === 'Revenue' || p.seriesName === 'Revenue (Prior Period)' || p.seriesName === 'Revenue (7d Avg)') {
-                html += p.seriesName + ': ' + fmtCurrency(p.value) + '<br/>';
-              } else {
-                html += p.seriesName + ': ' + fmtNumber(p.value) + '<br/>';
-              }
-            });
-            return html;
-          },
-        },
-        legend: {
-          top: 5,
-          textStyle: { fontSize: 12, color: theme.textColor },
-        },
-        grid: { left: 70, right: 70, top: 40, bottom: 60 },
-        xAxis: {
-          type: 'category',
-          data: dates,
-          axisLabel: { rotate: 30, fontSize: 10, color: theme.textColor },
-          axisLine: { lineStyle: { color: theme.axisLineColor } },
-        },
-        yAxis: [
-          {
-            type: 'value',
-            name: 'Revenue ($)',
-            nameTextStyle: { color: theme.textColor },
-            axisLabel: { color: theme.textColor, formatter: v => fmtCurrency(v) },
-            splitLine: { lineStyle: { color: theme.splitLineColor } },
-          },
-          {
-            type: 'value',
-            name: 'Orders',
-            nameTextStyle: { color: theme.textColor },
-            axisLabel: { color: theme.textColor },
-            splitLine: { show: false },
-          },
-        ],
-        dataZoom: [
-          { type: 'inside', start: 0, end: 100 },
-          { type: 'slider', bottom: 5, height: 20, start: 0, end: 100,
-            borderColor: theme.axisLineColor,
-            textStyle: { color: theme.textColor },
-          },
-        ],
-        series: [
-          {
-            name: 'Revenue',
-            type: 'line',
-            yAxisIndex: 0,
-            smooth: true,
-            symbol: 'circle',
-            symbolSize: 4,
-            lineStyle: { width: 2 },
-            itemStyle: { color: SERIES_COLORS[0] },
-            areaStyle: {
-              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                { offset: 0, color: 'rgba(129, 140, 248, 0.3)' },
-                { offset: 1, color: 'rgba(129, 140, 248, 0.02)' },
-              ]),
-            },
-            data: agg.map(d => d.revenue),
-          },
-          {
-            name: 'Revenue (Prior Period)',
-            type: 'line',
-            yAxisIndex: 0,
-            smooth: true,
-            symbol: 'none',
-            lineStyle: { type: 'dashed', width: 1, color: '#cbd5e1' },
-            itemStyle: { color: '#cbd5e1' },
-            data: priorRevData,
-          },
-          {
-            name: 'Revenue (7d Avg)',
-            type: 'line',
-            yAxisIndex: 0,
-            smooth: true,
-            symbol: 'none',
-             lineStyle: { width: 2.5, color: '#fbbf24' },
-             itemStyle: { color: '#fbbf24' },
-            data: rolling7,
-          },
-          {
-            name: 'Orders',
-            type: 'line',
-            yAxisIndex: 1,
-            smooth: true,
-            symbol: 'circle',
-            symbolSize: 4,
-            lineStyle: { width: 2 },
-            itemStyle: { color: SERIES_COLORS[2] },
-            data: agg.map(d => d.orders),
-          },
-        ],
-      }, true);
-    }
-
-    function renderDonutChart(filteredData) {
-      if (!mainCharts.donut) mainCharts.donut = initChart('chart-donut');
-      const chart = mainCharts.donut;
-      if (!chart) return;
-      const theme = getChartThemeColors();
-
-      const catRevs = {};
-      CATEGORIES.forEach(c => { catRevs[c] = 0; });
-      filteredData.forEach(r => { catRevs[r.category] += r.revenue; });
-
-      const items = CATEGORIES.map((c, i) => ({
-        name: c,
-        value: Math.round(catRevs[c] * 100) / 100,
-        itemStyle: { color: SERIES_COLORS[i] },
-      }));
-
-      chart.setOption({
-        tooltip: {
-          trigger: 'item',
-          backgroundColor: theme.backgroundColor,
-          borderColor: theme.axisLineColor,
-          textStyle: { color: theme.textColor },
-          formatter: p => p.name + ': ' + fmtCurrency(p.value) + ' (' + p.percent.toFixed(1) + '%)',
-        },
-        legend: {
-          orient: 'vertical',
-          right: 10,
-          top: 'center',
-          textStyle: { fontSize: 11, color: theme.textColor },
-        },
-        series: [{
-          type: 'pie',
-          radius: ['40%', '70%'],
-          center: ['40%', '50%'],
-          data: items,
-          label: {
-            formatter: p => p.percent.toFixed(1) + '%',
-            fontSize: 11,
-            color: theme.textColor,
-          },
-          emphasis: {
-            itemStyle: {
-              shadowBlur: 8,
-              shadowColor: 'rgba(0,0,0,0.2)',
-            },
-          },
-        }],
-      }, true);
-
-      // Chart linking: click donut → highlight category in stacked chart
-      chart.off('click');
-      chart.on('click', function(params) {
-        if (mainCharts.stacked) {
-          const catIndex = CATEGORIES.indexOf(params.name);
-          if (catIndex >= 0) {
-            mainCharts.stacked.dispatchAction({ type: 'highlight', seriesIndex: catIndex });
-            setTimeout(() => {
-              mainCharts.stacked.dispatchAction({ type: 'downplay', seriesIndex: catIndex });
-            }, 2000);
-          }
-        }
-      });
-    }
-
-    function renderStackedAreaChart(agg, dates) {
-      if (!mainCharts.stacked) mainCharts.stacked = initChart('chart-stacked');
-      const chart = mainCharts.stacked;
-      if (!chart) return;
-      const theme = getChartThemeColors();
-
-      // Stacked area series
-      const series = CATEGORIES.map((cat, i) => ({
-        name: cat,
-        type: 'line',
-        stack: 'total',
-        smooth: true,
-        symbol: 'none',
-        areaStyle: { opacity: 0.4 },
-        lineStyle: { width: 2 },
-        itemStyle: { color: SERIES_COLORS[i] },
-        data: agg.map(d => d.catRevenue[cat] || 0),
-      }));
-
-      // Rolling 7-day average per category (stacked to match area chart)
-      CATEGORIES.forEach((cat, i) => {
-        const catData = agg.map(d => d.catRevenue[cat] || 0);
-        const r7 = catData.map((_, idx) => {
-          if (idx < 6) return null;
-          let sum = 0;
-          for (let j = idx - 6; j <= idx; j++) sum += catData[j];
-          return Math.round(sum / 7 * 100) / 100;
-        });
-        series.push({
-          name: cat + ' (7d Avg)',
-          type: 'line',
-          stack: 'avg',
-          smooth: true,
-          symbol: 'none',
-          lineStyle: { width: 2, type: 'dashed', color: SERIES_COLORS[i] },
-          itemStyle: { color: SERIES_COLORS[i] },
-          areaStyle: { opacity: 0 },
-          data: r7,
-        });
-      });
-
-      chart.setOption({
-        tooltip: {
-          trigger: 'axis',
-          backgroundColor: theme.backgroundColor,
-          borderColor: theme.axisLineColor,
-          textStyle: { color: theme.textColor },
-          formatter: function(params) {
-            let html = '<strong>' + params[0].axisValue + '</strong><br/>';
-            let total = 0;
-            params.forEach(p => {
-              if (p.value == null) return;
-              // Only sum stacked series (not the 7d avg lines)
-              if (!p.seriesName.includes('7d Avg')) total += p.value;
-              html += '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:' + p.color + ';margin-right:6px;"></span>';
-              html += p.seriesName + ': ' + fmtCurrency(p.value) + '<br/>';
-            });
-            html += '<strong>Total: ' + fmtCurrency(total) + '</strong>';
-            return html;
-          },
-        },
-        legend: {
-          top: 5,
-          textStyle: { fontSize: 12, color: theme.textColor },
-        },
-        grid: { left: 65, right: 20, top: 36, bottom: 40 },
-        xAxis: {
-          type: 'category',
-          data: dates,
-          boundaryGap: false,
-          axisLabel: { rotate: 30, fontSize: 10, color: theme.textColor },
-          axisLine: { lineStyle: { color: theme.axisLineColor } },
-        },
-        yAxis: {
-          type: 'value',
-          splitLine: { lineStyle: { color: theme.splitLineColor } },
-          axisLabel: { color: theme.textColor, formatter: v => fmtCurrency(v) },
-        },
-        series: series,
-      }, true);
-    }
-
-    // ── Table Rendering ──
-    let sortState = { column: -1, direction: 1 };
-
-    function renderTable(filteredData) {
-      const agg = aggregateByDate(filteredData);
-      tableData = agg.map(d => ({
-        date: d.date,
-        revenue: d.revenue,
-        orders: d.orders,
-        aov: d.orders > 0 ? d.revenue / d.orders : 0,
-        conv: d.visitors > 0 ? (d.orders / d.visitors) * 100 : 0,
-      }));
-      tablePage = 1;
-      tableSearchQuery = '';
-      const searchInput = document.querySelector('.table-search');
-      if (searchInput) searchInput.value = '';
-      sortState = { column: -1, direction: 1 };
-      document.querySelectorAll('#data-table th').forEach(th => {
-        th.classList.remove('sorted');
-        const icon = th.querySelector('.sort-icon');
-        if (icon) icon.className = 'sort-icon fas fa-sort';
-      });
-      renderTablePage();
-    }
-
-    function getFilteredTableData() {
-      if (!tableSearchQuery) return tableData;
-      const q = tableSearchQuery.toLowerCase();
-      return tableData.filter(d =>
-        d.date.includes(q) ||
-        fmtCurrency(d.revenue).toLowerCase().includes(q) ||
-        String(d.orders).includes(q)
-      );
-    }
-
-    function renderTablePage() {
-      const data = getFilteredTableData();
-      const totalPages = Math.max(1, Math.ceil(data.length / PAGE_SIZE));
-      if (tablePage > totalPages) tablePage = totalPages;
-      const start = (tablePage - 1) * PAGE_SIZE;
-      const pageData = data.slice(start, start + PAGE_SIZE);
-
-      // Compute min/max revenue for conditional formatting
-      const allRevs = data.map(d => d.revenue);
-      const maxRev = Math.max(...allRevs);
-      const minRev = Math.min(...allRevs);
-      const revRange = maxRev - minRev || 1;
-
-      const tbody = document.querySelector('#data-table tbody');
-      tbody.innerHTML = '';
-
-      pageData.forEach(d => {
-        const tr = document.createElement('tr');
-        const normalized = (d.revenue - minRev) / revRange;
-        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-        const heatBg = isDark
-          ? 'rgba(52, 211, 153, ' + (normalized * 0.25) + ')'
-          : 'rgba(74, 222, 128, ' + (normalized * 0.2) + ')';
-        tr.innerHTML =
-          '<td data-value="' + d.date + '">' + d.date + '</td>' +
-          '<td data-value="' + d.revenue.toFixed(2) + '" style="background:' + heatBg + '">' + fmtCurrency(d.revenue) + '</td>' +
-          '<td data-value="' + d.orders + '">' + fmtNumber(d.orders) + '</td>' +
-          '<td data-value="' + d.aov.toFixed(2) + '">$' + d.aov.toFixed(2) + '</td>' +
-          '<td data-value="' + d.conv.toFixed(2) + '">' + d.conv.toFixed(2) + '%</td>';
-
-        // Row click → markLine on dual axis chart
-        tr.addEventListener('click', function() {
-          document.querySelectorAll('#data-table tbody tr').forEach(r => r.classList.remove('row-selected'));
-          tr.classList.add('row-selected');
-          if (mainCharts.dual) {
-            mainCharts.dual.setOption({
-              series: [{
-                markLine: {
-                  silent: true,
-                  symbol: 'none',
-                  lineStyle: { color: '#fb7185', type: 'solid', width: 2 },
-                  label: { formatter: d.date, fontSize: 10 },
-                  data: [{ xAxis: fmtDate(d.date) }],
-                },
-              }],
-            });
-          }
-        });
-
-        tbody.appendChild(tr);
-      });
-
-      // Pagination controls
-      const paginationEl = document.getElementById('table-pagination');
-      if (totalPages <= 1) {
-        paginationEl.innerHTML = '';
-        return;
-      }
-      paginationEl.innerHTML =
-        '<button onclick="changePage(-1)"' + (tablePage <= 1 ? ' disabled' : '') + '><i class="fas fa-chevron-left"></i> Prev</button>' +
-        '<span>Page ' + tablePage + ' of ' + totalPages + '</span>' +
-        '<button onclick="changePage(1)"' + (tablePage >= totalPages ? ' disabled' : '') + '>Next <i class="fas fa-chevron-right"></i></button>';
-    }
-
-    function changePage(delta) {
-      const data = getFilteredTableData();
-      const totalPages = Math.max(1, Math.ceil(data.length / PAGE_SIZE));
-      tablePage = Math.max(1, Math.min(totalPages, tablePage + delta));
-      renderTablePage();
-    }
-
-    function filterTableSearch(query) {
-      tableSearchQuery = query;
-      tablePage = 1;
-      renderTablePage();
-    }
-
-    function exportCSV() {
-      const data = getFilteredTableData();
-      let csv = 'Date,Revenue,Orders,Avg Order Value,Conversion Rate\n';
-      data.forEach(d => {
-        csv += d.date + ',' + d.revenue.toFixed(2) + ',' + d.orders + ',' + d.aov.toFixed(2) + ',' + d.conv.toFixed(2) + '%\n';
-      });
-      const blob = new Blob([csv], { type: 'text/csv' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'dashboard_data.csv';
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-
-    function sortTable(columnIndex) {
-      const fields = ['date', 'revenue', 'orders', 'aov', 'conv'];
-      if (sortState.column === columnIndex) {
-        sortState.direction *= -1;
-      } else {
-        sortState.column = columnIndex;
-        sortState.direction = 1;
-      }
-      const field = fields[columnIndex];
-      tableData.sort((a, b) => {
-        const va = a[field], vb = b[field];
-        if (typeof va === 'string') return sortState.direction * va.localeCompare(vb);
-        return sortState.direction * (va - vb);
-      });
-      updateSortIcons(columnIndex);
-      renderTablePage();
-    }
-
-    function updateSortIcons(activeCol) {
-      document.querySelectorAll('#data-table th').forEach((th, i) => {
-        th.classList.toggle('sorted', i === activeCol);
-        const icon = th.querySelector('.sort-icon');
-        if (icon) {
-          icon.className = 'sort-icon fas ' +
-            (i === activeCol
-              ? (sortState.direction === 1 ? 'fa-sort-up' : 'fa-sort-down')
-              : 'fa-sort');
-        }
-      });
-    }
-
-    // ── Render All ──
-    function renderAll() {
-      const filtered = filterData(currentDays);
-      renderKPIs(filtered);
-      renderCharts(filtered);
-      renderTable(filtered);
-
-      // Update subtitle with data range
-      const dates = getUniqueDates(filtered);
-      if (dates.length > 0) {
-        const first = dates[0];
-        const last = dates[dates.length - 1];
-        const now = new Date();
-        const updated = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-        const catLabel = currentCategory === 'all' ? 'All Categories' : currentCategory;
-        document.getElementById('dashboard-subtitle').textContent =
-          'Last updated: ' + updated + ' \u00b7 Data range: ' + first + ' \u2013 ' + last + ' \u00b7 ' + catLabel;
-      }
-    }
-
-    // ── Theme Observer ──
-    const observer = new MutationObserver(() => renderAll());
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['data-theme'],
-    });
-
-    // ── Initialize ──
-    initTheme();
-    renderAll();
+    try {
+      const saved = localStorage.getItem('csv-dashboard-theme');
+      document.documentElement.dataset.theme = ['dark', 'light'].includes(saved) ? saved : (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    } catch (_) { document.documentElement.dataset.theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; }
   </script>
+</head>
+<body data-kind="timeseries">
+  <a class="skip-link" href="#overview">Skip to dashboard</a>
+  <header class="appbar">
+    <div class="appbar-inner">
+      <div class="brand"><svg viewBox="0 0 28 28" fill="none" aria-hidden="true"><rect x="2" y="15" width="5" height="11" rx="1" fill="currentColor"/><rect x="11" y="8" width="5" height="18" rx="1" fill="currentColor" opacity=".65"/><rect x="20" y="2" width="5" height="24" rx="1" fill="currentColor" opacity=".35"/></svg>Data studio</div>
+      <nav aria-label="Dashboard sections"><a href="#overview">Overview</a><a href="#analysis">Analysis</a><a href="#data">Source data</a></nav>
+      <span class="sample-tag">Sample dataset</span>
+      <button id="theme-toggle" type="button" aria-pressed="false">Dark theme</button>
+    </div>
+  </header>
+  <main id="overview" tabindex="-1">
+    <div class="page-heading">
+      <div><p class="eyebrow" id="eyebrow"></p><h1>Sales performance</h1><p class="description" id="description"></p></div>
+      <div class="scope"><strong id="date-range"></strong><span id="scope-count"></span></div>
+    </div>
+    <section class="filter-bar" aria-label="Dashboard filters">
+      <span class="filter-label">View</span><div id="filter-controls" style="display: contents"></div>
+      <button id="reset" type="button">Reset filters</button>
+    </section>
+    <div class="sr-only" id="filter-status" role="status" aria-live="polite"></div>
+    <section class="kpi-grid" id="kpis" aria-label="Key metrics"></section>
+    <div id="empty-state" hidden><strong>No records in this selection.</strong> Try a different filter or reset the view.</div>
+    <div id="chart-error" role="status" hidden>Charts could not load. Connect to the internet and reload, or use the metrics and source table below.</div>
+    <section id="analysis" aria-label="Analysis">
+      <div class="analysis-heading"><h2 id="analysis-title"></h2><span>All charts follow the selected filters</span></div>
+      <div class="primary-grid">
+        <article class="card">
+          <div class="card-heading"><h3 id="primary-title"></h3><p class="chart-description" id="primary-description"></p></div>
+          <div class="chart primary-chart" id="chart-primary"></div>
+          <p class="chart-summary" id="primary-summary"></p>
+        </article>
+        <aside class="insight" aria-label="Selection insight">
+          <p class="section-label">In this selection</p><p class="insight-value" id="insight-value"></p>
+          <h3 id="insight-title"></h3><p class="insight-copy" id="insight-copy"></p><div class="insight-list" id="insight-list"></div>
+        </aside>
+      </div>
+      <div class="support-grid">
+        <article class="card"><div class="card-heading"><h3 id="secondary-title"></h3><p class="chart-description" id="secondary-description"></p></div><div class="chart" id="chart-secondary"></div><p class="chart-summary" id="secondary-summary"></p></article>
+        <article class="card"><div class="card-heading"><h3 id="tertiary-title"></h3><p class="chart-description" id="tertiary-description"></p></div><div class="chart" id="chart-tertiary"></div><p class="chart-summary" id="tertiary-summary"></p></article>
+      </div>
+    </section>
+    <section class="card table-card" id="data" aria-labelledby="table-title">
+      <div class="table-toolbar"><div><h2 id="table-title">Source data</h2><p>Inspect the records behind this view.</p></div><div class="table-actions"><label class="sr-only" for="search">Search table only</label><input id="search" type="search" placeholder="Search table…"><button id="export" type="button">Export results ↓</button></div></div>
+      <div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable source data table"><table><caption>Search applies to this table and its export. Charts use the filters above.</caption><thead id="table-head"></thead><tbody id="table-body"></tbody></table></div>
+      <div class="table-footer"><span id="table-count" role="status"></span><div class="pagination"><button id="previous" type="button" aria-label="Previous page">← Previous</button><span id="page-label"></span><button id="next" type="button" aria-label="Next page">Next →</button></div></div>
+    </section>
+    <details class="methodology"><summary>Metric definitions & data notes</summary><p id="methodology"></p><p id="source-note"></p></details>
+    <footer><span id="footer-source"></span><span>Embedded data · ECharts loads from CDN</span></footer>
+    <noscript>This dashboard needs JavaScript to calculate metrics and display its embedded records.</noscript>
+  </main>
+  <script id="dashboard-data" type="application/json">{"config":{"file":"timeseries_sales.csv","title":"Sales performance","eyebrow":"Commerce / Revenue analytics","description":"Track demand, understand the sales mix, and see what changed.","analysis":"Revenue \u0026 demand","days":30,"ranges":[["All 90 days",0],["Last 30 days",30],["Last 7 days",7]],"filters":[{"key":"category","label":"Category"}],"metrics":[["revenue","Revenue","currency","Sum of revenue","higher"],["orders","Orders","integer","Sum of orders","higher"],["aov","Average order value","money","Revenue ÷ orders","neutral"],["conversion","Conversion rate","percent","Orders ÷ visitors","higher"]],"charts":[["Daily revenue","Revenue in USD · daily totals"],["Revenue by category","Ranked by revenue · select a bar to filter"],["Conversion over time","Orders ÷ visitors · daily rate"]],"columns":[["date","Date","text"],["category","Category","text"],["revenue","Revenue","money"],["orders","Orders","integer"],["visitors","Visitors","integer"],["avg_order_value","Source AOV","money"],["conversion_rate","Source conv. %","number"]],"numeric":["revenue","orders","avg_order_value","conversion_rate","visitors"],"methodology":"Revenue and orders are additive. Average order value = total revenue / total orders; conversion = total orders / total visitors, assuming visitors are additive across categories in this sample. Source row rates are retained in the table. Changes compare the selected window with the immediately preceding equal number of calendar days, using the same category filter. Incomplete prior coverage has no comparison. Conversion changes use percentage points. The trailing 7-day average requires seven consecutive observed days; missing days remain gaps. Currency is assumed USD for this demo.","kind":"timeseries"},"columns":["date","revenue","orders","avg_order_value","conversion_rate","visitors","category"],"rows":[["2025-12-20",20419.83,143,142.8,2.91,4909,"Electronics"],["2025-12-20",9628.11,48,200.59,3.52,1365,"Clothing"],["2025-12-20",9388.29,63,149.02,3.13,2010,"Home \u0026 Garden"],["2025-12-20",5411.32,34,159.16,3.26,1043,"Sports"],["2025-12-21",16900.11,108,156.48,3.47,3108,"Electronics"],["2025-12-21",10694.77,67,159.62,3.39,1979,"Clothing"],["2025-12-21",9225.66,65,141.93,3.71,1752,"Home \u0026 Garden"],["2025-12-21",6707.86,40,167.7,2.73,1463,"Sports"],["2025-12-22",32159,192,167.49,2.64,7275,"Electronics"],["2025-12-22",13317.08,64,208.08,3.41,1879,"Clothing"],["2025-12-22",13236.72,66,200.56,3.3,1997,"Home \u0026 Garden"],["2025-12-22",10380.19,60,173,3.33,1802,"Sports"],["2025-12-23",31228.5,164,190.42,3.79,4324,"Electronics"],["2025-12-23",15578.31,79,197.19,2.57,3075,"Clothing"],["2025-12-23",11185.74,68,164.5,2.62,2595,"Home \u0026 Garden"],["2025-12-23",8402.71,56,150.05,2.92,1919,"Sports"],["2025-12-24",53500.58,316,169.31,3.06,10342,"Electronics"],["2025-12-24",25139.95,155,162.19,3.91,3969,"Clothing"],["2025-12-24",23010.45,121,190.17,2.76,4389,"Home \u0026 Garden"],["2025-12-24",17659.83,115,153.56,3.07,3746,"Sports"],["2025-12-25",59246.63,309,191.74,3.34,9264,"Electronics"],["2025-12-25",29207.76,140,208.63,3.66,3820,"Clothing"],["2025-12-25",20340.34,142,143.24,2.97,4776,"Home \u0026 Garden"],["2025-12-25",15448,98,157.63,3.92,2503,"Sports"],["2025-12-26",57773.4,349,165.54,3.48,10019,"Electronics"],["2025-12-26",26939.26,126,213.8,3.19,3951,"Clothing"],["2025-12-26",20678.72,129,160.3,3.34,3859,"Home \u0026 Garden"],["2025-12-26",15498.33,82,189,3.85,2131,"Sports"],["2025-12-27",19673.77,124,158.66,4,3102,"Electronics"],["2025-12-27",10898.56,74,147.28,2.57,2878,"Clothing"],["2025-12-27",7675.89,40,191.9,3.69,1084,"Home \u0026 Garden"],["2025-12-27",6368.23,43,148.1,3.07,1399,"Sports"],["2025-12-28",23417.88,128,182.95,3.96,3235,"Electronics"],["2025-12-28",12101.91,85,142.38,3.58,2373,"Clothing"],["2025-12-28",9212.23,50,184.24,2.9,1723,"Home \u0026 Garden"],["2025-12-28",6829.07,45,151.76,3.15,1427,"Sports"],["2025-12-29",28853.79,133,216.95,3.81,3487,"Electronics"],["2025-12-29",14562.34,80,182.03,2.77,2890,"Clothing"],["2025-12-29",14092.31,67,210.33,2.95,2272,"Home \u0026 Garden"],["2025-12-29",9797.05,51,192.1,2.73,1868,"Sports"],["2025-12-30",31715.35,173,183.33,3.67,4716,"Electronics"],["2025-12-30",15893.42,113,140.65,2.99,3784,"Clothing"],["2025-12-30",10783.62,50,215.67,3.82,1309,"Home \u0026 Garden"],["2025-12-30",10390.27,63,164.92,2.59,2435,"Sports"],["2025-12-31",49334.88,228,216.38,2.63,8674,"Electronics"],["2025-12-31",23637.73,162,145.91,3.64,4449,"Clothing"],["2025-12-31",20504.46,136,150.77,3.21,4232,"Home \u0026 Garden"],["2025-12-31",14455.3,89,162.42,3.81,2336,"Sports"],["2026-01-01",43493.43,277,157.02,3.31,8371,"Electronics"],["2026-01-01",25495.16,163,156.41,2.97,5492,"Clothing"],["2026-01-01",21914.23,114,192.23,3.16,3610,"Home \u0026 Garden"],["2026-01-01",14385.45,96,149.85,2.84,3383,"Sports"],["2026-01-02",42557.27,227,187.48,2.85,7978,"Electronics"],["2026-01-02",21951.21,150,146.34,3.45,4352,"Clothing"],["2026-01-02",17611.14,82,214.77,3.79,2163,"Home \u0026 Garden"],["2026-01-02",12526.5,78,160.6,3.5,2226,"Sports"],["2026-01-03",19174.09,127,150.98,3.9,3253,"Electronics"],["2026-01-03",11474.45,64,179.29,3.68,1740,"Clothing"],["2026-01-03",9817.13,63,155.83,2.65,2381,"Home \u0026 Garden"],["2026-01-03",6601.56,37,178.42,3.2,1156,"Sports"],["2026-01-04",22517.99,116,194.12,3.98,2917,"Electronics"],["2026-01-04",9927.64,57,174.17,3.01,1894,"Clothing"],["2026-01-04",10009.77,62,161.45,2.79,2225,"Home \u0026 Garden"],["2026-01-04",6668.1,38,175.48,2.92,1302,"Sports"],["2026-01-05",27970.24,130,215.16,3.17,4107,"Electronics"],["2026-01-05",17956.16,97,185.12,2.58,3765,"Clothing"],["2026-01-05",14901.21,72,206.96,3.95,1821,"Home \u0026 Garden"],["2026-01-05",10963.29,52,210.83,2.75,1891,"Sports"],["2026-01-06",30249.13,192,157.55,3.1,6190,"Electronics"],["2026-01-06",14120.04,82,172.2,3.98,2061,"Clothing"],["2026-01-06",12102.88,59,205.13,3.18,1853,"Home \u0026 Garden"],["2026-01-06",9539.45,44,216.81,4,1101,"Sports"],["2026-01-07",31030.61,157,197.65,2.73,5746,"Electronics"],["2026-01-07",15352.85,70,219.33,3.37,2077,"Clothing"],["2026-01-07",13245.57,66,200.69,2.59,2552,"Home \u0026 Garden"],["2026-01-07",10057.73,55,182.87,3.78,1455,"Sports"],["2026-01-08",27509.07,126,218.33,2.62,4808,"Electronics"],["2026-01-08",14876.9,79,188.32,3.51,2248,"Clothing"],["2026-01-08",12096.17,80,151.2,3.84,2085,"Home \u0026 Garden"],["2026-01-08",9104.69,48,189.68,3.43,1399,"Sports"],["2026-01-09",30053.64,160,187.84,3.28,4871,"Electronics"],["2026-01-09",18651.8,119,156.74,3.57,3329,"Clothing"],["2026-01-09",12165.2,70,173.79,3.51,1995,"Home \u0026 Garden"],["2026-01-09",9305.99,56,166.18,3.63,1543,"Sports"],["2026-01-10",18880.64,106,178.12,4,2651,"Electronics"],["2026-01-10",13329.29,91,146.48,2.82,3227,"Clothing"],["2026-01-10",8628.18,40,215.7,3.82,1046,"Home \u0026 Garden"],["2026-01-10",7753.59,45,172.3,2.74,1644,"Sports"],["2026-01-11",23934.29,121,197.8,3.42,3540,"Electronics"],["2026-01-11",13358.61,69,193.6,2.51,2747,"Clothing"],["2026-01-11",10211,62,164.69,3.5,1773,"Home \u0026 Garden"],["2026-01-11",7913.83,52,152.19,2.67,1945,"Sports"],["2026-01-12",27539.5,149,184.83,2.91,5122,"Electronics"],["2026-01-12",17250.98,87,198.29,2.81,3101,"Clothing"],["2026-01-12",13918.83,86,161.85,3.23,2660,"Home \u0026 Garden"],["2026-01-12",11255.27,54,208.43,2.64,2046,"Sports"],["2026-01-13",30641,188,162.98,2.51,7504,"Electronics"],["2026-01-13",18166.44,95,191.23,2.89,3283,"Clothing"],["2026-01-13",14412.64,78,184.78,3.14,2482,"Home \u0026 Garden"],["2026-01-13",8597.24,58,148.23,3.83,1516,"Sports"],["2026-01-14",35317.13,192,183.94,3.75,5117,"Electronics"],["2026-01-14",17292.7,113,153.03,2.69,4198,"Clothing"],["2026-01-14",12723.45,60,212.06,3.69,1624,"Home \u0026 Garden"],["2026-01-14",11220.63,52,215.78,2.82,1847,"Sports"],["2026-01-15",29262.54,197,148.54,3.67,5367,"Electronics"],["2026-01-15",18903.32,109,173.42,3.43,3176,"Clothing"],["2026-01-15",12154.72,56,217.05,3.8,1474,"Home \u0026 Garden"],["2026-01-15",11622.9,56,207.55,3.82,1465,"Sports"],["2026-01-16",27249.31,136,200.36,3,4535,"Electronics"],["2026-01-16",19225.39,94,204.53,3.8,2476,"Clothing"],["2026-01-16",14889.72,92,161.84,3.68,2499,"Home \u0026 Garden"],["2026-01-16",9014.01,42,214.62,3.79,1108,"Sports"],["2026-01-17",20483.42,99,206.9,3.19,3103,"Electronics"],["2026-01-17",11270.44,55,204.92,2.84,1935,"Clothing"],["2026-01-17",8207.58,52,157.84,2.99,1737,"Home \u0026 Garden"],["2026-01-17",7967.03,36,221.31,2.92,1233,"Sports"],["2026-01-18",23394.54,136,172.02,3.97,3424,"Electronics"],["2026-01-18",12153.12,56,217.02,2.67,2095,"Clothing"],["2026-01-18",10975.29,71,154.58,3.94,1800,"Home \u0026 Garden"],["2026-01-18",6705.96,45,149.02,3.15,1427,"Sports"],["2026-01-19",34407.75,208,165.42,3.41,6100,"Electronics"],["2026-01-19",17309.11,101,171.38,3.37,3001,"Clothing"],["2026-01-19",12784.55,64,199.76,2.5,2557,"Home \u0026 Garden"],["2026-01-19",11671.41,63,185.26,3.58,1760,"Sports"],["2026-01-20",34687.4,179,193.78,3.05,5875,"Electronics"],["2026-01-20",15089.94,78,193.46,3,2604,"Clothing"],["2026-01-20",13086.26,62,211.07,3.58,1732,"Home \u0026 Garden"],["2026-01-20",9772.3,59,165.63,3.11,1895,"Sports"],["2026-01-21",31528.99,192,164.21,2.69,7135,"Electronics"],["2026-01-21",16984.73,78,217.75,3.52,2218,"Clothing"],["2026-01-21",15602.12,82,190.27,2.95,2778,"Home \u0026 Garden"],["2026-01-21",10590.14,75,141.2,2.93,2559,"Sports"],["2026-01-22",31933.89,171,186.75,3.48,4910,"Electronics"],["2026-01-22",17291.45,98,176.44,2.82,3474,"Clothing"],["2026-01-22",13867.54,65,213.35,3.7,1759,"Home \u0026 Garden"],["2026-01-22",9446.01,64,147.59,3.27,1955,"Sports"],["2026-01-23",34066.54,204,166.99,3.73,5472,"Electronics"],["2026-01-23",18872.24,97,194.56,2.84,3419,"Clothing"],["2026-01-23",12772.74,89,143.51,2.87,3104,"Home \u0026 Garden"],["2026-01-23",10451.46,50,209.03,2.61,1916,"Sports"],["2026-01-24",22438.87,117,191.79,2.79,4191,"Electronics"],["2026-01-24",13064.26,72,181.45,2.87,2512,"Clothing"],["2026-01-24",10332.09,73,141.54,3.63,2012,"Home \u0026 Garden"],["2026-01-24",8002.21,53,150.99,3.14,1689,"Sports"],["2026-01-25",20879.17,96,217.49,3.28,2929,"Electronics"],["2026-01-25",10718.16,67,159.97,3.77,1776,"Clothing"],["2026-01-25",9782.53,47,208.14,3.5,1342,"Home \u0026 Garden"],["2026-01-25",8522.1,45,189.38,3.93,1146,"Sports"],["2026-01-26",37076.25,196,189.16,3.58,5476,"Electronics"],["2026-01-26",17800.48,86,206.98,3.32,2588,"Clothing"],["2026-01-26",15914.49,79,201.45,3.21,2459,"Home \u0026 Garden"],["2026-01-26",9894.53,61,162.21,3.46,1764,"Sports"],["2026-01-27",35977.07,197,182.62,3.44,5726,"Electronics"],["2026-01-27",16642.97,113,147.28,2.93,3858,"Clothing"],["2026-01-27",13302.03,80,166.28,3.31,2416,"Home \u0026 Garden"],["2026-01-27",9548.1,60,159.14,3.54,1694,"Sports"],["2026-01-28",35532.04,244,145.62,3.11,7842,"Electronics"],["2026-01-28",18154.14,104,174.56,2.81,3700,"Clothing"],["2026-01-28",13996.46,65,215.33,3.38,1925,"Home \u0026 Garden"],["2026-01-28",11385.85,54,210.85,3.65,1480,"Sports"],["2026-01-29",32394.24,230,140.84,3.03,7596,"Electronics"],["2026-01-29",19368.77,92,210.53,3.93,2340,"Clothing"],["2026-01-29",14050.17,70,200.72,3.32,2108,"Home \u0026 Garden"],["2026-01-29",11134.54,70,159.06,2.83,2474,"Sports"],["2026-01-30",33090.53,232,142.63,3,7722,"Electronics"],["2026-01-30",19046.4,110,173.15,2.75,4003,"Clothing"],["2026-01-30",14318.54,95,150.72,3.43,2766,"Home \u0026 Garden"],["2026-01-30",9305.99,54,172.33,3.35,1613,"Sports"],["2026-01-31",20351.43,106,191.99,2.7,3920,"Electronics"],["2026-01-31",12559.01,87,144.36,3.07,2835,"Clothing"],["2026-01-31",9284.79,55,168.81,3.64,1510,"Home \u0026 Garden"],["2026-01-31",7346.57,36,204.07,3.75,960,"Sports"],["2026-02-01",22044.18,150,146.96,2.53,5931,"Electronics"],["2026-02-01",12908.37,58,222.56,3.03,1917,"Clothing"],["2026-02-01",10665.71,52,205.11,3.48,1495,"Home \u0026 Garden"],["2026-02-01",8238.31,38,216.8,2.8,1357,"Sports"],["2026-02-02",29244.85,192,152.32,2.69,7139,"Electronics"],["2026-02-02",19230.33,103,186.7,2.83,3643,"Clothing"],["2026-02-02",15516.05,77,201.51,2.75,2798,"Home \u0026 Garden"],["2026-02-02",11333.27,56,202.38,2.67,2095,"Sports"],["2026-02-03",37585.61,173,217.26,2.66,6498,"Electronics"],["2026-02-03",15760.3,95,165.9,3.52,2701,"Clothing"],["2026-02-03",16720.54,97,172.38,3.57,2715,"Home \u0026 Garden"],["2026-02-03",9622.61,49,196.38,3.44,1424,"Sports"],["2026-02-04",30326.84,150,202.18,3.78,3973,"Electronics"],["2026-02-04",19005.78,126,150.84,3.98,3169,"Clothing"],["2026-02-04",16011.51,95,168.54,3.14,3023,"Home \u0026 Garden"],["2026-02-04",10640.17,58,183.45,3.01,1925,"Sports"],["2026-02-05",38206.5,185,206.52,2.66,6959,"Electronics"],["2026-02-05",21085.83,110,191.69,3.74,2938,"Clothing"],["2026-02-05",15741.69,90,174.91,3.6,2499,"Home \u0026 Garden"],["2026-02-05",12667.12,78,162.4,3.71,2101,"Sports"],["2026-02-06",35117.61,196,179.17,3.15,6215,"Electronics"],["2026-02-06",19889.13,123,161.7,3.78,3256,"Clothing"],["2026-02-06",16356.38,111,147.35,3.82,2903,"Home \u0026 Garden"],["2026-02-06",10302.45,58,177.63,3.42,1698,"Sports"],["2026-02-07",23516.13,165,142.52,3.78,4369,"Electronics"],["2026-02-07",11824.76,75,157.66,3.7,2028,"Clothing"],["2026-02-07",9957.08,47,211.85,3.55,1323,"Home \u0026 Garden"],["2026-02-07",7317.05,51,143.47,3.92,1300,"Sports"],["2026-02-08",21454.26,108,198.65,3.23,3340,"Electronics"],["2026-02-08",14141.52,72,196.41,3.47,2075,"Clothing"],["2026-02-08",10471.09,51,205.32,2.64,1932,"Home \u0026 Garden"],["2026-02-08",7217.27,36,200.48,2.96,1216,"Sports"],["2026-02-09",35999.76,202,178.22,3.3,6127,"Electronics"],["2026-02-09",18404.28,92,200.05,3,3070,"Clothing"],["2026-02-09",15976.5,98,163.03,2.88,3406,"Home \u0026 Garden"],["2026-02-09",10009.59,64,156.4,2.68,2388,"Sports"],["2026-02-10",35659.58,177,201.47,2.78,6372,"Electronics"],["2026-02-10",17291.9,96,180.12,3.59,2676,"Clothing"],["2026-02-10",17281.89,94,183.85,2.92,3214,"Home \u0026 Garden"],["2026-02-10",9980.99,64,155.95,2.84,2252,"Sports"],["2026-02-11",32013.75,226,141.65,3.3,6845,"Electronics"],["2026-02-11",17690.27,81,218.4,3.33,2432,"Clothing"],["2026-02-11",16079.04,107,150.27,3.8,2813,"Home \u0026 Garden"],["2026-02-11",11353.85,54,210.26,3.36,1606,"Sports"],["2026-02-12",35233.53,201,175.29,2.78,7239,"Electronics"],["2026-02-12",16486.12,76,216.92,3.22,2362,"Clothing"],["2026-02-12",16712.71,97,172.3,2.61,3714,"Home \u0026 Garden"],["2026-02-12",11873.87,82,144.8,2.72,3010,"Sports"],["2026-02-13",36373.01,221,164.58,3.99,5537,"Electronics"],["2026-02-13",16935.87,84,201.62,3.41,2463,"Clothing"],["2026-02-13",16634.5,105,158.42,3.28,3197,"Home \u0026 Garden"],["2026-02-13",11304.65,64,176.64,3.79,1688,"Sports"],["2026-02-14",37409.02,227,164.8,3.43,6615,"Electronics"],["2026-02-14",18046.64,90,200.52,3.92,2295,"Clothing"],["2026-02-14",12752.27,81,157.44,3.49,2320,"Home \u0026 Garden"],["2026-02-14",9404.66,61,154.17,2.61,2334,"Sports"],["2026-02-15",21428.32,121,177.09,3.39,3568,"Electronics"],["2026-02-15",12647.57,79,160.1,3.56,2218,"Clothing"],["2026-02-15",11451.31,64,178.93,3.53,1812,"Home \u0026 Garden"],["2026-02-15",9125.03,44,207.39,3.44,1279,"Sports"],["2026-02-16",37866.58,176,215.15,3.14,5609,"Electronics"],["2026-02-16",19608.68,102,192.24,3.86,2640,"Clothing"],["2026-02-16",16996.88,116,146.52,2.75,4219,"Home \u0026 Garden"],["2026-02-16",10939.91,54,202.59,3.35,1610,"Sports"],["2026-02-17",33960.51,226,150.27,3.53,6396,"Electronics"],["2026-02-17",20588.95,95,216.73,3.25,2922,"Clothing"],["2026-02-17",15511.07,105,147.72,2.56,4101,"Home \u0026 Garden"],["2026-02-17",11417.34,68,167.9,2.88,2364,"Sports"],["2026-02-18",31937.29,147,217.26,3.75,3915,"Electronics"],["2026-02-18",19939.91,92,216.74,4,2300,"Clothing"],["2026-02-18",16406.28,101,162.44,2.56,3944,"Home \u0026 Garden"],["2026-02-18",12599.5,70,179.99,3.48,2013,"Sports"],["2026-02-19",41100.99,265,155.1,3.38,7844,"Electronics"],["2026-02-19",20366.52,113,180.23,2.64,4285,"Clothing"],["2026-02-19",14945.72,89,167.93,3.51,2539,"Home \u0026 Garden"],["2026-02-19",13005.47,78,166.74,3.54,2203,"Sports"],["2026-02-20",34349.55,159,216.03,3.72,4273,"Electronics"],["2026-02-20",19945.32,113,176.51,2.97,3802,"Clothing"],["2026-02-20",14886.56,68,218.92,3.11,2189,"Home \u0026 Garden"],["2026-02-20",11841.63,54,219.29,3.49,1548,"Sports"],["2026-02-21",26103.34,150,174.02,2.78,5393,"Electronics"],["2026-02-21",13234.96,66,200.53,3.44,1919,"Clothing"],["2026-02-21",11907.56,76,156.68,3.32,2286,"Home \u0026 Garden"],["2026-02-21",9347.42,53,176.37,3.55,1494,"Sports"],["2026-02-22",22933.66,105,218.42,3.41,3076,"Electronics"],["2026-02-22",12776,83,153.93,3.33,2495,"Clothing"],["2026-02-22",11261.81,76,148.18,3.99,1905,"Home \u0026 Garden"],["2026-02-22",9346.18,52,179.73,2.68,1943,"Sports"],["2026-02-23",40796.75,226,180.52,3.58,6321,"Electronics"],["2026-02-23",19927.9,123,162.02,3.75,3278,"Clothing"],["2026-02-23",18190.77,114,159.57,3.33,3426,"Home \u0026 Garden"],["2026-02-23",11508.53,53,217.14,3.26,1624,"Sports"],["2026-02-24",41477.83,198,209.48,2.91,6793,"Electronics"],["2026-02-24",21685.69,125,173.49,3.9,3204,"Clothing"],["2026-02-24",15997.05,77,207.75,2.92,2633,"Home \u0026 Garden"],["2026-02-24",11246.61,60,187.44,4,1500,"Sports"],["2026-02-25",37263.83,245,152.1,3.31,7406,"Electronics"],["2026-02-25",19094.58,103,185.38,3.32,3106,"Clothing"],["2026-02-25",15805.39,95,166.37,2.78,3413,"Home \u0026 Garden"],["2026-02-25",12726.88,68,187.16,2.85,2385,"Sports"],["2026-02-26",40621.53,283,143.54,3.62,7824,"Electronics"],["2026-02-26",21337.52,104,205.17,3.08,3377,"Clothing"],["2026-02-26",16869.63,82,205.73,3.97,2064,"Home \u0026 Garden"],["2026-02-26",12043.1,84,143.37,3.25,2581,"Sports"],["2026-02-27",38678.86,184,210.21,3.81,4827,"Electronics"],["2026-02-27",19813.7,108,183.46,3.19,3390,"Clothing"],["2026-02-27",17217.07,99,173.91,3.48,2843,"Home \u0026 Garden"],["2026-02-27",10849.81,61,177.87,3.96,1542,"Sports"],["2026-02-28",25178.5,128,196.71,3.48,3683,"Electronics"],["2026-02-28",15670.88,75,208.95,3.79,1979,"Clothing"],["2026-02-28",10931.79,66,165.63,3.58,1844,"Home \u0026 Garden"],["2026-02-28",9166.86,43,213.18,2.55,1683,"Sports"],["2026-03-01",23119.44,121,191.07,3.88,3117,"Electronics"],["2026-03-01",16350.64,81,201.86,3.15,2570,"Clothing"],["2026-03-01",10010.84,52,192.52,3.81,1365,"Home \u0026 Garden"],["2026-03-01",8392.26,42,199.82,3.86,1089,"Sports"],["2026-03-02",32893.4,161,204.31,2.94,5476,"Electronics"],["2026-03-02",19634.03,129,152.2,3.3,3912,"Clothing"],["2026-03-02",16642.78,81,205.47,2.76,2940,"Home \u0026 Garden"],["2026-03-02",10693.97,51,209.69,3.43,1487,"Sports"],["2026-03-03",35248.35,165,213.63,2.71,6078,"Electronics"],["2026-03-03",20236.36,126,160.61,2.88,4370,"Clothing"],["2026-03-03",13969.18,68,205.43,3.85,1765,"Home \u0026 Garden"],["2026-03-03",12939.58,84,154.04,3.16,2656,"Sports"],["2026-03-04",36582.77,195,187.6,3.46,5638,"Electronics"],["2026-03-04",20083.36,125,160.67,3.77,3317,"Clothing"],["2026-03-04",14956.54,87,171.91,3.23,2697,"Home \u0026 Garden"],["2026-03-04",11357.92,61,186.2,3.36,1814,"Sports"],["2026-03-05",44190.59,270,163.67,3.97,6806,"Electronics"],["2026-03-05",21604.05,133,162.44,3.35,3971,"Clothing"],["2026-03-05",17419.71,87,200.23,2.57,3380,"Home \u0026 Garden"],["2026-03-05",12770.03,71,179.86,3.86,1841,"Sports"],["2026-03-06",36161.56,177,204.3,3.41,5189,"Electronics"],["2026-03-06",19782.91,103,192.07,3.43,3001,"Clothing"],["2026-03-06",17443.13,88,198.22,3.49,2522,"Home \u0026 Garden"],["2026-03-06",13680.64,71,192.69,3.86,1841,"Sports"],["2026-03-07",28337.77,172,164.75,3.16,5440,"Electronics"],["2026-03-07",14889.66,74,201.21,2.64,2808,"Clothing"],["2026-03-07",10918.89,54,202.2,2.76,1954,"Home \u0026 Garden"],["2026-03-07",7762.62,42,184.82,3.96,1061,"Sports"],["2026-03-08",27496.16,129,213.15,3.75,3443,"Electronics"],["2026-03-08",13530.89,65,208.17,3.22,2016,"Clothing"],["2026-03-08",12749.57,63,202.37,3.01,2094,"Home \u0026 Garden"],["2026-03-08",7746.01,35,221.31,2.71,1290,"Sports"],["2026-03-09",44526.45,213,209.04,3.59,5939,"Electronics"],["2026-03-09",23937.84,110,217.62,3.71,2967,"Clothing"],["2026-03-09",16065.92,79,203.37,2.52,3133,"Home \u0026 Garden"],["2026-03-09",12692.75,71,178.77,3.51,2023,"Sports"],["2026-03-10",41226.73,220,187.39,3.73,5892,"Electronics"],["2026-03-10",23773.84,159,149.52,2.85,5577,"Clothing"],["2026-03-10",14406.12,68,211.85,3.34,2034,"Home \u0026 Garden"],["2026-03-10",14169.67,89,159.21,2.6,3429,"Sports"],["2026-03-11",43162.14,202,213.67,2.95,6839,"Electronics"],["2026-03-11",20495.2,135,151.82,3.92,3444,"Clothing"],["2026-03-11",15870.48,88,180.35,2.65,3326,"Home \u0026 Garden"],["2026-03-11",14114.07,93,151.76,3.18,2924,"Sports"],["2026-03-12",41499.24,208,199.52,3.92,5307,"Electronics"],["2026-03-12",20636.86,103,200.36,2.73,3770,"Clothing"],["2026-03-12",16487.95,111,148.54,3.23,3432,"Home \u0026 Garden"],["2026-03-12",12340.2,57,216.49,2.55,2236,"Sports"],["2026-03-13",38081.12,217,175.49,3.93,5527,"Electronics"],["2026-03-13",23488.33,158,148.66,3.53,4477,"Clothing"],["2026-03-13",17206.51,78,220.6,3.04,2567,"Home \u0026 Garden"],["2026-03-13",12345.84,79,156.28,2.68,2944,"Sports"],["2026-03-14",30737.94,174,176.65,3.49,4979,"Electronics"],["2026-03-14",15543.84,82,189.56,2.53,3238,"Clothing"],["2026-03-14",12954.27,81,159.93,2.69,3012,"Home \u0026 Garden"],["2026-03-14",9119.31,62,147.09,3.65,1699,"Sports"],["2026-03-15",25476.27,161,158.24,3.81,4231,"Electronics"],["2026-03-15",14192.95,93,152.61,3.85,2415,"Clothing"],["2026-03-15",10184.68,48,212.18,2.72,1766,"Home \u0026 Garden"],["2026-03-15",7980.98,49,162.88,2.76,1774,"Sports"],["2026-03-16",41974.62,295,142.29,2.52,11695,"Electronics"],["2026-03-16",23316.05,146,159.7,2.99,4890,"Clothing"],["2026-03-16",15483.02,107,144.7,3.61,2961,"Home \u0026 Garden"],["2026-03-16",12970.72,64,202.67,3.21,1991,"Sports"],["2026-03-17",43531.22,240,181.38,2.66,9010,"Electronics"],["2026-03-17",21549.79,99,217.67,2.57,3859,"Clothing"],["2026-03-17",18683.15,89,209.92,3.28,2711,"Home \u0026 Garden"],["2026-03-17",12752.44,58,219.87,2.59,2238,"Sports"],["2026-03-18",40065.77,232,172.7,3.53,6573,"Electronics"],["2026-03-18",21536.94,101,213.24,2.61,3869,"Clothing"],["2026-03-18",15106.82,80,188.84,2.6,3078,"Home \u0026 Garden"],["2026-03-18",12085.26,63,191.83,3.32,1896,"Sports"],["2026-03-19",38338.1,174,220.33,3.3,5279,"Electronics"],["2026-03-19",21374.03,113,189.15,2.65,4266,"Clothing"],["2026-03-19",18389.66,88,208.97,3.48,2531,"Home \u0026 Garden"],["2026-03-19",14054.36,71,197.95,2.82,2515,"Sports"]]}</script>
+  <script>/* Pure computations shared by the demos. Missing values are never coerced to zero. */
+(function (root) {
+  'use strict';
+  const finite = value => typeof value === 'number' && Number.isFinite(value);
+  const sum = (rows, key) => rows.reduce((total, row) => total + (finite(row[key]) ? row[key] : 0), 0);
+  const total = (rows, key) => rows.some(row => finite(row[key])) ? sum(rows, key) : null;
+  const ratio = (numerator, denominator) => finite(numerator) && finite(denominator) && denominator > 0 ? numerator / denominator : null;
+  const mean = (rows, key) => {
+    const valid = rows.filter(row => finite(row[key]));
+    return valid.length ? sum(valid, key) / valid.length : null;
+  };
+  const weighted = (rows, value, weight) => {
+    const valid = rows.filter(row => finite(row[value]) && finite(row[weight]) && row[weight] > 0);
+    return ratio(valid.reduce((total, row) => total + row[value] * row[weight], 0), sum(valid, weight));
+  };
+  const group = (rows, key) => {
+    const result = new Map();
+    rows.forEach(row => {
+      const value = typeof key === 'function' ? key(row) : row[key];
+      if (!result.has(value)) result.set(value, []);
+      result.get(value).push(row);
+    });
+    return result;
+  };
+  const dateKey = row => String(row.date ?? row.timestamp ?? row.month).slice(0, 10);
+  const dayNumber = value => Date.parse(value.slice(0, 10) + 'T00:00:00Z') / 86400000;
+  const isoDay = value => new Date(value * 86400000).toISOString().slice(0, 10);
+  const weekKey = value => {
+    const day = dayNumber(value);
+    const weekday = new Date(day * 86400000).getUTCDay();
+    return isoDay(day - (weekday + 6) % 7);
+  };
+  const filter = (rows, state, config) => {
+    const maxDay = Math.max(...rows.map(row => dayNumber(dateKey(row))).filter(Number.isFinite));
+    return rows.filter(row => {
+      const day = dayNumber(dateKey(row));
+      if (state.days && day < maxDay - state.days + 1) return false;
+      return config.filters.every(({ key }) => !state.filters[key] || String(row[key]) === state.filters[key]);
+    });
+  };
+  // Adjacent equal calendar windows; reject incomplete windows instead of manufacturing deltas.
+  const priorWindow = (rows, state, config) => {
+    if (!state.days || config.kind === 'comparison') return null;
+    const maxDay = Math.max(...rows.map(row => dayNumber(dateKey(row))).filter(Number.isFinite));
+    const end = maxDay - state.days;
+    const start = end - state.days + 1;
+    const candidates = rows.filter(row => config.filters.every(({ key }) => !state.filters[key] || String(row[key]) === state.filters[key]));
+    const current = candidates.filter(row => dayNumber(dateKey(row)) > end);
+    const previous = candidates.filter(row => dayNumber(dateKey(row)) >= start && dayNumber(dateKey(row)) <= end);
+    const identity = row => JSON.stringify(config.filters.map(({ key }) => row[key]));
+    const identities = new Set(candidates.map(identity));
+    const hours = config.kind === 'monitoring' ? 24 : 1;
+    const coverage = data => new Set(data.map(row => dateKey(row) + '|' + identity(row) + (hours > 1 ? '|' + row.timestamp.slice(11, 13) : ''))).size;
+    const expected = state.days * identities.size * hours;
+    return coverage(current) === expected && coverage(previous) === expected ? previous : null;
+  };
+  const nps = rows => {
+    const valid = rows.filter(row => Number.isInteger(row.nps_score) && row.nps_score >= 0 && row.nps_score <= 10);
+    const promoters = valid.filter(row => row.nps_score >= 9).length;
+    const detractors = valid.filter(row => row.nps_score <= 6).length;
+    return { count: valid.length, promoters, detractors, passives: valid.length - promoters - detractors,
+      score: valid.length ? (promoters - detractors) / valid.length * 100 : null };
+  };
+  const metrics = (rows, kind) => {
+    if (kind === 'timeseries') return { revenue: total(rows, 'revenue'),
+      orders: total(rows, 'orders'), aov: ratio(total(rows, 'revenue'), total(rows, 'orders')),
+      conversion: ratio(total(rows, 'orders'), total(rows, 'visitors')) };
+    if (kind === 'comparison') return { revenue: total(rows, 'revenue'),
+      units: total(rows, 'units_sold'), price: ratio(total(rows, 'revenue'), total(rows, 'units_sold')),
+      returns: weighted(rows, 'return_rate', 'units_sold') };
+    if (kind === 'monitoring') {
+      const traffic = [...group(rows, 'timestamp').values()].map(bucket => ({ value: sum(bucket, 'qps') }));
+      return { p95: mean(rows, 'p95_latency_ms'), errors: weighted(rows, 'error_rate', 'qps'),
+        qps: mean(traffic, 'value'), peak: rows.some(row => finite(row.p95_latency_ms)) ? Math.max(...rows.map(row => row.p95_latency_ms).filter(finite)) : null };
+    }
+    const result = nps(rows);
+    return { nps: result.score, responses: result.count, satisfaction: mean(rows, 'satisfaction'),
+      recommend: ratio(rows.filter(row => row.would_recommend === 'yes').length,
+        rows.filter(row => ['yes', 'no'].includes(row.would_recommend)).length) };
+  };
+  const rolling = (values, windowSize) => values.map((_, index) => {
+    if (index < windowSize - 1) return null;
+    const slice = values.slice(index - windowSize + 1, index + 1);
+    return slice.every(finite) ? slice.reduce((a, b) => a + b, 0) / windowSize : null;
+  });
+  const csvCell = value => {
+    let text = value == null ? '' : String(value);
+    // Neutralize spreadsheet formulas only in text, keeping actual negative numbers numeric.
+    if (typeof value === 'string' && /^\s*[=+\-@\t\r\n]/u.test(text)) text = "'" + text;
+    return '"' + text.replace(/"/g, '""') + '"';
+  };
+  const csv = (rows, columns) => '\ufeff' + [columns.map(csvCell).join(','),
+    ...rows.map(row => columns.map(key => csvCell(row[key])).join(','))].join('\r\n');
+  const api = { finite, sum, total, ratio, mean, weighted, group, dateKey, dayNumber, isoDay, weekKey, filter, priorWindow, nps, metrics, rolling, csv };
+  if (typeof module !== 'undefined' && module.exports) module.exports = api;
+  else root.DashboardModel = api;
+})(typeof globalThis === 'undefined' ? this : globalThis);
+</script>
+  <script>(function () {
+  'use strict';
+  const { config, columns, rows: packed } = JSON.parse(document.getElementById('dashboard-data').textContent);
+  const rows = packed.map(values => Object.fromEntries(columns.map((key, index) => [key, values[index]])));
+  const M = DashboardModel;
+  const $ = id => document.getElementById(id);
+  const state = { days: config.days, filters: {}, search: '', sort: config.columns[0][0], direction: 1, page: 1 };
+  const pageSize = 12;
+  const charts = new Map();
+  const zoom = new Map();
+  let selected = [];
+  let tableRows = [];
+  const number = new Intl.NumberFormat('en-US', { maximumFractionDigits: 1 });
+  const money = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 });
+  const compact = new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 2 });
+  function format(value, kind = 'number') {
+    if (value == null || (typeof value === 'number' && !Number.isFinite(value))) return '—';
+    if (kind === 'text') return String(value);
+    if (kind === 'currency') return '$' + compact.format(value);
+    if (kind === 'money') return money.format(value);
+    if (kind === 'percent') return (value * 100).toFixed(2) + '%';
+    if (kind === 'integer') return Math.round(value).toLocaleString('en-US');
+    if (kind === 'ms') return number.format(value) + ' ms';
+    if (kind === 'score') return (value > 0 ? '+' : '') + value.toFixed(1);
+    if (kind === 'rating') return value.toFixed(2) + ' / 5';
+    return number.format(value);
+  }
+  function node(tag, text, className) {
+    const element = document.createElement(tag);
+    if (text != null) element.textContent = text;
+    if (className) element.className = className;
+    return element;
+  }
+  function colors() {
+    const style = getComputedStyle(document.documentElement);
+    const get = name => style.getPropertyValue('--' + name).trim();
+    return { text: get('ink'), muted: get('muted'), border: get('border'), grid: get('grid'), surface: get('surface'),
+      accent: get('accent'), teal: get('teal'), rose: get('rose'), amber: get('amber'),
+      palette: ['accent', 'teal', 'amber', 'purple', 'rose', 'orange'].map(get) };
+  }
+  const categories = key => [...new Set(rows.map(row => row[key]))].sort();
+  const seriesColor = (key, value) => colors().palette[categories(key).indexOf(value) % colors().palette.length];
+  function addSelect(key, label, options, current) {
+    const wrap = node('div', null, 'control');
+    const labelEl = node('label', label); labelEl.htmlFor = 'filter-' + key;
+    const select = node('select'); select.id = labelEl.htmlFor;
+    options.forEach(([text, value]) => { const option = node('option', text); option.value = value; select.append(option); });
+    select.value = current;
+    select.addEventListener('change', () => {
+      if (key === 'days') state.days = Number(select.value); else state.filters[key] = select.value;
+      state.page = 1; zoom.clear(); renderAll();
+    });
+    wrap.append(labelEl, select); $('filter-controls').append(wrap);
+  }
+  function setFilter(key, value) {
+    state.filters[key] = state.filters[key] === value ? '' : value;
+    $('filter-' + key).value = state.filters[key];
+    state.page = 1; zoom.clear(); renderAll();
+  }
+  if (config.ranges.length) addSelect('days', 'Period', config.ranges, state.days);
+  config.filters.forEach(({ key, label }) => addSelect(key, label, [['All ' + (key === 'category' ? 'categories' : label.toLowerCase() + 's'), ''], ...categories(key).map(value => [value, value])], ''));
+  $('reset').addEventListener('click', () => {
+    state.days = config.days; state.filters = {}; state.search = ''; state.page = 1;
+    state.sort = config.columns[0][0]; state.direction = 1; $('search').value = '';
+    if ($('filter-days')) $('filter-days').value = state.days;
+    config.filters.forEach(({ key }) => { $('filter-' + key).value = ''; });
+    zoom.clear(); renderAll();
+  });
+  $('eyebrow').textContent = config.eyebrow;
+  $('description').textContent = config.description;
+  $('analysis-title').textContent = config.analysis;
+  ['primary', 'secondary', 'tertiary'].forEach((key, index) => {
+    $(key + '-title').textContent = config.charts[index][0];
+    $(key + '-description').textContent = config.charts[index][1];
+  });
+  $('methodology').textContent = config.methodology;
+  $('source-note').textContent = `Source: ${config.file} · ${rows.length.toLocaleString()} records. Sample data only. The displayed period is the CSV coverage, not the date the page was opened. All source records are embedded; the table is paginated, not truncated.`;
+  $('footer-source').textContent = config.file + ' / ' + rows.length.toLocaleString() + ' source rows';
+
+  function renderMetrics() {
+    const values = M.metrics(selected, config.kind);
+    const previous = M.priorWindow(rows, state, config);
+    const prior = previous && M.metrics(previous, config.kind);
+    $('kpis').replaceChildren();
+    config.metrics.forEach(([key, label, kind, definition, polarity]) => {
+      const card = node('article', null, 'kpi');
+      const value = node('p', format(values[key], kind), 'kpi-value');
+      value.dataset.metric = key;
+      value.title = kind === 'currency' ? format(values[key], 'money') : format(values[key], kind);
+      const note = node('div', null, 'kpi-note');
+      if (prior && M.finite(prior[key]) && M.finite(values[key]) && prior[key] !== 0) {
+        const difference = kind === 'percent' ? (values[key] - prior[key]) * 100 : (values[key] / prior[key] - 1) * 100;
+        const favorable = polarity === 'lower' ? difference < 0 : difference > 0;
+        const precision = kind === 'percent' ? 2 : 1;
+        const minimum = 10 ** -precision;
+        const amount = difference !== 0 && Math.abs(difference) < minimum ? `${difference < 0 ? '−' : '+'}<${minimum.toFixed(precision)}` : `${difference > 0 ? '+' : ''}${difference.toFixed(precision)}`;
+        const delta = node('span', `${amount}${kind === 'percent' ? ' pp' : '%'} `,
+          'delta' + (difference && polarity !== 'neutral' ? (favorable ? ' positive' : ' negative') : ''));
+        note.append(delta, node('span', `vs preceding ${state.days} days`), node('br'));
+      } else if (state.days && config.kind === 'timeseries') {
+        note.append(node('span', 'Prior comparison unavailable'), node('br'));
+      }
+      note.append(node('span', definition));
+      card.append(node('h2', label, 'kpi-label'), value, note); $('kpis').append(card);
+    });
+  }
+  const grouped = (data, key, value) => [...M.group(data, key)].map(([name, bucket]) => ({ name, value: value(bucket), count: bucket.length }));
+  const ranked = (data, key, value) => grouped(data, key, value).sort((a, b) => b.value - a.value || String(a.name).localeCompare(String(b.name)));
+  function insight(value, title, copy, facts) {
+    $('insight-value').textContent = value; $('insight-title').textContent = title; $('insight-copy').textContent = copy;
+    $('insight-list').replaceChildren(...facts.map(([label, text]) => {
+      const row = node('div', null, 'insight-row'); row.append(node('span', label), node('strong', text)); return row;
+    }));
+  }
+  function renderInsight() {
+    if (!selected.length) { insight('—', 'No data selected', 'Adjust the filters to explore the dataset.', []); return; }
+    if (config.kind === 'timeseries') {
+      const ranking = ranked(selected, 'category', bucket => M.sum(bucket, 'revenue'));
+      const top = ranking[0]; const total = M.sum(selected, 'revenue');
+      insight(format(M.ratio(top.value, total), 'percent'), top.name + ' leads revenue', 'Share of revenue within the current selection. Compare category contributions in the ranking below.',
+        [['Leading category', format(top.value, 'currency')], ['Categories in view', String(ranking.length)], ['Observed days', String(new Set(selected.map(M.dateKey)).size)]]);
+    } else if (config.kind === 'comparison') {
+      const ranking = ranked(selected, 'region', bucket => M.sum(bucket, 'revenue'));
+      const top = ranking[0];
+      insight(format(M.ratio(top.value, M.sum(selected, 'revenue')), 'percent'), top.name + ' is the largest market', 'Share of selected revenue. Regional size and product mix should be read together.',
+        [['Leading region', format(top.value, 'currency')], ['Products in view', String(new Set(selected.map(row => row.product)).size)], ['Regions in view', String(ranking.length)]]);
+    } else if (config.kind === 'monitoring') {
+      const peak = selected.reduce((a, b) => a.p95_latency_ms > b.p95_latency_ms ? a : b);
+      const above = selected.filter(row => row.p95_latency_ms > 300).length;
+      insight(format(peak.p95_latency_ms, 'ms'), peak.endpoint + ' has the highest hourly P95', 'Peak observed in this selection at ' + peak.timestamp.replace('T', ' ') + '. This is an endpoint-hour percentile.',
+        [['Above 300 ms reference', `${above.toLocaleString()} / ${selected.length.toLocaleString()}`], ['Reference type', 'Illustrative'], ['Endpoint-hours', selected.length.toLocaleString()]]);
+    } else {
+      const nps = M.nps(selected);
+      insight(format(M.ratio(nps.promoters, nps.count), 'percent'), 'of responses are promoters', 'Promoters score 9–10. NPS subtracts the share of detractors from the share of promoters.',
+        [['Promoters · 9–10', `${nps.promoters} / ${nps.count}`], ['Passives · 7–8', `${nps.passives} / ${nps.count}`], ['Detractors · 0–6', `${nps.detractors} / ${nps.count}`]]);
+    }
+  }
+  function baseOption() {
+    const c = colors();
+    return { animation: false, color: c.palette, backgroundColor: 'transparent',
+      textStyle: { fontFamily: "'Avenir Next', 'Segoe UI', sans-serif", color: c.text },
+      aria: { enabled: true, decal: { show: false } },
+      tooltip: { trigger: 'axis', confine: true, renderMode: 'richText', backgroundColor: c.surface, borderColor: c.border, textStyle: { color: c.text, fontSize: 12 } },
+      grid: { left: 24, right: 28, top: 42, bottom: 26, containLabel: true },
+      xAxis: { type: 'category', axisTick: { show: false }, axisLine: { lineStyle: { color: c.border } }, axisLabel: { color: c.muted, fontSize: 10, hideOverlap: true }, splitLine: { show: false } },
+      yAxis: { type: 'value', axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: c.muted, fontSize: 10 }, splitLine: { lineStyle: { color: c.grid, type: 'dashed' } } } };
+  }
+  function draw(id, option, onClick) {
+    if (!window.echarts) return;
+    const target = $('chart-' + id);
+    if (!charts.has(id)) {
+      const chart = echarts.init(target, null, { renderer: 'svg' }); charts.set(id, chart);
+      chart.on('datazoom', () => {
+        const item = chart.getOption().dataZoom?.[0];
+        if (item) zoom.set(id, { start: item.start, end: item.end });
+      });
+      new ResizeObserver(() => chart.resize()).observe(target);
+    }
+    const chart = charts.get(id);
+    if (option.dataZoom && zoom.has(id)) option.dataZoom.forEach(item => Object.assign(item, zoom.get(id)));
+    chart.setOption(option, { notMerge: true });
+    chart.off('click');
+    if (onClick) chart.on('click', onClick);
+  }
+  function line(id, labels, series, kind, { zoomable = false, min, max, threshold } = {}) {
+    const c = colors(); const option = baseOption();
+    option.xAxis.data = labels;
+    option.xAxis.axisLabel.formatter = value => value.includes('T') ? value.slice(5, 10) + '\n' + value.slice(11, 16) : value.slice(5);
+    option.yAxis.axisLabel.formatter = value => kind === 'currency' ? '$' + compact.format(value) : kind === 'percent' ? (value * 100).toFixed(1) + '%' : compact.format(value);
+    if (min !== undefined) option.yAxis.min = min;
+    if (max !== undefined) option.yAxis.max = max;
+    option.tooltip.valueFormatter = value => format(value, kind);
+    option.legend = { top: 12, left: 24, right: 16, type: 'scroll', textStyle: { color: c.muted, fontSize: 11 }, itemWidth: 15, itemHeight: 7 };
+    option.series = series.map((item, index) => ({ name: item.name, type: 'line', data: item.data, smooth: false, connectNulls: false,
+      showSymbol: labels.length <= 10, symbolSize: 5, itemStyle: { color: item.color || c.palette[index] },
+      lineStyle: { width: item.dashed ? 1.8 : 2.3, type: item.dashed ? 'dashed' : 'solid' }, emphasis: { focus: 'series' } }));
+    if (threshold !== undefined) option.series[0].markLine = { silent: true, symbol: 'none', label: { show: false }, lineStyle: { color: c.amber, type: 'dashed' }, data: [{ yAxis: threshold }] };
+    if (zoomable && labels.length > 60) {
+      const compactScreen = window.innerWidth < 480;
+      option.grid.bottom = 68;
+      option.dataZoom = [{ type: 'slider', bottom: 13, height: 18, borderColor: c.border, textStyle: { color: c.muted }, showDataShadow: false, brushSelect: false, showDetail: false },
+        { type: 'inside', zoomOnMouseWheel: 'ctrl', moveOnMouseWheel: false, moveOnMouseMove: !compactScreen }];
+    }
+    draw(id, option);
+  }
+  function bars(id, data, kind, { colorKey, clickKey, signed = false, showCount = false, bounds } = {}) {
+    const c = colors(); const option = baseOption();
+    option.tooltip.trigger = 'item'; option.tooltip.valueFormatter = value => format(value, kind);
+    option.grid = { left: 22, right: showCount ? 66 : 75, top: 25, bottom: 24, containLabel: true };
+    option.xAxis = { ...option.yAxis, splitNumber: 3, min: bounds?.[0] ?? (signed ? undefined : 0), max: bounds?.[1],
+      axisLabel: { color: c.muted, fontSize: 10, hideOverlap: true, formatter: value => kind === 'percent' ? (value * 100).toFixed(0) + '%' : kind === 'currency' ? '$' + compact.format(value) : value } };
+    option.yAxis = { type: 'category', inverse: true, data: data.map(item => item.name), axisLine: { show: false }, axisTick: { show: false },
+      axisLabel: { color: c.text, fontSize: 11, width: window.innerWidth < 480 ? 80 : 130, overflow: 'truncate' } };
+    option.series = [{ type: 'bar', barMaxWidth: 26, data: data.map(item => ({ value: item.value, itemStyle: {
+      color: colorKey ? seriesColor(colorKey, item.name) : signed && item.value < 0 ? c.rose : c.accent, borderRadius: 3 } })),
+      label: { show: true, position: 'right', color: c.text, fontSize: 10, formatter: item => showCount ? `${format(item.value, 'score')} · n=${data[item.dataIndex].count}` : format(item.value, kind) } }];
+    draw(id, option, clickKey ? event => setFilter(clickKey, data[event.dataIndex].name) : null);
+  }
+  function daily(data, key, reducer) {
+    const groups = M.group(data, key);
+    const keys = [...groups.keys()].sort();
+    if (!keys.length) return { labels: [], values: [] };
+    const labels = [];
+    for (let day = M.dayNumber(keys[0]); day <= M.dayNumber(keys.at(-1)); day++) labels.push(M.isoDay(day));
+    return { labels, values: labels.map(label => groups.has(label) ? reducer(groups.get(label)) : null) };
+  }
+  function renderCharts() {
+    if (!selected.length) { charts.forEach(chart => chart.clear()); return; }
+    const c = colors();
+    if (config.kind === 'timeseries') {
+      const revenue = daily(selected, 'date', bucket => M.sum(bucket, 'revenue'));
+      line('primary', revenue.labels, [{ name: 'Daily revenue', data: revenue.values }, { name: 'Trailing 7-day mean', data: M.rolling(revenue.values, 7), dashed: true, color: c.teal }], 'currency');
+      const rank = ranked(selected, 'category', bucket => M.sum(bucket, 'revenue'));
+      bars('secondary', rank, 'currency', { colorKey: 'category', clickKey: 'category' });
+      const conversion = daily(selected, 'date', bucket => M.ratio(M.sum(bucket, 'orders'), M.sum(bucket, 'visitors')));
+      line('tertiary', conversion.labels, [{ name: 'Conversion rate', data: conversion.values, color: c.teal }], 'percent', { min: 0 });
+      $('primary-summary').textContent = `${revenue.labels.length} calendar days in view. Dashed line: trailing 7-day mean; missing dates stay as gaps.`;
+      $('secondary-summary').textContent = `Category colors stay consistent across filters. Use the Category selector for keyboard access.`;
+      $('tertiary-summary').textContent = 'Rates are recomputed from orders and visitors, not averaged from row percentages.';
+    } else if (config.kind === 'comparison') {
+      const rank = ranked(selected, 'product', bucket => M.sum(bucket, 'revenue'));
+      bars('primary', rank, 'currency', { colorKey: 'product', clickKey: 'product' });
+      const regions = [...new Set(selected.map(row => row.region))].sort();
+      const products = [...new Set(selected.map(row => row.product))].sort();
+      const option = baseOption(); option.xAxis.data = regions;
+      option.yAxis.axisLabel.formatter = value => '$' + compact.format(value);
+      option.legend = { top: 10, left: 24, right: 16, type: 'scroll', textStyle: { color: c.muted, fontSize: 11 }, itemWidth: 10, itemHeight: 10 };
+      option.grid.top = 50; option.tooltip.valueFormatter = value => format(value, 'currency');
+      option.series = products.map(product => ({ name: product, type: 'bar', stack: 'revenue', barMaxWidth: 46, itemStyle: { color: seriesColor('product', product) },
+        data: regions.map(region => M.sum(selected.filter(row => row.region === region && row.product === product), 'revenue')) }));
+      draw('secondary', option);
+      const returns = ranked(selected, 'product', bucket => M.weighted(bucket, 'return_rate', 'units_sold'));
+      bars('tertiary', returns, 'percent', { colorKey: 'product' });
+      $('primary-summary').textContent = `${rank.length} products ranked by selected revenue. Use the Product selector for keyboard access.`;
+      $('secondary-summary').textContent = 'Compare total regional revenue by bar height; the colored segments show product contribution.';
+      $('tertiary-summary').textContent = 'Estimated from rounded source rates, weighted by units sold. Lower means fewer returns per unit.';
+    } else if (config.kind === 'monitoring') {
+      const times = [...new Set(selected.map(row => row.timestamp))].sort();
+      const endpoints = [...new Set(selected.map(row => row.endpoint))].sort();
+      const lookup = new Map(selected.map(row => [row.timestamp + '|' + row.endpoint, row]));
+      line('primary', times, endpoints.map(endpoint => ({ name: endpoint, color: seriesColor('endpoint', endpoint),
+        data: times.map(time => lookup.get(time + '|' + endpoint)?.p95_latency_ms ?? null) })), 'ms', { zoomable: true, min: 0, threshold: 300 });
+      const dates = [...new Set(selected.map(M.dateKey))].sort();
+      const heat = [];
+      const buckets = M.group(selected, row => M.dateKey(row) + '|' + row.endpoint);
+      dates.forEach((date, x) => endpoints.forEach((endpoint, y) => {
+        const bucket = buckets.get(date + '|' + endpoint);
+        if (bucket) heat.push([x, y, M.mean(bucket, 'p95_latency_ms')]);
+      }));
+      const option = baseOption();
+      option.grid = { left: 20, right: 22, top: 30, bottom: 74, containLabel: true };
+      option.xAxis.data = dates; option.xAxis.axisLabel.formatter = value => value.slice(5);
+      option.yAxis = { type: 'category', data: endpoints.map(value => value.replace('/api/', '/')), axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: c.muted, fontSize: 11 } };
+      option.tooltip = { ...option.tooltip, trigger: 'item', formatter: event => `${endpoints[event.value[1]]}\n${dates[event.value[0]]}\nMean hourly P95: ${format(event.value[2], 'ms')}` };
+      const fullBuckets = M.group(rows, row => M.dateKey(row) + '|' + row.endpoint);
+      const heatMax = Math.ceil(Math.max(...[...fullBuckets.values()].map(bucket => M.mean(bucket, 'p95_latency_ms'))) / 50) * 50;
+      option.visualMap = { min: 0, max: heatMax, orient: 'horizontal', left: 'center', bottom: 12,
+        calculable: false, itemWidth: 10, itemHeight: 120, text: [heatMax + ' ms', '0 ms'], textStyle: { color: c.muted, fontSize: 10 },
+        inRange: { color: document.documentElement.dataset.theme === 'dark' ? ['#233b54', '#337c9b', '#8dd9e8'] : ['#e8f2fa', '#70adce', '#184875'] } };
+      option.series = [{ type: 'heatmap', data: heat, itemStyle: { borderWidth: 3, borderColor: c.surface, borderRadius: 3 } }];
+      draw('secondary', option, event => setFilter('endpoint', endpoints[event.value[1]]));
+      const traffic = M.group(selected, 'timestamp');
+      line('tertiary', times, [{ name: 'Total QPS', data: times.map(time => M.sum(traffic.get(time), 'qps')), color: c.teal }], 'number', { zoomable: true, min: 0 });
+      $('primary-summary').textContent = 'Dashed reference: 300 ms (illustrative). These are hourly endpoint percentiles, not a percentile over the whole period.';
+      $('secondary-summary').textContent = 'One shared color scale across selections. Select a cell or use the Endpoint selector to focus an endpoint.';
+      $('tertiary-summary').textContent = `${times.length} hourly buckets. Endpoint QPS is summed at each timestamp; it is never summed across time.`;
+    } else {
+      const nps = M.nps(selected);
+      const distribution = Array.from({ length: 11 }, (_, score) => selected.filter(row => row.nps_score === score).length);
+      const option = baseOption(); option.xAxis.data = distribution.map((_, score) => String(score)); option.yAxis.minInterval = 1;
+      option.tooltip.valueFormatter = value => `${value} responses`;
+      option.series = [{ type: 'bar', barMaxWidth: 38, data: distribution.map((value, score) => ({ value,
+        itemStyle: { color: score <= 6 ? c.rose : score <= 8 ? c.amber : c.teal, borderRadius: [4, 4, 0, 0] } })),
+        label: { show: true, position: 'top', color: c.text, fontSize: 10 } }];
+      draw('primary', option);
+      const departments = ranked(selected, 'department', bucket => M.nps(bucket).score).map(item => ({ ...item, count: M.nps(selected.filter(row => row.department === item.name)).count }));
+      bars('secondary', departments, 'score', { signed: true, showCount: true, bounds: [-100, 100] });
+      const weeks = M.group(selected, row => M.weekKey(row.date));
+      const labels = [...weeks.keys()].sort();
+      line('tertiary', labels, [{ name: 'NPS', data: labels.map(week => M.nps(weeks.get(week)).score), color: c.teal }], 'score', { min: -100, max: 100 });
+      $('primary-summary').textContent = `${nps.count} valid responses: ${nps.detractors} detractors, ${nps.passives} passives, ${nps.promoters} promoters.`;
+      $('secondary-summary').textContent = 'Sample sizes matter. These descriptive differences do not establish statistical significance.';
+      $('tertiary-summary').textContent = labels.map(week => `${week}: n=${M.nps(weeks.get(week)).count}`).join(' · ') + '. Boundary weeks may be partial.';
+    }
+  }
+
+  function renderTable() {
+    const query = state.search.trim().toLocaleLowerCase();
+    tableRows = selected.filter(row => !query || columns.some(key => String(row[key] ?? '').toLocaleLowerCase().includes(query))).sort((a, b) => {
+      const av = a[state.sort], bv = b[state.sort];
+      if (av == null) return bv == null ? 0 : 1;
+      if (bv == null) return -1;
+      return state.direction * (typeof av === 'number' && typeof bv === 'number' ? av - bv : String(av).localeCompare(String(bv)));
+    });
+    const totalPages = Math.max(1, Math.ceil(tableRows.length / pageSize));
+    state.page = Math.max(1, Math.min(state.page, totalPages));
+    const first = (state.page - 1) * pageSize;
+    const head = node('tr');
+    config.columns.forEach(([key, label, kind]) => {
+      const cell = node('th', null, kind === 'text' ? '' : 'num'); cell.scope = 'col';
+      const active = key === state.sort; cell.setAttribute('aria-sort', active ? (state.direction === 1 ? 'ascending' : 'descending') : 'none');
+      const button = node('button', label + (active ? (state.direction === 1 ? ' ↑' : ' ↓') : ' ↕')); button.type = 'button';
+      button.addEventListener('click', () => {
+        state.direction = key === state.sort ? -state.direction : 1; state.sort = key; state.page = 1; renderTable();
+        [...$('table-head').querySelectorAll('button')][config.columns.findIndex(col => col[0] === key)].focus();
+      });
+      cell.append(button); head.append(cell);
+    });
+    $('table-head').replaceChildren(head);
+    $('table-body').replaceChildren(...tableRows.slice(first, first + pageSize).map(row => {
+      const tr = node('tr'); config.columns.forEach(([key, , kind]) => tr.append(node('td', format(row[key], kind), kind === 'text' ? '' : 'num'))); return tr;
+    }));
+    if (!tableRows.length) {
+      const tr = node('tr'); const td = node('td', 'No matching rows. Clear the search or reset the filters.', 'empty-cell'); td.colSpan = config.columns.length; tr.append(td); $('table-body').append(tr);
+    }
+    $('table-count').textContent = tableRows.length ? `${first + 1}–${Math.min(first + pageSize, tableRows.length)} of ${tableRows.length.toLocaleString()} matching rows` : '0 matching rows';
+    $('page-label').textContent = `${state.page} / ${totalPages}`;
+    $('previous').disabled = state.page <= 1; $('next').disabled = state.page >= totalPages;
+    $('export').disabled = !tableRows.length;
+  }
+  $('search').addEventListener('input', event => { state.search = event.target.value; state.page = 1; renderTable(); });
+  $('previous').addEventListener('click', () => { state.page--; renderTable(); });
+  $('next').addEventListener('click', () => { state.page++; renderTable(); });
+  $('export').addEventListener('click', () => {
+    const blob = new Blob([M.csv(tableRows, columns)], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob); const a = node('a');
+    a.href = url; a.download = config.kind + '-filtered.csv'; document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  });
+  function updateThemeButton() {
+    const dark = document.documentElement.dataset.theme === 'dark';
+    $('theme-toggle').textContent = dark ? 'Light theme ☀' : 'Dark theme ◐';
+    $('theme-toggle').setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
+    $('theme-toggle').setAttribute('aria-pressed', String(dark));
+  }
+  $('theme-toggle').addEventListener('click', () => {
+    document.documentElement.dataset.theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+    try { localStorage.setItem('csv-dashboard-theme', document.documentElement.dataset.theme); } catch (_) { /* Theme still works without storage. */ }
+    updateThemeButton(); renderCharts();
+  });
+  function renderAll() {
+    selected = M.filter(rows, state, config);
+    const dates = [...new Set(selected.map(M.dateKey))].sort();
+    $('date-range').textContent = dates.length ? dates[0] + ' — ' + dates.at(-1) : 'No dates selected';
+    $('scope-count').textContent = `${selected.length.toLocaleString()} of ${rows.length.toLocaleString()} source records`;
+    $('filter-status').textContent = `Showing ${selected.length.toLocaleString()} records. ${Object.values(state.filters).filter(Boolean).join(', ') || 'All groups'}.`;
+    $('empty-state').hidden = selected.length > 0; $('analysis').hidden = !selected.length;
+    renderMetrics(); renderInsight(); renderCharts(); renderTable();
+  }
+  updateThemeButton(); renderAll();
+  // Render useful content first. A blocked CDN must not disable filters, metrics, or the table.
+  const script = document.createElement('script');
+  script.src = 'https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js';
+  script.onload = () => { $('chart-error').hidden = true; renderCharts(); };
+  script.onerror = () => { $('chart-error').hidden = false; };
+  document.head.append(script);
+})();
+</script>
 </body>
 </html>

@@ -3,1294 +3,681 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sales Comparison Dashboard</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg-primary: #f4f6f9;
-      --bg-card: #ffffff;
-      --text-primary: #1e293b;
-      --text-secondary: #64748b;
-      --accent: #4f6ef7;
-      --accent-light: #e8ecff;
-      --accent-dark: #3b52c7;
-      --success: #4ade80;
-      --warning: #fbbf24;
-      --danger: #f87171;
-      --info: #60a5fa;
-      --border: #e2e8f0;
-      --radius: 10px;
-      --shadow-sm: 0 1px 3px rgba(0,0,0,.06);
-      --shadow-md: 0 4px 12px rgba(0,0,0,.08);
-      --shadow-lg: 0 10px 30px rgba(0,0,0,.1);
-      --transition: .2s ease;
-    }
-
-    :root[data-theme="dark"] {
-      --bg-primary: #0f172a;
-      --bg-card: #1e293b;
-      --text-primary: #f8fafc;
-      --text-secondary: #cbd5e1;
-      --accent-light: #1e3a5f;
-      --border: #475569;
-      --shadow-sm: 0 1px 3px rgba(0,0,0,.3);
-      --shadow-md: 0 4px 12px rgba(0,0,0,.4);
-      --shadow-lg: 0 10px 30px rgba(0,0,0,.5);
-    }
-
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      font-size: 14px;
-      font-weight: 400;
-      line-height: 1.5;
-      color: var(--text-primary);
-      background: var(--bg-primary);
-      margin: 0;
-      padding: 20px 24px;
-      min-height: 100vh;
-    }
-
-    .dashboard-container {
-      max-width: 1400px;
-      margin: 0 auto;
-    }
-
-    .dashboard-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-
-    .dashboard-title {
-      font-size: 24px;
-      font-weight: 700;
-      color: var(--text-primary);
-    }
-
-    /* ── Dashboard subtitle ── */
-    .dashboard-subtitle {
-      font-size: 12px;
-      color: var(--text-secondary);
-      margin-top: 2px;
-    }
-
-    .filter-bar {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    /* ── Category filter groups ── */
-    .filter-group {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .filter-group-label {
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--text-secondary);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-right: 2px;
-    }
-    .filter-divider {
-      width: 1px;
-      height: 24px;
-      background: var(--border);
-      margin: 0 8px;
-    }
-
-    .filter-btn {
-      padding: 6px 14px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      background: var(--bg-card);
-      color: var(--text-secondary);
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all var(--transition);
-      font-family: inherit;
-    }
-
-    .filter-btn:hover {
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-
-    .filter-btn.active {
-      background: var(--accent);
-      color: #fff;
-      border-color: var(--accent);
-    }
-
-    .filter-select {
-      padding: 6px 12px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      background: var(--bg-card);
-      color: var(--text-primary);
-      font-size: 13px;
-      font-family: inherit;
-      cursor: pointer;
-    }
-
-    .kpi-row {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 14px;
-      margin-bottom: 20px;
-    }
-
-    .kpi-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 16px 18px;
-      box-shadow: var(--shadow-sm);
-      transition: all var(--transition);
-      position: relative;
-      overflow: hidden;
-      border-left: 4px solid var(--kpi-color, var(--accent));
-    }
-
-    .kpi-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(129, 140, 248, 0.15);
-    }
-
-    .kpi-card:nth-child(1) { --kpi-color: #818cf8; }
-    .kpi-card:nth-child(2) { --kpi-color: #fbbf24; }
-    .kpi-card:nth-child(3) { --kpi-color: #34d399; }
-    .kpi-card:nth-child(4) { --kpi-color: #fb7185; }
-
-    .kpi-header {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 6px;
-    }
-
-    .kpi-icon {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      color: #fff;
-      background: var(--kpi-color, var(--accent));
-      flex-shrink: 0;
-    }
-
-    .kpi-label {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-secondary);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 6px;
-    }
-
-    .kpi-value {
-      font-size: 28px;
-      font-weight: 700;
-      color: var(--text-primary);
-      margin-bottom: 4px;
-    }
-
-    .kpi-sub {
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--text-secondary);
-    }
-
-    /* ── Skeleton loading animation ── */
-    .skeleton {
-      background: linear-gradient(90deg, var(--border) 25%, var(--bg-primary) 50%, var(--border) 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.5s infinite;
-      border-radius: 4px;
-      display: inline-block;
-    }
-    @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
-
-    /* ── KPI info tooltip ── */
-    .kpi-info {
-      opacity: 0.4;
-      font-size: 10px;
-      margin-left: 4px;
-      cursor: help;
-    }
-    .kpi-info:hover { opacity: 0.8; }
-
-    .chart-row {
-      display: flex;
-      gap: 14px;
-      margin-bottom: 20px;
-    }
-
-    .chart-card {
-      flex: 1;
-      min-width: 0;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 16px 18px;
-      box-shadow: var(--shadow-sm);
-      transition: box-shadow var(--transition);
-    }
-
-    .chart-card:hover {
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-    }
-
-    .chart-card.wide { flex: 2; }
-
-    .chart-card-title {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--text-primary);
-      margin-bottom: 12px;
-    }
-
-    .chart-container {
-      width: 100%;
-      height: 300px;
-    }
-
-    .chart-container.tall {
-      height: 360px;
-    }
-
-    .full-width {
-      width: 100%;
-      margin-bottom: 20px;
-    }
-
-    .data-table-wrapper {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 16px 18px;
-      box-shadow: var(--shadow-sm);
-      overflow-x: auto;
-      margin-bottom: 20px;
-    }
-
-    .data-table-wrapper .chart-card-title {
-      margin-bottom: 12px;
-    }
-
-    /* ── Table toolbar (search + export) ── */
-    .table-toolbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-    .table-search {
-      padding: 6px 12px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      background: var(--bg-primary);
-      color: var(--text-primary);
-      font-size: 13px;
-      font-family: inherit;
-      outline: none;
-      transition: border-color var(--transition);
-      width: 200px;
-    }
-    .table-search:focus {
-      border-color: var(--accent);
-    }
-    .table-actions {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-
-    /* ── Table pagination ── */
-    .table-pagination {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 12px;
-      margin-top: 12px;
-      font-size: 13px;
-      color: var(--text-secondary);
-    }
-    .table-pagination button {
-      padding: 4px 12px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      background: var(--bg-card);
-      color: var(--text-secondary);
-      font-size: 12px;
-      cursor: pointer;
-      font-family: inherit;
-      transition: all var(--transition);
-    }
-    .table-pagination button:hover:not(:disabled) {
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-    .table-pagination button:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-    }
-
-    /* ── Table row click highlight ── */
-    .data-table tbody tr {
-      cursor: pointer;
-      transition: background var(--transition);
-    }
-    .data-table tbody tr.row-selected {
-      background: var(--accent-light) !important;
-    }
-
-    .data-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-    }
-
-    .data-table th {
-      text-align: left;
-      padding: 10px 12px;
-      font-weight: 600;
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--text-secondary);
-      border-bottom: 2px solid var(--border);
-      cursor: pointer;
-      user-select: none;
-      white-space: nowrap;
-    }
-
-    .data-table th:hover {
-      color: var(--accent);
-    }
-
-    .data-table th .sort-icon {
-      margin-left: 4px;
-      font-size: 10px;
-      opacity: 0.4;
-    }
-
-    .data-table th.sorted .sort-icon {
-      opacity: 1;
-      color: var(--accent);
-    }
-
-    .data-table td {
-      padding: 8px 12px;
-      border-bottom: 1px solid var(--border);
-      color: var(--text-primary);
-    }
-
-    .data-table tbody tr:hover {
-      background: var(--accent-light);
-    }
-
-    .theme-toggle {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      border: 1px solid var(--border);
-      background: var(--bg-card);
-      color: var(--text-primary);
-      font-size: 18px;
-      cursor: pointer;
-      box-shadow: var(--shadow-md);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all var(--transition);
-      z-index: 1000;
-    }
-
-    .theme-toggle:hover {
-      box-shadow: var(--shadow-lg);
-      transform: scale(1.05);
-    }
-
-    /* ── Accent bar at top ── */
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      height: 3px;
-      background: linear-gradient(90deg, #818cf8, #4ade80, #fbbf24, #f87171);
-      z-index: 9999;
-    }
-
-    @media (max-width: 1024px) {
-      .kpi-row {
-        grid-template-columns: repeat(2, 1fr);
-      }
-      .chart-row {
-        flex-direction: column;
-      }
-    }
-
-    @media (max-width: 640px) {
-      .kpi-row {
-        grid-template-columns: 1fr;
-      }
-      body {
-        padding: 12px;
-      }
-      .dashboard-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 12px;
-      }
-      .filter-bar {
-        flex-wrap: wrap;
-      }
-      .filter-divider { display: none; }
-      .table-search { width: 100%; }
-    }
-  </style>
-</head>
-<body>
-  <div class="dashboard-container">
-    <div class="dashboard-header">
-      <div>
-        <h1 class="dashboard-title">Sales Comparison Dashboard</h1>
-        <p class="dashboard-subtitle" id="dashboard-subtitle">Loading data...</p>
-      </div>
-      <div class="filter-bar">
-        <div class="filter-group">
-          <span class="filter-group-label">Region</span>
-          <button class="filter-btn region-btn active" onclick="setRegionFilter('All', this)">All</button>
-          <button class="filter-btn region-btn" onclick="setRegionFilter('North', this)">North</button>
-          <button class="filter-btn region-btn" onclick="setRegionFilter('South', this)">South</button>
-          <button class="filter-btn region-btn" onclick="setRegionFilter('East', this)">East</button>
-          <button class="filter-btn region-btn" onclick="setRegionFilter('West', this)">West</button>
-        </div>
-        <div class="filter-divider"></div>
-        <div class="filter-group">
-          <span class="filter-group-label">Month</span>
-          <button class="filter-btn month-btn active" onclick="setMonthFilter('All', this)">All</button>
-          <button class="filter-btn month-btn" onclick="setMonthFilter('2025-11', this)">Nov</button>
-          <button class="filter-btn month-btn" onclick="setMonthFilter('2025-12', this)">Dec</button>
-          <button class="filter-btn month-btn" onclick="setMonthFilter('2026-01', this)">Jan</button>
-          <button class="filter-btn month-btn" onclick="setMonthFilter('2026-02', this)">Feb</button>
-          <button class="filter-btn month-btn" onclick="setMonthFilter('2026-03', this)">Mar</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="kpi-row">
-      <div class="kpi-card">
-        <div class="kpi-header">
-          <div class="kpi-icon"><i class="fas fa-dollar-sign"></i></div>
-          <div class="kpi-label">Total Revenue <i class="fas fa-info-circle kpi-info" title="Total revenue across all filtered records"></i></div>
-        </div>
-        <div class="kpi-value" id="kpi-revenue"><span class="skeleton" style="width:120px;height:28px;">&nbsp;</span></div>
-        <div class="kpi-sub" id="kpi-revenue-sub"></div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-header">
-          <div class="kpi-icon"><i class="fas fa-boxes-stacked"></i></div>
-          <div class="kpi-label">Total Units Sold <i class="fas fa-info-circle kpi-info" title="Number of units sold in the selected period"></i></div>
-        </div>
-        <div class="kpi-value" id="kpi-units"><span class="skeleton" style="width:100px;height:28px;">&nbsp;</span></div>
-        <div class="kpi-sub" id="kpi-units-sub"></div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-header">
-          <div class="kpi-icon"><i class="fas fa-tag"></i></div>
-          <div class="kpi-label">Avg Price Per Unit <i class="fas fa-info-circle kpi-info" title="Average revenue per unit (Total Revenue / Total Units)"></i></div>
-        </div>
-        <div class="kpi-value" id="kpi-price"><span class="skeleton" style="width:80px;height:28px;">&nbsp;</span></div>
-        <div class="kpi-sub" id="kpi-price-sub"></div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-header">
-          <div class="kpi-icon"><i class="fas fa-rotate-left"></i></div>
-          <div class="kpi-label">Avg Return Rate <i class="fas fa-info-circle kpi-info" title="Average product return rate across all records"></i></div>
-        </div>
-        <div class="kpi-value" id="kpi-return"><span class="skeleton" style="width:60px;height:28px;">&nbsp;</span></div>
-        <div class="kpi-sub" id="kpi-return-sub"></div>
-      </div>
-    </div>
-
-    <div class="chart-card full-width">
-      <div class="chart-card-title">Revenue by Region</div>
-      <div class="chart-container tall" id="chart-grouped-bar"></div>
-    </div>
-
-    <div class="chart-row">
-      <div class="chart-card">
-        <div class="chart-card-title">Product Ranking by Revenue</div>
-        <div class="chart-container" id="chart-hbar"></div>
-      </div>
-      <div class="chart-card">
-        <div class="chart-card-title">Region Revenue Share</div>
-        <div class="chart-container" id="chart-donut"></div>
-      </div>
-    </div>
-
-    <div class="chart-card full-width">
-      <div class="chart-card-title">Monthly Revenue Trend by Region</div>
-      <div class="chart-container tall" id="chart-trend"></div>
-    </div>
-
-    <div class="data-table-wrapper full-width">
-      <div class="table-toolbar">
-        <div class="chart-card-title">Detail Table</div>
-        <div class="table-actions">
-          <input type="text" placeholder="Search..." class="table-search" oninput="filterTableSearch(this.value)">
-          <button class="filter-btn" onclick="exportCSV()"><i class="fas fa-download"></i> Export</button>
-        </div>
-      </div>
-      <table class="data-table" id="detail-table">
-        <thead>
-          <tr>
-            <th onclick="sortTable(0)">Month <i class="sort-icon fas fa-sort"></i></th>
-            <th onclick="sortTable(1)">Region <i class="sort-icon fas fa-sort"></i></th>
-            <th onclick="sortTable(2)">Product <i class="sort-icon fas fa-sort"></i></th>
-            <th onclick="sortTable(3)">Units Sold <i class="sort-icon fas fa-sort"></i></th>
-            <th onclick="sortTable(4)">Revenue <i class="sort-icon fas fa-sort"></i></th>
-            <th onclick="sortTable(5)">Return Rate <i class="sort-icon fas fa-sort"></i></th>
-          </tr>
-        </thead>
-        <tbody id="table-body"></tbody>
-      </table>
-      <div class="table-pagination" id="table-pagination"></div>
-    </div>
-  </div>
-
-  <button class="theme-toggle" onclick="toggleTheme()">
-    <i class="fas fa-moon"></i>
-  </button>
-
-  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+  <meta name="color-scheme" content="light dark">
+  <title>Product performance</title>
+  <style>:root {
+  color-scheme: light;
+  --page: #f2f5f8; --surface: #ffffff; --surface-soft: #f7f9fc;
+  --ink: #192b43; --muted: #57687d; --border: #dce3eb; --grid: #e9eef4;
+  --accent: #315cce; --accent-soft: #eaf0ff; --accent-ink: #2448aa;
+  --teal: #087e8b; --amber: #a86a12; --rose: #bb466b; --purple: #7f56b0; --orange: #bd5828;
+  --positive: #087568; --negative: #b93851; --focus: #315cce;
+  --font: 'Avenir Next', 'Segoe UI', 'PingFang SC', sans-serif;
+  --data-font: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+  --radius: 14px;
+}
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --page: #101a28; --surface: #172438; --surface-soft: #1c2c42;
+  --ink: #e6edf7; --muted: #a5b6cc; --border: #31445d; --grid: #2a3b52;
+  --accent: #90adff; --accent-soft: #24395f; --accent-ink: #b8cbff;
+  --teal: #5bc8cb; --amber: #e7b75e; --rose: #f189a9; --purple: #bc9fe9; --orange: #efab86;
+  --positive: #67d5bb; --negative: #ff9bab; --focus: #a5beff;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--ink); font: 14px/1.5 var(--font); }
+button, input, select { font: inherit; }
+button, select, summary { cursor: pointer; }
+a { color: var(--accent-ink); }
+button, input, select { color: var(--ink); }
+button { min-height: 40px; padding: 8px 14px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); font-weight: 600; }
+button:hover { background: var(--accent-soft); border-color: var(--accent); }
+button:disabled { cursor: default; opacity: .45; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+[hidden] { display: none !important; }
+.skip-link { position: fixed; top: -80px; left: 20px; z-index: 10; padding: 12px; background: var(--surface); }
+.skip-link:focus { top: 12px; }
+.appbar { border-bottom: 1px solid var(--border); background: var(--surface); }
+.appbar-inner { max-width: 1440px; padding: 15px 40px; margin: auto; display: flex; align-items: center; gap: 28px; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: -.3px; white-space: nowrap; }
+.brand svg { color: var(--accent); width: 26px; height: 26px; }
+nav { display: flex; gap: 24px; margin-right: auto; }
+nav a { text-decoration: none; color: var(--muted); font-size: 13px; padding: 8px 0; }
+nav a:hover { color: var(--accent-ink); }
+.sample-tag, .eyebrow, .section-label { font-family: var(--data-font); font-size: 11px; letter-spacing: .07em; text-transform: uppercase; }
+.sample-tag { color: var(--muted); padding: 4px 9px; border: 1px solid var(--border); border-radius: 5px; white-space: nowrap; }
+#theme-toggle { font-size: 12px; min-width: 108px; }
+main { max-width: 1440px; padding: 36px 40px 28px; margin: auto; }
+.page-heading { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; margin-bottom: 26px; }
+.eyebrow { color: var(--accent-ink); margin: 0 0 10px; font-weight: 600; }
+h1 { font-size: clamp(28px, 3vw, 42px); line-height: 1.15; font-weight: 650; letter-spacing: -1.6px; margin: 0 0 11px; }
+.description { color: var(--muted); font-size: 14px; margin: 0; max-width: 720px; }
+.scope { color: var(--muted); text-align: right; flex-shrink: 0; font-size: 12px; }
+.scope strong { display: block; color: var(--ink); font-family: var(--data-font); font-size: 12px; font-weight: 500; margin-bottom: 6px; }
+.filter-bar { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 22px; padding: 14px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; }
+.filter-label { color: var(--muted); font-size: 12px; margin-right: 3px; }
+.control { display: flex; align-items: center; gap: 8px; }
+.control label { color: var(--muted); font-size: 12px; }
+select, input { min-height: 38px; border: 1px solid var(--border); border-radius: 7px; background: var(--surface-soft); padding: 8px 10px; max-width: 100%; }
+#reset { margin-left: auto; min-height: 36px; font-size: 12px; border-color: transparent; color: var(--accent-ink); }
+.kpi-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin-bottom: 26px; gap: 1px; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: var(--border); }
+.kpi { background: var(--surface); padding: 22px 24px 19px; min-width: 0; }
+.kpi-label { margin: 0 0 9px; color: var(--muted); font-size: 13px; font-weight: 500; }
+.kpi-value { font-size: clamp(26px, 2.7vw, 38px); line-height: 1.25; font-weight: 600; letter-spacing: -1.5px; font-variant-numeric: tabular-nums; margin: 0 0 9px; }
+.kpi:first-child .kpi-value { color: var(--accent-ink); }
+.kpi-note { min-height: 36px; color: var(--muted); font-size: 11px; line-height: 1.6; }
+.kpi-note .delta { font-weight: 650; }
+.positive { color: var(--positive); } .negative { color: var(--negative); }
+.analysis-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin: 0 0 12px; }
+.analysis-heading h2 { font-size: 16px; margin: 0; font-weight: 650; }
+.analysis-heading span { color: var(--muted); font-size: 12px; }
+.primary-grid { display: grid; grid-template-columns: minmax(0, 2.5fr) minmax(260px, 1fr); gap: 18px; margin-bottom: 18px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); min-width: 0; overflow: hidden; }
+.card-heading { padding: 22px 24px 0; }
+h3 { font-size: 15px; line-height: 1.4; font-weight: 650; margin: 0 0 5px; }
+.chart-description { margin: 0; color: var(--muted); font-size: 12px; }
+.chart { height: 320px; width: 100%; }
+.primary-chart { height: 340px; }
+.chart-summary { border-top: 1px solid var(--grid); color: var(--muted); font-size: 11px; padding: 11px 24px; margin: 0; line-height: 1.6; }
+.insight { background: var(--accent-soft); border: 1px solid var(--border); border-radius: var(--radius); padding: 25px 26px; display: flex; flex-direction: column; min-width: 0; }
+.insight .section-label { color: var(--accent-ink); margin: 0 0 27px; }
+.insight-value { font-size: 48px; line-height: 1.12; font-weight: 600; letter-spacing: -2px; color: var(--accent-ink); font-variant-numeric: tabular-nums; margin: 0 0 12px; overflow-wrap: anywhere; }
+.insight h3 { font-size: 19px; letter-spacing: -.4px; margin-bottom: 10px; overflow-wrap: anywhere; }
+.insight-copy { color: var(--muted); font-size: 13px; margin: 0 0 24px; }
+.insight-list { margin-top: auto; border-top: 1px solid var(--border); padding-top: 17px; }
+.insight-row { display: flex; justify-content: space-between; gap: 12px; font-size: 12px; margin: 9px 0; }
+.insight-row span { color: var(--muted); }
+.insight-row strong { font-variant-numeric: tabular-nums; font-weight: 600; white-space: nowrap; }
+.support-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 28px; }
+#empty-state, #chart-error { padding: 24px; margin-bottom: 20px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
+#chart-error { color: var(--negative); }
+.table-card { margin-top: 24px; }
+.table-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 20px 24px; }
+.table-toolbar h2 { font-size: 16px; margin: 0 0 4px; }
+.table-toolbar p { color: var(--muted); font-size: 12px; margin: 0; }
+.table-actions { display: flex; align-items: center; gap: 10px; }
+#search { width: 210px; }
+.table-scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; white-space: nowrap; font-size: 12px; }
+caption { text-align: left; padding: 0 24px 10px; color: var(--muted); font-size: 11px; }
+th { text-align: left; background: var(--surface-soft); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 0 16px; font-weight: 500; }
+th button { border: 0; background: transparent; padding: 11px 0; font-size: 11px; min-height: 44px; color: var(--muted); border-radius: 0; white-space: nowrap; }
+th button:hover { background: transparent; color: var(--accent-ink); }
+th[aria-sort='ascending'] button, th[aria-sort='descending'] button { color: var(--accent-ink); }
+td { padding: 12px 16px; border-bottom: 1px solid var(--grid); }
+th:first-child, td:first-child { padding-left: 24px; }
+th:last-child, td:last-child { padding-right: 24px; }
+.num { text-align: right; font-variant-numeric: tabular-nums; font-family: var(--data-font); font-size: 11px; }
+.num button { font-family: var(--font); }
+tr:hover td { background: var(--surface-soft); }
+.empty-cell { text-align: center; padding: 36px !important; color: var(--muted); }
+.table-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 24px; font-size: 12px; color: var(--muted); }
+.pagination { display: flex; align-items: center; gap: 12px; }
+.pagination button { min-height: 34px; font-size: 12px; padding: 6px 12px; }
+.methodology { margin-top: 24px; padding: 18px 0; border-top: 1px solid var(--border); color: var(--muted); font-size: 12px; }
+summary { color: var(--ink); font-weight: 600; padding: 4px 0; }
+.methodology p { max-width: 1000px; line-height: 1.8; }
+footer { display: flex; justify-content: space-between; gap: 16px; padding: 10px 0; color: var(--muted); font-family: var(--data-font); font-size: 10px; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+body[data-kind='monitoring'] .insight { background: var(--surface-soft); }
+body[data-kind='survey'] .insight-value { color: var(--teal); }
+@media (min-width: 1500px) { .primary-chart { height: 375px; } }
+@media (max-width: 1100px) {
+  .appbar-inner { padding: 13px 24px; } main { padding: 28px 24px; }
+  .page-heading { align-items: flex-start; } .scope { font-size: 11px; }
+  .kpi { padding: 18px; } .primary-grid { grid-template-columns: minmax(0, 2fr) minmax(245px, 1fr); }
+  .insight { padding: 22px; } .insight-value { font-size: 40px; }
+}
+@media (max-width: 800px) {
+  nav { display: none; } .brand { margin-right: auto; }
+  .page-heading { display: block; } .scope { text-align: left; margin-top: 16px; }
+  .scope strong { display: inline; margin-right: 8px; }
+  .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .primary-grid { grid-template-columns: 1fr; }
+  .insight { display: grid; grid-template-columns: 1fr 1fr; column-gap: 20px; }
+  .insight .section-label { grid-column: 1 / -1; margin-bottom: 12px; }
+  .insight-value { grid-column: 1; } .insight h3 { grid-column: 1; }
+  .insight-copy { grid-column: 2; grid-row: 2 / 4; } .insight-list { grid-column: 1 / -1; }
+  .support-grid { grid-template-columns: 1fr; }
+  .table-toolbar { flex-wrap: wrap; }
+}
+@media (max-width: 480px) {
+  .appbar-inner { padding: 12px 16px; gap: 12px; } .sample-tag { display: none; }
+  main { padding: 24px 16px; } h1 { letter-spacing: -1px; }
+  .description { font-size: 13px; } .scope strong { display: block; }
+  .filter-bar { gap: 10px; padding: 12px; } .filter-label { display: none; }
+  .control { width: 100%; justify-content: space-between; } .control select { width: 66%; }
+  #reset { margin-left: 0; padding-left: 0; }
+  .kpi { padding: 16px 14px; } .kpi-label { font-size: 11px; }
+  .kpi-value { font-size: 29px; letter-spacing: -1px; } .kpi-note { font-size: 10px; }
+  .analysis-heading span { display: none; } .card-heading { padding: 19px 18px 0; }
+  .chart { height: 290px; } .primary-chart { height: 325px; }
+  .chart-summary { padding: 11px 18px; } .insight { display: block; }
+  .insight-copy { margin-bottom: 20px; }
+  .table-toolbar { padding: 18px; gap: 14px; } .table-actions { width: 100%; flex-wrap: wrap; }
+  #search { flex: 1; min-width: 120px; width: 150px; } .table-actions button { font-size: 12px; }
+  .table-footer { padding: 14px 18px; flex-wrap: wrap; } footer { flex-direction: column; gap: 4px; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; } }
+@media print {
+  :root, :root[data-theme='dark'] { color-scheme: light; --page: #fff; --surface: #fff; --ink: #192b43; --muted: #57687d; --border: #ccd4df; }
+  .appbar, .filter-bar, .table-actions, .pagination { display: none; } main { padding: 0; }
+  .card, .kpi-grid, .insight { break-inside: avoid; } .primary-grid { grid-template-columns: 2fr 1fr; }
+}
+</style>
   <script>
-    // ── Embedded Data ──
-    const DATA = [
-      {month:"2025-11",region:"North",product:"Laptop Pro",units_sold:130,revenue:189513.90,return_rate:0.077},
-      {month:"2025-11",region:"North",product:"Phone X",units_sold:202,revenue:147816.26,return_rate:0.042},
-      {month:"2025-11",region:"North",product:"Tablet Air",units_sold:206,revenue:103025.55,return_rate:0.050},
-      {month:"2025-11",region:"North",product:"Headphones Elite",units_sold:305,revenue:91880.55,return_rate:0.063},
-      {month:"2025-11",region:"North",product:"Smart Watch",units_sold:161,revenue:37252.10,return_rate:0.018},
-      {month:"2025-11",region:"North",product:"Camera Zoom",units_sold:130,revenue:109310.72,return_rate:0.046},
-      {month:"2025-11",region:"South",product:"Laptop Pro",units_sold:157,revenue:215666.65,return_rate:0.078},
-      {month:"2025-11",region:"South",product:"Phone X",units_sold:226,revenue:154863.18,return_rate:0.013},
-      {month:"2025-11",region:"South",product:"Tablet Air",units_sold:121,revenue:56141.93,return_rate:0.022},
-      {month:"2025-11",region:"South",product:"Headphones Elite",units_sold:190,revenue:57012.27,return_rate:0.017},
-      {month:"2025-11",region:"South",product:"Smart Watch",units_sold:400,revenue:102053.95,return_rate:0.055},
-      {month:"2025-11",region:"South",product:"Camera Zoom",units_sold:96,revenue:87998.98,return_rate:0.065},
-      {month:"2025-11",region:"East",product:"Laptop Pro",units_sold:369,revenue:502204.58,return_rate:0.056},
-      {month:"2025-11",region:"East",product:"Phone X",units_sold:206,revenue:152019.87,return_rate:0.065},
-      {month:"2025-11",region:"East",product:"Tablet Air",units_sold:132,revenue:63424.32,return_rate:0.061},
-      {month:"2025-11",region:"East",product:"Headphones Elite",units_sold:243,revenue:78111.21,return_rate:0.049},
-      {month:"2025-11",region:"East",product:"Smart Watch",units_sold:125,revenue:33113.85,return_rate:0.061},
-      {month:"2025-11",region:"East",product:"Camera Zoom",units_sold:264,revenue:219919.07,return_rate:0.078},
-      {month:"2025-11",region:"West",product:"Laptop Pro",units_sold:266,revenue:363686.33,return_rate:0.055},
-      {month:"2025-11",region:"West",product:"Phone X",units_sold:291,revenue:192151.68,return_rate:0.067},
-      {month:"2025-11",region:"West",product:"Tablet Air",units_sold:167,revenue:82329.59,return_rate:0.051},
-      {month:"2025-11",region:"West",product:"Headphones Elite",units_sold:144,revenue:45835.90,return_rate:0.078},
-      {month:"2025-11",region:"West",product:"Smart Watch",units_sold:132,revenue:30328.23,return_rate:0.064},
-      {month:"2025-11",region:"West",product:"Camera Zoom",units_sold:331,revenue:289838.92,return_rate:0.060},
-      {month:"2025-12",region:"North",product:"Laptop Pro",units_sold:384,revenue:559068.93,return_rate:0.042},
-      {month:"2025-12",region:"North",product:"Phone X",units_sold:320,revenue:219585.58,return_rate:0.060},
-      {month:"2025-12",region:"North",product:"Tablet Air",units_sold:191,revenue:100607.55,return_rate:0.057},
-      {month:"2025-12",region:"North",product:"Headphones Elite",units_sold:274,revenue:82917.38,return_rate:0.028},
-      {month:"2025-12",region:"North",product:"Smart Watch",units_sold:294,revenue:76725.34,return_rate:0.038},
-      {month:"2025-12",region:"North",product:"Camera Zoom",units_sold:168,revenue:143246.73,return_rate:0.068},
-      {month:"2025-12",region:"South",product:"Laptop Pro",units_sold:359,revenue:466167.83,return_rate:0.026},
-      {month:"2025-12",region:"South",product:"Phone X",units_sold:326,revenue:216490.68,return_rate:0.025},
-      {month:"2025-12",region:"South",product:"Tablet Air",units_sold:368,revenue:180375.13,return_rate:0.014},
-      {month:"2025-12",region:"South",product:"Headphones Elite",units_sold:301,revenue:83190.84,return_rate:0.048},
-      {month:"2025-12",region:"South",product:"Smart Watch",units_sold:511,revenue:135137.51,return_rate:0.045},
-      {month:"2025-12",region:"South",product:"Camera Zoom",units_sold:356,revenue:324086.22,return_rate:0.028},
-      {month:"2025-12",region:"East",product:"Laptop Pro",units_sold:232,revenue:318912.71,return_rate:0.027},
-      {month:"2025-12",region:"East",product:"Phone X",units_sold:239,revenue:157024.43,return_rate:0.054},
-      {month:"2025-12",region:"East",product:"Tablet Air",units_sold:230,revenue:107525.74,return_rate:0.023},
-      {month:"2025-12",region:"East",product:"Headphones Elite",units_sold:178,revenue:51187.97,return_rate:0.019},
-      {month:"2025-12",region:"East",product:"Smart Watch",units_sold:334,revenue:79740.08,return_rate:0.027},
-      {month:"2025-12",region:"East",product:"Camera Zoom",units_sold:242,revenue:224497.10,return_rate:0.029},
-      {month:"2025-12",region:"West",product:"Laptop Pro",units_sold:434,revenue:605392.37,return_rate:0.034},
-      {month:"2025-12",region:"West",product:"Phone X",units_sold:232,revenue:168125.65,return_rate:0.043},
-      {month:"2025-12",region:"West",product:"Tablet Air",units_sold:425,revenue:214432.99,return_rate:0.041},
-      {month:"2025-12",region:"West",product:"Headphones Elite",units_sold:509,revenue:150828.74,return_rate:0.074},
-      {month:"2025-12",region:"West",product:"Smart Watch",units_sold:516,revenue:128213.32,return_rate:0.048},
-      {month:"2025-12",region:"West",product:"Camera Zoom",units_sold:342,revenue:308345.36,return_rate:0.050},
-      {month:"2026-01",region:"North",product:"Laptop Pro",units_sold:183,revenue:264190.00,return_rate:0.061},
-      {month:"2026-01",region:"North",product:"Phone X",units_sold:139,revenue:89773.96,return_rate:0.018},
-      {month:"2026-01",region:"North",product:"Tablet Air",units_sold:274,revenue:127717.56,return_rate:0.064},
-      {month:"2026-01",region:"North",product:"Headphones Elite",units_sold:246,revenue:79263.75,return_rate:0.053},
-      {month:"2026-01",region:"North",product:"Smart Watch",units_sold:227,revenue:52546.60,return_rate:0.022},
-      {month:"2026-01",region:"North",product:"Camera Zoom",units_sold:197,revenue:164753.48,return_rate:0.042},
-      {month:"2026-01",region:"South",product:"Laptop Pro",units_sold:187,revenue:246516.66,return_rate:0.066},
-      {month:"2026-01",region:"South",product:"Phone X",units_sold:221,revenue:144613.25,return_rate:0.037},
-      {month:"2026-01",region:"South",product:"Tablet Air",units_sold:207,revenue:108848.25,return_rate:0.025},
-      {month:"2026-01",region:"South",product:"Headphones Elite",units_sold:270,revenue:79108.24,return_rate:0.080},
-      {month:"2026-01",region:"South",product:"Smart Watch",units_sold:202,revenue:48637.31,return_rate:0.055},
-      {month:"2026-01",region:"South",product:"Camera Zoom",units_sold:119,revenue:100662.29,return_rate:0.021},
-      {month:"2026-01",region:"East",product:"Laptop Pro",units_sold:130,revenue:194626.84,return_rate:0.051},
-      {month:"2026-01",region:"East",product:"Phone X",units_sold:301,revenue:199955.00,return_rate:0.073},
-      {month:"2026-01",region:"East",product:"Tablet Air",units_sold:209,revenue:99055.30,return_rate:0.028},
-      {month:"2026-01",region:"East",product:"Headphones Elite",units_sold:232,revenue:72103.28,return_rate:0.035},
-      {month:"2026-01",region:"East",product:"Smart Watch",units_sold:136,revenue:32825.55,return_rate:0.063},
-      {month:"2026-01",region:"East",product:"Camera Zoom",units_sold:179,revenue:162743.78,return_rate:0.046},
-      {month:"2026-01",region:"West",product:"Laptop Pro",units_sold:108,revenue:149624.00,return_rate:0.042},
-      {month:"2026-01",region:"West",product:"Phone X",units_sold:185,revenue:138700.87,return_rate:0.011},
-      {month:"2026-01",region:"West",product:"Tablet Air",units_sold:307,revenue:160995.05,return_rate:0.030},
-      {month:"2026-01",region:"West",product:"Headphones Elite",units_sold:315,revenue:93401.76,return_rate:0.016},
-      {month:"2026-01",region:"West",product:"Smart Watch",units_sold:276,revenue:68498.27,return_rate:0.077},
-      {month:"2026-01",region:"West",product:"Camera Zoom",units_sold:152,revenue:131511.83,return_rate:0.075},
-      {month:"2026-02",region:"North",product:"Laptop Pro",units_sold:180,revenue:265319.38,return_rate:0.023},
-      {month:"2026-02",region:"North",product:"Phone X",units_sold:254,revenue:172578.99,return_rate:0.019},
-      {month:"2026-02",region:"North",product:"Tablet Air",units_sold:176,revenue:89716.87,return_rate:0.016},
-      {month:"2026-02",region:"North",product:"Headphones Elite",units_sold:320,revenue:91104.62,return_rate:0.025},
-      {month:"2026-02",region:"North",product:"Smart Watch",units_sold:106,revenue:24448.60,return_rate:0.018},
-      {month:"2026-02",region:"North",product:"Camera Zoom",units_sold:160,revenue:146504.70,return_rate:0.045},
-      {month:"2026-02",region:"South",product:"Laptop Pro",units_sold:280,revenue:401570.71,return_rate:0.026},
-      {month:"2026-02",region:"South",product:"Phone X",units_sold:228,revenue:151372.43,return_rate:0.022},
-      {month:"2026-02",region:"South",product:"Tablet Air",units_sold:298,revenue:155833.35,return_rate:0.039},
-      {month:"2026-02",region:"South",product:"Headphones Elite",units_sold:282,revenue:83054.41,return_rate:0.033},
-      {month:"2026-02",region:"South",product:"Smart Watch",units_sold:251,revenue:59538.75,return_rate:0.041},
-      {month:"2026-02",region:"South",product:"Camera Zoom",units_sold:319,revenue:301684.87,return_rate:0.047},
-      {month:"2026-02",region:"East",product:"Laptop Pro",units_sold:308,revenue:398665.06,return_rate:0.051},
-      {month:"2026-02",region:"East",product:"Phone X",units_sold:366,revenue:238458.04,return_rate:0.015},
-      {month:"2026-02",region:"East",product:"Tablet Air",units_sold:123,revenue:62645.10,return_rate:0.028},
-      {month:"2026-02",region:"East",product:"Headphones Elite",units_sold:264,revenue:82895.35,return_rate:0.038},
-      {month:"2026-02",region:"East",product:"Smart Watch",units_sold:253,revenue:58068.46,return_rate:0.032},
-      {month:"2026-02",region:"East",product:"Camera Zoom",units_sold:174,revenue:147149.11,return_rate:0.074},
-      {month:"2026-02",region:"West",product:"Laptop Pro",units_sold:226,revenue:296652.17,return_rate:0.040},
-      {month:"2026-02",region:"West",product:"Phone X",units_sold:218,revenue:158126.94,return_rate:0.017},
-      {month:"2026-02",region:"West",product:"Tablet Air",units_sold:336,revenue:175987.58,return_rate:0.079},
-      {month:"2026-02",region:"West",product:"Headphones Elite",units_sold:255,revenue:77198.82,return_rate:0.036},
-      {month:"2026-02",region:"West",product:"Smart Watch",units_sold:296,revenue:68079.10,return_rate:0.061},
-      {month:"2026-02",region:"West",product:"Camera Zoom",units_sold:115,revenue:95286.04,return_rate:0.011},
-      {month:"2026-03",region:"North",product:"Laptop Pro",units_sold:220,revenue:329703.62,return_rate:0.031},
-      {month:"2026-03",region:"North",product:"Phone X",units_sold:218,revenue:140981.26,return_rate:0.076},
-      {month:"2026-03",region:"North",product:"Tablet Air",units_sold:196,revenue:94222.03,return_rate:0.032},
-      {month:"2026-03",region:"North",product:"Headphones Elite",units_sold:209,revenue:64890.06,return_rate:0.048},
-      {month:"2026-03",region:"North",product:"Smart Watch",units_sold:180,revenue:45321.39,return_rate:0.030},
-      {month:"2026-03",region:"North",product:"Camera Zoom",units_sold:155,revenue:139417.23,return_rate:0.023},
-      {month:"2026-03",region:"South",product:"Laptop Pro",units_sold:121,revenue:167462.88,return_rate:0.022},
-      {month:"2026-03",region:"South",product:"Phone X",units_sold:409,revenue:275210.52,return_rate:0.045},
-      {month:"2026-03",region:"South",product:"Tablet Air",units_sold:227,revenue:109916.62,return_rate:0.030},
-      {month:"2026-03",region:"South",product:"Headphones Elite",units_sold:385,revenue:115272.31,return_rate:0.059},
-      {month:"2026-03",region:"South",product:"Smart Watch",units_sold:399,revenue:99061.01,return_rate:0.028},
-      {month:"2026-03",region:"South",product:"Camera Zoom",units_sold:328,revenue:310725.89,return_rate:0.065},
-      {month:"2026-03",region:"East",product:"Laptop Pro",units_sold:441,revenue:569634.85,return_rate:0.064},
-      {month:"2026-03",region:"East",product:"Phone X",units_sold:176,revenue:127864.54,return_rate:0.070},
-      {month:"2026-03",region:"East",product:"Tablet Air",units_sold:284,revenue:142116.45,return_rate:0.046},
-      {month:"2026-03",region:"East",product:"Headphones Elite",units_sold:217,revenue:62499.17,return_rate:0.054},
-      {month:"2026-03",region:"East",product:"Smart Watch",units_sold:259,revenue:65669.11,return_rate:0.060},
-      {month:"2026-03",region:"East",product:"Camera Zoom",units_sold:412,revenue:392532.03,return_rate:0.014},
-      {month:"2026-03",region:"West",product:"Laptop Pro",units_sold:352,revenue:523256.22,return_rate:0.018},
-      {month:"2026-03",region:"West",product:"Phone X",units_sold:278,revenue:183371.42,return_rate:0.026},
-      {month:"2026-03",region:"West",product:"Tablet Air",units_sold:403,revenue:193573.39,return_rate:0.022},
-      {month:"2026-03",region:"West",product:"Headphones Elite",units_sold:335,revenue:106014.25,return_rate:0.075},
-      {month:"2026-03",region:"West",product:"Smart Watch",units_sold:159,revenue:39871.30,return_rate:0.059},
-      {month:"2026-03",region:"West",product:"Camera Zoom",units_sold:162,revenue:148905.22,return_rate:0.063}
-    ];
-
-    // ── Constants ──
-    const SERIES_COLORS = [
-      '#818cf8', '#fbbf24', '#34d399', '#fb7185',
-      '#60a5fa', '#a78bfa', '#f472b6', '#2dd4bf',
-      '#fb923c', '#22d3ee', '#a3e635', '#c084fc',
-      '#f87171', '#38bdf8', '#facc15', '#e879f9',
-      '#4ade80', '#94a3b8', '#fda4af', '#67e8f9',
-    ];
-
-    const REGIONS = ['North','South','East','West'];
-    const PRODUCTS = ['Laptop Pro','Phone X','Tablet Air','Headphones Elite','Smart Watch','Camera Zoom'];
-    const MONTHS = ['2025-11','2025-12','2026-01','2026-02','2026-03'];
-
-    // ── State ──
-    let currentRegion = 'All';
-    let currentMonth = 'All';
-    let tableDataArr = [];
-    let tablePage = 1;
-    const PAGE_SIZE = 15;
-    let tableSearchQuery = '';
-
-    // ── Theme ──
-    function getChartThemeColors() {
-      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-      return {
-        textColor:      isDark ? '#cbd5e1' : '#64748b',
-        axisLineColor:  isDark ? '#475569' : '#e2e8f0',
-        splitLineColor: isDark ? 'rgba(71,85,105,0.4)' : '#f1f5f9',
-        backgroundColor: isDark ? '#1e293b' : '#ffffff',
-      };
-    }
-
-    function initTheme() {
-      const saved = localStorage.getItem('dashboard-theme');
-      if (saved) {
-        document.documentElement.setAttribute('data-theme', saved);
-      } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        document.documentElement.setAttribute('data-theme', 'dark');
-      }
-      updateToggleIcon();
-    }
-
-    function toggleTheme() {
-      const root = document.documentElement;
-      const current = root.getAttribute('data-theme');
-      const next = current === 'dark' ? 'light' : 'dark';
-      root.setAttribute('data-theme', next);
-      localStorage.setItem('dashboard-theme', next);
-      updateToggleIcon();
-    }
-
-    function updateToggleIcon() {
-      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-      const btn = document.querySelector('.theme-toggle');
-      if (btn) btn.innerHTML = isDark
-        ? '<i class="fas fa-sun"></i>'
-        : '<i class="fas fa-moon"></i>';
-    }
-
-    // ── Chart Instances ──
-    let chartGroupedBar, chartHBar, chartDonut, chartTrend;
-
-    function initChart(containerId) {
-      const el = document.getElementById(containerId);
-      if (!el) return null;
-      const chart = echarts.init(el);
-      window.addEventListener('resize', () => chart.resize());
-      return chart;
-    }
-
-    // ── Formatting Helpers ──
-    function fmtCurrency(val) {
-      if (val >= 1e6) return '$' + (val / 1e6).toFixed(2) + 'M';
-      if (val >= 1e3) return '$' + (val / 1e3).toFixed(1) + 'K';
-      return '$' + val.toFixed(2);
-    }
-
-    function fmtCurrencyFull(val) {
-      return '$' + val.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    }
-
-    function fmtNumber(val) {
-      return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    }
-
-    function fmtPercent(val) {
-      return (val * 100).toFixed(1) + '%';
-    }
-
-    // ── CountUp Animation ──
-    function animateValue(el, end, formatter, duration = 800) {
-      const start = 0;
-      const range = end - start;
-      const startTime = performance.now();
-      function step(timestamp) {
-        const progress = Math.min((timestamp - startTime) / duration, 1);
-        const eased = 1 - Math.pow(1 - progress, 3); // easeOutCubic
-        el.textContent = formatter(start + range * eased);
-        if (progress < 1) requestAnimationFrame(step);
-      }
-      requestAnimationFrame(step);
-    }
-
-    // ── Filter Logic ──
-    function getFilteredData() {
-      let filtered = DATA;
-      if (currentRegion !== 'All') filtered = filtered.filter(d => d.region === currentRegion);
-      if (currentMonth !== 'All') filtered = filtered.filter(d => d.month === currentMonth);
-      return filtered;
-    }
-
-    function setRegionFilter(region, btn) {
-      currentRegion = region;
-      document.querySelectorAll('.region-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      applyFilters();
-    }
-
-    function setMonthFilter(month, btn) {
-      currentMonth = month;
-      document.querySelectorAll('.month-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      applyFilters();
-    }
-
-    function applyFilters() {
-      const filtered = getFilteredData();
-      renderKPIs(filtered);
-      renderGroupedBar(filtered);
-      renderHBar(filtered);
-      renderDonut(filtered);
-      renderTrend(filtered);
-      renderTable(filtered);
-      updateSubtitle(filtered);
-    }
-
-    // ── Subtitle ──
-    function updateSubtitle(data) {
-      const now = new Date();
-      const updated = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-      const regionLabel = currentRegion === 'All' ? 'All Regions' : currentRegion;
-      const monthLabel = currentMonth === 'All' ? 'All Months' : currentMonth;
-      document.getElementById('dashboard-subtitle').textContent =
-        'Last updated: ' + updated + ' \u00b7 ' + regionLabel + ' \u00b7 ' + monthLabel + ' \u00b7 ' + data.length + ' records';
-    }
-
-    // ── KPIs ──
-    function renderKPIs(data) {
-      const totalRevenue = data.reduce((s, d) => s + d.revenue, 0);
-      const totalUnits = data.reduce((s, d) => s + d.units_sold, 0);
-      const avgPrice = totalUnits > 0 ? totalRevenue / totalUnits : 0;
-      const avgReturn = data.length > 0 ? data.reduce((s, d) => s + d.return_rate, 0) / data.length : 0;
-
-      animateValue(document.getElementById('kpi-revenue'), totalRevenue, v => fmtCurrency(v));
-      document.getElementById('kpi-revenue-sub').textContent = fmtCurrencyFull(totalRevenue);
-
-      animateValue(document.getElementById('kpi-units'), totalUnits, v => fmtNumber(Math.round(v)));
-      document.getElementById('kpi-units-sub').textContent = data.length + ' records';
-
-      animateValue(document.getElementById('kpi-price'), avgPrice, v => '$' + v.toFixed(2));
-      document.getElementById('kpi-price-sub').textContent = 'per unit average';
-
-      animateValue(document.getElementById('kpi-return'), avgReturn * 100, v => v.toFixed(1) + '%');
-      document.getElementById('kpi-return-sub').textContent = 'across all products';
-    }
-
-    // ── Grouped Bar Chart (X = regions, bars = products) ──
-    function renderGroupedBar(data) {
-      const theme = getChartThemeColors();
-      const activeRegions = [...new Set(data.map(d => d.region))].sort((a, b) => REGIONS.indexOf(a) - REGIONS.indexOf(b));
-      const activeProducts = [...new Set(data.map(d => d.product))].sort((a, b) => PRODUCTS.indexOf(a) - PRODUCTS.indexOf(b));
-
-      const series = activeProducts.map((product, i) => {
-        const values = activeRegions.map(region => {
-          const sum = data.filter(d => d.region === region && d.product === product).reduce((s, d) => s + d.revenue, 0);
-          return Math.round(sum * 100) / 100;
-        });
-        return {
-          name: product,
-          type: 'bar',
-          data: values,
-          itemStyle: { color: SERIES_COLORS[i] },
-        };
-      });
-
-      chartGroupedBar.setOption({
-        tooltip: {
-          trigger: 'axis',
-          axisPointer: { type: 'shadow' },
-          backgroundColor: theme.backgroundColor,
-          borderColor: theme.axisLineColor,
-          textStyle: { color: theme.textColor },
-          formatter: function(params) {
-            let html = '<div style="font-weight:600;margin-bottom:4px">' + params[0].axisValue + '</div>';
-            params.forEach(p => {
-              html += '<div style="display:flex;align-items:center;gap:6px;margin:2px 0">'
-                + '<span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:' + p.color + '"></span>'
-                + '<span>' + p.seriesName + ': ' + fmtCurrencyFull(p.value) + '</span></div>';
-            });
-            return html;
-          }
-        },
-        legend: {
-          top: 5,
-          textStyle: { fontSize: 12, color: theme.textColor },
-        },
-        grid: { left: 70, right: 20, top: 40, bottom: 30 },
-        xAxis: {
-          type: 'category',
-          data: activeRegions,
-          axisLabel: { fontSize: 12, color: theme.textColor },
-          axisLine: { lineStyle: { color: theme.axisLineColor } },
-        },
-        yAxis: {
-          type: 'value',
-          axisLabel: {
-            color: theme.textColor,
-            formatter: v => fmtCurrency(v),
-          },
-          splitLine: { lineStyle: { color: theme.splitLineColor } },
-        },
-        series: series,
-      }, true);
-    }
-
-    // ── Horizontal Bar (Product Ranking) ──
-    function renderHBar(data) {
-      const theme = getChartThemeColors();
-      const productRevenue = {};
-      data.forEach(d => {
-        productRevenue[d.product] = (productRevenue[d.product] || 0) + d.revenue;
-      });
-
-      const sorted = Object.entries(productRevenue)
-        .sort((a, b) => a[1] - b[1]);
-
-      const labels = sorted.map(s => s[0]);
-      const values = sorted.map(s => Math.round(s[1] * 100) / 100);
-
-      chartHBar.setOption({
-        tooltip: {
-          trigger: 'axis',
-          axisPointer: { type: 'shadow' },
-          backgroundColor: theme.backgroundColor,
-          borderColor: theme.axisLineColor,
-          textStyle: { color: theme.textColor },
-          formatter: function(params) {
-            return params[0].name + ': ' + fmtCurrencyFull(params[0].value);
-          }
-        },
-        grid: { left: 130, right: 60, top: 10, bottom: 30 },
-        xAxis: {
-          type: 'value',
-          axisLabel: {
-            color: theme.textColor,
-            formatter: v => fmtCurrency(v),
-          },
-          splitLine: { lineStyle: { color: theme.splitLineColor } },
-        },
-        yAxis: {
-          type: 'category',
-          data: labels,
-          axisLabel: {
-            fontSize: 11,
-            width: 120,
-            overflow: 'truncate',
-            color: theme.textColor,
-          },
-        },
-        series: [{
-          type: 'bar',
-          data: values.map((v, i) => ({
-            value: v,
-            itemStyle: { color: SERIES_COLORS[i] },
-          })),
-          barWidth: '60%',
-          label: {
-            show: true,
-            position: 'right',
-            fontSize: 10,
-            color: theme.textColor,
-            formatter: p => fmtCurrency(p.value),
-          },
-        }],
-      }, true);
-    }
-
-    // ── Donut (Region Revenue Share) ──
-    function renderDonut(data) {
-      const theme = getChartThemeColors();
-      const regionRevenue = {};
-      data.forEach(d => {
-        regionRevenue[d.region] = (regionRevenue[d.region] || 0) + d.revenue;
-      });
-
-      const items = Object.entries(regionRevenue)
-        .sort((a, b) => REGIONS.indexOf(a[0]) - REGIONS.indexOf(b[0]))
-        .map(([name, value]) => ({ name, value: Math.round(value * 100) / 100 }));
-
-      chartDonut.setOption({
-        tooltip: {
-          trigger: 'item',
-          backgroundColor: theme.backgroundColor,
-          borderColor: theme.axisLineColor,
-          textStyle: { color: theme.textColor },
-          formatter: p => p.name + ': ' + fmtCurrencyFull(p.value) + ' (' + p.percent.toFixed(1) + '%)',
-        },
-        legend: {
-          orient: 'vertical',
-          right: 10,
-          top: 'center',
-          textStyle: { fontSize: 11, color: theme.textColor },
-        },
-        series: [{
-          type: 'pie',
-          radius: ['40%', '70%'],
-          center: ['40%', '50%'],
-          data: items.map((item, i) => ({
-            name: item.name,
-            value: item.value,
-            itemStyle: { color: SERIES_COLORS[i] },
-          })),
-          label: {
-            formatter: params => params.percent.toFixed(1) + '%',
-            fontSize: 11,
-            color: theme.textColor,
-          },
-          emphasis: {
-            itemStyle: {
-              shadowBlur: 8,
-              shadowColor: 'rgba(0,0,0,0.2)',
-            },
-          },
-        }],
-      }, true);
-    }
-
-    // ── Trend Line (Monthly revenue per region) ──
-    function renderTrend(data) {
-      const theme = getChartThemeColors();
-      const activeMonths = [...new Set(data.map(d => d.month))].sort();
-      const activeRegions = [...new Set(data.map(d => d.region))].sort((a, b) => REGIONS.indexOf(a) - REGIONS.indexOf(b));
-
-      const series = activeRegions.map((region, i) => {
-        const values = activeMonths.map(month => {
-          const sum = data.filter(d => d.region === region && d.month === month).reduce((s, d) => s + d.revenue, 0);
-          return Math.round(sum * 100) / 100;
-        });
-        return {
-          name: region,
-          type: 'line',
-          smooth: true,
-          symbol: 'circle',
-          symbolSize: 6,
-          lineStyle: { width: 2 },
-          itemStyle: { color: SERIES_COLORS[i] },
-          areaStyle: {
-            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              { offset: 0, color: SERIES_COLORS[i] + '40' },
-              { offset: 1, color: SERIES_COLORS[i] + '05' },
-            ]),
-          },
-          data: values,
-        };
-      });
-
-      chartTrend.setOption({
-        tooltip: {
-          trigger: 'axis',
-          backgroundColor: theme.backgroundColor,
-          borderColor: theme.axisLineColor,
-          textStyle: { color: theme.textColor },
-          formatter: function(params) {
-            let html = '<div style="font-weight:600;margin-bottom:4px">' + params[0].axisValue + '</div>';
-            params.forEach(p => {
-              html += '<div style="display:flex;align-items:center;gap:6px;margin:2px 0">'
-                + '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:' + p.color + '"></span>'
-                + '<span>' + p.seriesName + ': ' + fmtCurrencyFull(p.value) + '</span></div>';
-            });
-            return html;
-          }
-        },
-        legend: {
-          top: 5,
-          textStyle: { fontSize: 12, color: theme.textColor },
-        },
-        grid: { left: 70, right: 20, top: 36, bottom: 60 },
-        dataZoom: [
-          { type: 'inside', start: 0, end: 100 },
-          { type: 'slider', bottom: 5, height: 20, start: 0, end: 100,
-            borderColor: theme.axisLineColor,
-            textStyle: { color: theme.textColor },
-          },
-        ],
-        xAxis: {
-          type: 'category',
-          data: activeMonths,
-          axisLabel: { fontSize: 11, color: theme.textColor },
-          axisLine: { lineStyle: { color: theme.axisLineColor } },
-        },
-        yAxis: {
-          type: 'value',
-          name: 'Revenue',
-          nameTextStyle: { color: theme.textColor },
-          axisLabel: {
-            color: theme.textColor,
-            formatter: v => fmtCurrency(v),
-          },
-          splitLine: { lineStyle: { color: theme.splitLineColor } },
-        },
-        series: series,
-      }, true);
-    }
-
-    // ── Table ──
-    let sortState = { column: -1, direction: 1 };
-
-    function renderTable(data) {
-      tableDataArr = data.slice();
-      tablePage = 1;
-      tableSearchQuery = '';
-      const searchInput = document.querySelector('.table-search');
-      if (searchInput) searchInput.value = '';
-      sortState = { column: -1, direction: 1 };
-      document.querySelectorAll('#detail-table th').forEach(th => {
-        th.classList.remove('sorted');
-        const icon = th.querySelector('.sort-icon');
-        if (icon) icon.className = 'sort-icon fas fa-sort';
-      });
-      renderTablePage();
-    }
-
-    function getFilteredTableData() {
-      if (!tableSearchQuery) return tableDataArr;
-      const q = tableSearchQuery.toLowerCase();
-      return tableDataArr.filter(d =>
-        d.month.includes(q) ||
-        d.region.toLowerCase().includes(q) ||
-        d.product.toLowerCase().includes(q) ||
-        fmtCurrencyFull(d.revenue).toLowerCase().includes(q) ||
-        String(d.units_sold).includes(q)
-      );
-    }
-
-    function renderTablePage() {
-      const data = getFilteredTableData();
-      const totalPages = Math.max(1, Math.ceil(data.length / PAGE_SIZE));
-      if (tablePage > totalPages) tablePage = totalPages;
-      const start = (tablePage - 1) * PAGE_SIZE;
-      const pageData = data.slice(start, start + PAGE_SIZE);
-
-      // Compute min/max revenue for conditional heat formatting
-      const allRevs = data.map(d => d.revenue);
-      const maxRev = Math.max(...allRevs);
-      const minRev = Math.min(...allRevs);
-      const revRange = maxRev - minRev || 1;
-
-      const tbody = document.getElementById('table-body');
-      tbody.innerHTML = '';
-
-      pageData.forEach(d => {
-        const tr = document.createElement('tr');
-        const normalized = (d.revenue - minRev) / revRange;
-        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-        const heatBg = isDark
-          ? 'rgba(52, 211, 153, ' + (normalized * 0.25) + ')'
-          : 'rgba(74, 222, 128, ' + (normalized * 0.2) + ')';
-        tr.innerHTML =
-          '<td data-value="' + d.month + '">' + d.month + '</td>' +
-          '<td data-value="' + d.region + '">' + d.region + '</td>' +
-          '<td data-value="' + d.product + '">' + d.product + '</td>' +
-          '<td data-value="' + d.units_sold + '">' + fmtNumber(d.units_sold) + '</td>' +
-          '<td data-value="' + d.revenue + '" style="background:' + heatBg + '">' + fmtCurrencyFull(d.revenue) + '</td>' +
-          '<td data-value="' + d.return_rate + '">' + fmtPercent(d.return_rate) + '</td>';
-
-        // Row click → markLine on grouped bar chart
-        tr.addEventListener('click', function() {
-          document.querySelectorAll('#detail-table tbody tr').forEach(r => r.classList.remove('row-selected'));
-          tr.classList.add('row-selected');
-          if (chartGroupedBar) {
-            chartGroupedBar.dispatchAction({ type: 'highlight', name: d.product });
-            setTimeout(() => {
-              chartGroupedBar.dispatchAction({ type: 'downplay', name: d.product });
-            }, 2000);
-          }
-        });
-
-        tbody.appendChild(tr);
-      });
-
-      // Pagination controls
-      const paginationEl = document.getElementById('table-pagination');
-      if (totalPages <= 1) {
-        paginationEl.innerHTML = '';
-        return;
-      }
-      paginationEl.innerHTML =
-        '<button onclick="changePage(-1)"' + (tablePage <= 1 ? ' disabled' : '') + '><i class="fas fa-chevron-left"></i> Prev</button>' +
-        '<span>Page ' + tablePage + ' of ' + totalPages + '</span>' +
-        '<button onclick="changePage(1)"' + (tablePage >= totalPages ? ' disabled' : '') + '>Next <i class="fas fa-chevron-right"></i></button>';
-    }
-
-    function changePage(delta) {
-      const data = getFilteredTableData();
-      const totalPages = Math.max(1, Math.ceil(data.length / PAGE_SIZE));
-      tablePage = Math.max(1, Math.min(totalPages, tablePage + delta));
-      renderTablePage();
-    }
-
-    function filterTableSearch(query) {
-      tableSearchQuery = query;
-      tablePage = 1;
-      renderTablePage();
-    }
-
-    function exportCSV() {
-      const data = getFilteredTableData();
-      let csv = 'Month,Region,Product,Units Sold,Revenue,Return Rate\n';
-      data.forEach(d => {
-        csv += d.month + ',' + d.region + ',' + d.product + ',' + d.units_sold + ',' + d.revenue.toFixed(2) + ',' + fmtPercent(d.return_rate) + '\n';
-      });
-      const blob = new Blob([csv], { type: 'text/csv' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'sales_comparison_data.csv';
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-
-    function sortTable(columnIndex) {
-      const fields = ['month', 'region', 'product', 'units_sold', 'revenue', 'return_rate'];
-      if (sortState.column === columnIndex) {
-        sortState.direction *= -1;
-      } else {
-        sortState.column = columnIndex;
-        sortState.direction = 1;
-      }
-      const field = fields[columnIndex];
-      tableDataArr.sort((a, b) => {
-        const va = a[field], vb = b[field];
-        if (typeof va === 'string') return sortState.direction * va.localeCompare(vb);
-        return sortState.direction * (va - vb);
-      });
-      updateSortIcons(columnIndex);
-      renderTablePage();
-    }
-
-    function updateSortIcons(activeCol) {
-      document.querySelectorAll('#detail-table th').forEach((th, i) => {
-        th.classList.toggle('sorted', i === activeCol);
-        const icon = th.querySelector('.sort-icon');
-        if (icon) {
-          icon.className = 'sort-icon fas ' +
-            (i === activeCol
-              ? (sortState.direction === 1 ? 'fa-sort-up' : 'fa-sort-down')
-              : 'fa-sort');
-        }
-      });
-    }
-
-    // ── Re-render all charts on theme change ──
-    function updateAllCharts() {
-      applyFilters();
-    }
-
-    const observer = new MutationObserver(() => updateAllCharts());
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['data-theme'],
-    });
-
-    // ── Initialize ──
-    initTheme();
-
-    chartGroupedBar = initChart('chart-grouped-bar');
-    chartHBar = initChart('chart-hbar');
-    chartDonut = initChart('chart-donut');
-    chartTrend = initChart('chart-trend');
-
-    applyFilters();
+    try {
+      const saved = localStorage.getItem('csv-dashboard-theme');
+      document.documentElement.dataset.theme = ['dark', 'light'].includes(saved) ? saved : (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    } catch (_) { document.documentElement.dataset.theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; }
   </script>
+</head>
+<body data-kind="comparison">
+  <a class="skip-link" href="#overview">Skip to dashboard</a>
+  <header class="appbar">
+    <div class="appbar-inner">
+      <div class="brand"><svg viewBox="0 0 28 28" fill="none" aria-hidden="true"><rect x="2" y="15" width="5" height="11" rx="1" fill="currentColor"/><rect x="11" y="8" width="5" height="18" rx="1" fill="currentColor" opacity=".65"/><rect x="20" y="2" width="5" height="24" rx="1" fill="currentColor" opacity=".35"/></svg>Data studio</div>
+      <nav aria-label="Dashboard sections"><a href="#overview">Overview</a><a href="#analysis">Analysis</a><a href="#data">Source data</a></nav>
+      <span class="sample-tag">Sample dataset</span>
+      <button id="theme-toggle" type="button" aria-pressed="false">Dark theme</button>
+    </div>
+  </header>
+  <main id="overview" tabindex="-1">
+    <div class="page-heading">
+      <div><p class="eyebrow" id="eyebrow"></p><h1>Product performance</h1><p class="description" id="description"></p></div>
+      <div class="scope"><strong id="date-range"></strong><span id="scope-count"></span></div>
+    </div>
+    <section class="filter-bar" aria-label="Dashboard filters">
+      <span class="filter-label">View</span><div id="filter-controls" style="display: contents"></div>
+      <button id="reset" type="button">Reset filters</button>
+    </section>
+    <div class="sr-only" id="filter-status" role="status" aria-live="polite"></div>
+    <section class="kpi-grid" id="kpis" aria-label="Key metrics"></section>
+    <div id="empty-state" hidden><strong>No records in this selection.</strong> Try a different filter or reset the view.</div>
+    <div id="chart-error" role="status" hidden>Charts could not load. Connect to the internet and reload, or use the metrics and source table below.</div>
+    <section id="analysis" aria-label="Analysis">
+      <div class="analysis-heading"><h2 id="analysis-title"></h2><span>All charts follow the selected filters</span></div>
+      <div class="primary-grid">
+        <article class="card">
+          <div class="card-heading"><h3 id="primary-title"></h3><p class="chart-description" id="primary-description"></p></div>
+          <div class="chart primary-chart" id="chart-primary"></div>
+          <p class="chart-summary" id="primary-summary"></p>
+        </article>
+        <aside class="insight" aria-label="Selection insight">
+          <p class="section-label">In this selection</p><p class="insight-value" id="insight-value"></p>
+          <h3 id="insight-title"></h3><p class="insight-copy" id="insight-copy"></p><div class="insight-list" id="insight-list"></div>
+        </aside>
+      </div>
+      <div class="support-grid">
+        <article class="card"><div class="card-heading"><h3 id="secondary-title"></h3><p class="chart-description" id="secondary-description"></p></div><div class="chart" id="chart-secondary"></div><p class="chart-summary" id="secondary-summary"></p></article>
+        <article class="card"><div class="card-heading"><h3 id="tertiary-title"></h3><p class="chart-description" id="tertiary-description"></p></div><div class="chart" id="chart-tertiary"></div><p class="chart-summary" id="tertiary-summary"></p></article>
+      </div>
+    </section>
+    <section class="card table-card" id="data" aria-labelledby="table-title">
+      <div class="table-toolbar"><div><h2 id="table-title">Source data</h2><p>Inspect the records behind this view.</p></div><div class="table-actions"><label class="sr-only" for="search">Search table only</label><input id="search" type="search" placeholder="Search table…"><button id="export" type="button">Export results ↓</button></div></div>
+      <div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable source data table"><table><caption>Search applies to this table and its export. Charts use the filters above.</caption><thead id="table-head"></thead><tbody id="table-body"></tbody></table></div>
+      <div class="table-footer"><span id="table-count" role="status"></span><div class="pagination"><button id="previous" type="button" aria-label="Previous page">← Previous</button><span id="page-label"></span><button id="next" type="button" aria-label="Next page">Next →</button></div></div>
+    </section>
+    <details class="methodology"><summary>Metric definitions & data notes</summary><p id="methodology"></p><p id="source-note"></p></details>
+    <footer><span id="footer-source"></span><span>Embedded data · ECharts loads from CDN</span></footer>
+    <noscript>This dashboard needs JavaScript to calculate metrics and display its embedded records.</noscript>
+  </main>
+  <script id="dashboard-data" type="application/json">{"config":{"file":"comparison_products.csv","title":"Product performance","eyebrow":"Commerce / Portfolio analytics","description":"Compare product revenue, regional contribution, and return rates.","analysis":"Portfolio breakdown","days":0,"ranges":[],"filters":[{"key":"region","label":"Region"},{"key":"product","label":"Product"},{"key":"month","label":"Month"}],"metrics":[["revenue","Revenue","currency","Sum of revenue","higher"],["units","Units sold","integer","Sum of units sold","higher"],["price","Revenue per unit","money","Revenue ÷ units sold","neutral"],["returns","Estimated return rate","percent","Weighted by units sold","lower"]],"charts":[["Revenue by product","Revenue in USD · select a bar to filter"],["Regional revenue mix","Revenue by product · common zero baseline"],["Estimated returns by product","Return rate weighted by units sold"]],"columns":[["month","Month","text"],["region","Region","text"],["product","Product","text"],["units_sold","Units sold","integer"],["revenue","Revenue","money"],["return_rate","Return rate","percent"]],"numeric":["units_sold","revenue","return_rate"],"methodology":"Revenue and units sold are summed. Revenue per unit = total revenue / total units sold. Estimated return rate = sum(row return rate × units sold) / total units sold, assuming each row rate uses units sold as its denominator. Rates in the sample are rounded, so this does not reconstruct exact returned-unit counts. Product colors stay fixed when filtering. Currency is assumed USD for this demo.","kind":"comparison"},"columns":["month","region","product","units_sold","revenue","return_rate"],"rows":[["2025-11","North","Laptop Pro",130,189513.9,0.077],["2025-11","North","Phone X",202,147816.26,0.042],["2025-11","North","Tablet Air",206,103025.55,0.05],["2025-11","North","Headphones Elite",305,91880.55,0.063],["2025-11","North","Smart Watch",161,37252.1,0.018],["2025-11","North","Camera Zoom",130,109310.72,0.046],["2025-11","South","Laptop Pro",157,215666.65,0.078],["2025-11","South","Phone X",226,154863.18,0.013],["2025-11","South","Tablet Air",121,56141.93,0.022],["2025-11","South","Headphones Elite",190,57012.27,0.017],["2025-11","South","Smart Watch",400,102053.95,0.055],["2025-11","South","Camera Zoom",96,87998.98,0.065],["2025-11","East","Laptop Pro",369,502204.58,0.056],["2025-11","East","Phone X",206,152019.87,0.065],["2025-11","East","Tablet Air",132,63424.32,0.061],["2025-11","East","Headphones Elite",243,78111.21,0.049],["2025-11","East","Smart Watch",125,33113.85,0.061],["2025-11","East","Camera Zoom",264,219919.07,0.078],["2025-11","West","Laptop Pro",266,363686.33,0.055],["2025-11","West","Phone X",291,192151.68,0.067],["2025-11","West","Tablet Air",167,82329.59,0.051],["2025-11","West","Headphones Elite",144,45835.9,0.078],["2025-11","West","Smart Watch",132,30328.23,0.064],["2025-11","West","Camera Zoom",331,289838.92,0.06],["2025-12","North","Laptop Pro",384,559068.93,0.042],["2025-12","North","Phone X",320,219585.58,0.06],["2025-12","North","Tablet Air",191,100607.55,0.057],["2025-12","North","Headphones Elite",274,82917.38,0.028],["2025-12","North","Smart Watch",294,76725.34,0.038],["2025-12","North","Camera Zoom",168,143246.73,0.068],["2025-12","South","Laptop Pro",359,466167.83,0.026],["2025-12","South","Phone X",326,216490.68,0.025],["2025-12","South","Tablet Air",368,180375.13,0.014],["2025-12","South","Headphones Elite",301,83190.84,0.048],["2025-12","South","Smart Watch",511,135137.51,0.045],["2025-12","South","Camera Zoom",356,324086.22,0.028],["2025-12","East","Laptop Pro",232,318912.71,0.027],["2025-12","East","Phone X",239,157024.43,0.054],["2025-12","East","Tablet Air",230,107525.74,0.023],["2025-12","East","Headphones Elite",178,51187.97,0.019],["2025-12","East","Smart Watch",334,79740.08,0.027],["2025-12","East","Camera Zoom",242,224497.1,0.029],["2025-12","West","Laptop Pro",434,605392.37,0.034],["2025-12","West","Phone X",232,168125.65,0.043],["2025-12","West","Tablet Air",425,214432.99,0.041],["2025-12","West","Headphones Elite",509,150828.74,0.074],["2025-12","West","Smart Watch",516,128213.32,0.048],["2025-12","West","Camera Zoom",342,308345.36,0.05],["2026-01","North","Laptop Pro",183,264190,0.061],["2026-01","North","Phone X",139,89773.96,0.018],["2026-01","North","Tablet Air",274,127717.56,0.064],["2026-01","North","Headphones Elite",246,79263.75,0.053],["2026-01","North","Smart Watch",227,52546.6,0.022],["2026-01","North","Camera Zoom",197,164753.48,0.042],["2026-01","South","Laptop Pro",187,246516.66,0.066],["2026-01","South","Phone X",221,144613.25,0.037],["2026-01","South","Tablet Air",207,108848.25,0.025],["2026-01","South","Headphones Elite",270,79108.24,0.08],["2026-01","South","Smart Watch",202,48637.31,0.055],["2026-01","South","Camera Zoom",119,100662.29,0.021],["2026-01","East","Laptop Pro",130,194626.84,0.051],["2026-01","East","Phone X",301,199955,0.073],["2026-01","East","Tablet Air",209,99055.3,0.028],["2026-01","East","Headphones Elite",232,72103.28,0.035],["2026-01","East","Smart Watch",136,32825.55,0.063],["2026-01","East","Camera Zoom",179,162743.78,0.046],["2026-01","West","Laptop Pro",108,149624,0.042],["2026-01","West","Phone X",185,138700.87,0.011],["2026-01","West","Tablet Air",307,160995.05,0.03],["2026-01","West","Headphones Elite",315,93401.76,0.016],["2026-01","West","Smart Watch",276,68498.27,0.077],["2026-01","West","Camera Zoom",152,131511.83,0.075],["2026-02","North","Laptop Pro",180,265319.38,0.023],["2026-02","North","Phone X",254,172578.99,0.019],["2026-02","North","Tablet Air",176,89716.87,0.016],["2026-02","North","Headphones Elite",320,91104.62,0.025],["2026-02","North","Smart Watch",106,24448.6,0.018],["2026-02","North","Camera Zoom",160,146504.7,0.045],["2026-02","South","Laptop Pro",280,401570.71,0.026],["2026-02","South","Phone X",228,151372.43,0.022],["2026-02","South","Tablet Air",298,155833.35,0.039],["2026-02","South","Headphones Elite",282,83054.41,0.033],["2026-02","South","Smart Watch",251,59538.75,0.041],["2026-02","South","Camera Zoom",319,301684.87,0.047],["2026-02","East","Laptop Pro",308,398665.06,0.051],["2026-02","East","Phone X",366,238458.04,0.015],["2026-02","East","Tablet Air",123,62645.1,0.028],["2026-02","East","Headphones Elite",264,82895.35,0.038],["2026-02","East","Smart Watch",253,58068.46,0.032],["2026-02","East","Camera Zoom",174,147149.11,0.074],["2026-02","West","Laptop Pro",226,296652.17,0.04],["2026-02","West","Phone X",218,158126.94,0.017],["2026-02","West","Tablet Air",336,175987.58,0.079],["2026-02","West","Headphones Elite",255,77198.82,0.036],["2026-02","West","Smart Watch",296,68079.1,0.061],["2026-02","West","Camera Zoom",115,95286.04,0.011],["2026-03","North","Laptop Pro",220,329703.62,0.031],["2026-03","North","Phone X",218,140981.26,0.076],["2026-03","North","Tablet Air",196,94222.03,0.032],["2026-03","North","Headphones Elite",209,64890.06,0.048],["2026-03","North","Smart Watch",180,45321.39,0.03],["2026-03","North","Camera Zoom",155,139417.23,0.023],["2026-03","South","Laptop Pro",121,167462.88,0.022],["2026-03","South","Phone X",409,275210.52,0.045],["2026-03","South","Tablet Air",227,109916.62,0.03],["2026-03","South","Headphones Elite",385,115272.31,0.059],["2026-03","South","Smart Watch",399,99061.01,0.028],["2026-03","South","Camera Zoom",328,310725.89,0.065],["2026-03","East","Laptop Pro",441,569634.85,0.064],["2026-03","East","Phone X",176,127864.54,0.07],["2026-03","East","Tablet Air",284,142116.45,0.046],["2026-03","East","Headphones Elite",217,62499.17,0.054],["2026-03","East","Smart Watch",259,65669.11,0.06],["2026-03","East","Camera Zoom",412,392532.03,0.014],["2026-03","West","Laptop Pro",352,523256.22,0.018],["2026-03","West","Phone X",278,183371.42,0.026],["2026-03","West","Tablet Air",403,193573.39,0.022],["2026-03","West","Headphones Elite",335,106014.25,0.075],["2026-03","West","Smart Watch",159,39871.3,0.059],["2026-03","West","Camera Zoom",162,148905.22,0.063]]}</script>
+  <script>/* Pure computations shared by the demos. Missing values are never coerced to zero. */
+(function (root) {
+  'use strict';
+  const finite = value => typeof value === 'number' && Number.isFinite(value);
+  const sum = (rows, key) => rows.reduce((total, row) => total + (finite(row[key]) ? row[key] : 0), 0);
+  const total = (rows, key) => rows.some(row => finite(row[key])) ? sum(rows, key) : null;
+  const ratio = (numerator, denominator) => finite(numerator) && finite(denominator) && denominator > 0 ? numerator / denominator : null;
+  const mean = (rows, key) => {
+    const valid = rows.filter(row => finite(row[key]));
+    return valid.length ? sum(valid, key) / valid.length : null;
+  };
+  const weighted = (rows, value, weight) => {
+    const valid = rows.filter(row => finite(row[value]) && finite(row[weight]) && row[weight] > 0);
+    return ratio(valid.reduce((total, row) => total + row[value] * row[weight], 0), sum(valid, weight));
+  };
+  const group = (rows, key) => {
+    const result = new Map();
+    rows.forEach(row => {
+      const value = typeof key === 'function' ? key(row) : row[key];
+      if (!result.has(value)) result.set(value, []);
+      result.get(value).push(row);
+    });
+    return result;
+  };
+  const dateKey = row => String(row.date ?? row.timestamp ?? row.month).slice(0, 10);
+  const dayNumber = value => Date.parse(value.slice(0, 10) + 'T00:00:00Z') / 86400000;
+  const isoDay = value => new Date(value * 86400000).toISOString().slice(0, 10);
+  const weekKey = value => {
+    const day = dayNumber(value);
+    const weekday = new Date(day * 86400000).getUTCDay();
+    return isoDay(day - (weekday + 6) % 7);
+  };
+  const filter = (rows, state, config) => {
+    const maxDay = Math.max(...rows.map(row => dayNumber(dateKey(row))).filter(Number.isFinite));
+    return rows.filter(row => {
+      const day = dayNumber(dateKey(row));
+      if (state.days && day < maxDay - state.days + 1) return false;
+      return config.filters.every(({ key }) => !state.filters[key] || String(row[key]) === state.filters[key]);
+    });
+  };
+  // Adjacent equal calendar windows; reject incomplete windows instead of manufacturing deltas.
+  const priorWindow = (rows, state, config) => {
+    if (!state.days || config.kind === 'comparison') return null;
+    const maxDay = Math.max(...rows.map(row => dayNumber(dateKey(row))).filter(Number.isFinite));
+    const end = maxDay - state.days;
+    const start = end - state.days + 1;
+    const candidates = rows.filter(row => config.filters.every(({ key }) => !state.filters[key] || String(row[key]) === state.filters[key]));
+    const current = candidates.filter(row => dayNumber(dateKey(row)) > end);
+    const previous = candidates.filter(row => dayNumber(dateKey(row)) >= start && dayNumber(dateKey(row)) <= end);
+    const identity = row => JSON.stringify(config.filters.map(({ key }) => row[key]));
+    const identities = new Set(candidates.map(identity));
+    const hours = config.kind === 'monitoring' ? 24 : 1;
+    const coverage = data => new Set(data.map(row => dateKey(row) + '|' + identity(row) + (hours > 1 ? '|' + row.timestamp.slice(11, 13) : ''))).size;
+    const expected = state.days * identities.size * hours;
+    return coverage(current) === expected && coverage(previous) === expected ? previous : null;
+  };
+  const nps = rows => {
+    const valid = rows.filter(row => Number.isInteger(row.nps_score) && row.nps_score >= 0 && row.nps_score <= 10);
+    const promoters = valid.filter(row => row.nps_score >= 9).length;
+    const detractors = valid.filter(row => row.nps_score <= 6).length;
+    return { count: valid.length, promoters, detractors, passives: valid.length - promoters - detractors,
+      score: valid.length ? (promoters - detractors) / valid.length * 100 : null };
+  };
+  const metrics = (rows, kind) => {
+    if (kind === 'timeseries') return { revenue: total(rows, 'revenue'),
+      orders: total(rows, 'orders'), aov: ratio(total(rows, 'revenue'), total(rows, 'orders')),
+      conversion: ratio(total(rows, 'orders'), total(rows, 'visitors')) };
+    if (kind === 'comparison') return { revenue: total(rows, 'revenue'),
+      units: total(rows, 'units_sold'), price: ratio(total(rows, 'revenue'), total(rows, 'units_sold')),
+      returns: weighted(rows, 'return_rate', 'units_sold') };
+    if (kind === 'monitoring') {
+      const traffic = [...group(rows, 'timestamp').values()].map(bucket => ({ value: sum(bucket, 'qps') }));
+      return { p95: mean(rows, 'p95_latency_ms'), errors: weighted(rows, 'error_rate', 'qps'),
+        qps: mean(traffic, 'value'), peak: rows.some(row => finite(row.p95_latency_ms)) ? Math.max(...rows.map(row => row.p95_latency_ms).filter(finite)) : null };
+    }
+    const result = nps(rows);
+    return { nps: result.score, responses: result.count, satisfaction: mean(rows, 'satisfaction'),
+      recommend: ratio(rows.filter(row => row.would_recommend === 'yes').length,
+        rows.filter(row => ['yes', 'no'].includes(row.would_recommend)).length) };
+  };
+  const rolling = (values, windowSize) => values.map((_, index) => {
+    if (index < windowSize - 1) return null;
+    const slice = values.slice(index - windowSize + 1, index + 1);
+    return slice.every(finite) ? slice.reduce((a, b) => a + b, 0) / windowSize : null;
+  });
+  const csvCell = value => {
+    let text = value == null ? '' : String(value);
+    // Neutralize spreadsheet formulas only in text, keeping actual negative numbers numeric.
+    if (typeof value === 'string' && /^\s*[=+\-@\t\r\n]/u.test(text)) text = "'" + text;
+    return '"' + text.replace(/"/g, '""') + '"';
+  };
+  const csv = (rows, columns) => '\ufeff' + [columns.map(csvCell).join(','),
+    ...rows.map(row => columns.map(key => csvCell(row[key])).join(','))].join('\r\n');
+  const api = { finite, sum, total, ratio, mean, weighted, group, dateKey, dayNumber, isoDay, weekKey, filter, priorWindow, nps, metrics, rolling, csv };
+  if (typeof module !== 'undefined' && module.exports) module.exports = api;
+  else root.DashboardModel = api;
+})(typeof globalThis === 'undefined' ? this : globalThis);
+</script>
+  <script>(function () {
+  'use strict';
+  const { config, columns, rows: packed } = JSON.parse(document.getElementById('dashboard-data').textContent);
+  const rows = packed.map(values => Object.fromEntries(columns.map((key, index) => [key, values[index]])));
+  const M = DashboardModel;
+  const $ = id => document.getElementById(id);
+  const state = { days: config.days, filters: {}, search: '', sort: config.columns[0][0], direction: 1, page: 1 };
+  const pageSize = 12;
+  const charts = new Map();
+  const zoom = new Map();
+  let selected = [];
+  let tableRows = [];
+  const number = new Intl.NumberFormat('en-US', { maximumFractionDigits: 1 });
+  const money = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 });
+  const compact = new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 2 });
+  function format(value, kind = 'number') {
+    if (value == null || (typeof value === 'number' && !Number.isFinite(value))) return '—';
+    if (kind === 'text') return String(value);
+    if (kind === 'currency') return '$' + compact.format(value);
+    if (kind === 'money') return money.format(value);
+    if (kind === 'percent') return (value * 100).toFixed(2) + '%';
+    if (kind === 'integer') return Math.round(value).toLocaleString('en-US');
+    if (kind === 'ms') return number.format(value) + ' ms';
+    if (kind === 'score') return (value > 0 ? '+' : '') + value.toFixed(1);
+    if (kind === 'rating') return value.toFixed(2) + ' / 5';
+    return number.format(value);
+  }
+  function node(tag, text, className) {
+    const element = document.createElement(tag);
+    if (text != null) element.textContent = text;
+    if (className) element.className = className;
+    return element;
+  }
+  function colors() {
+    const style = getComputedStyle(document.documentElement);
+    const get = name => style.getPropertyValue('--' + name).trim();
+    return { text: get('ink'), muted: get('muted'), border: get('border'), grid: get('grid'), surface: get('surface'),
+      accent: get('accent'), teal: get('teal'), rose: get('rose'), amber: get('amber'),
+      palette: ['accent', 'teal', 'amber', 'purple', 'rose', 'orange'].map(get) };
+  }
+  const categories = key => [...new Set(rows.map(row => row[key]))].sort();
+  const seriesColor = (key, value) => colors().palette[categories(key).indexOf(value) % colors().palette.length];
+  function addSelect(key, label, options, current) {
+    const wrap = node('div', null, 'control');
+    const labelEl = node('label', label); labelEl.htmlFor = 'filter-' + key;
+    const select = node('select'); select.id = labelEl.htmlFor;
+    options.forEach(([text, value]) => { const option = node('option', text); option.value = value; select.append(option); });
+    select.value = current;
+    select.addEventListener('change', () => {
+      if (key === 'days') state.days = Number(select.value); else state.filters[key] = select.value;
+      state.page = 1; zoom.clear(); renderAll();
+    });
+    wrap.append(labelEl, select); $('filter-controls').append(wrap);
+  }
+  function setFilter(key, value) {
+    state.filters[key] = state.filters[key] === value ? '' : value;
+    $('filter-' + key).value = state.filters[key];
+    state.page = 1; zoom.clear(); renderAll();
+  }
+  if (config.ranges.length) addSelect('days', 'Period', config.ranges, state.days);
+  config.filters.forEach(({ key, label }) => addSelect(key, label, [['All ' + (key === 'category' ? 'categories' : label.toLowerCase() + 's'), ''], ...categories(key).map(value => [value, value])], ''));
+  $('reset').addEventListener('click', () => {
+    state.days = config.days; state.filters = {}; state.search = ''; state.page = 1;
+    state.sort = config.columns[0][0]; state.direction = 1; $('search').value = '';
+    if ($('filter-days')) $('filter-days').value = state.days;
+    config.filters.forEach(({ key }) => { $('filter-' + key).value = ''; });
+    zoom.clear(); renderAll();
+  });
+  $('eyebrow').textContent = config.eyebrow;
+  $('description').textContent = config.description;
+  $('analysis-title').textContent = config.analysis;
+  ['primary', 'secondary', 'tertiary'].forEach((key, index) => {
+    $(key + '-title').textContent = config.charts[index][0];
+    $(key + '-description').textContent = config.charts[index][1];
+  });
+  $('methodology').textContent = config.methodology;
+  $('source-note').textContent = `Source: ${config.file} · ${rows.length.toLocaleString()} records. Sample data only. The displayed period is the CSV coverage, not the date the page was opened. All source records are embedded; the table is paginated, not truncated.`;
+  $('footer-source').textContent = config.file + ' / ' + rows.length.toLocaleString() + ' source rows';
+
+  function renderMetrics() {
+    const values = M.metrics(selected, config.kind);
+    const previous = M.priorWindow(rows, state, config);
+    const prior = previous && M.metrics(previous, config.kind);
+    $('kpis').replaceChildren();
+    config.metrics.forEach(([key, label, kind, definition, polarity]) => {
+      const card = node('article', null, 'kpi');
+      const value = node('p', format(values[key], kind), 'kpi-value');
+      value.dataset.metric = key;
+      value.title = kind === 'currency' ? format(values[key], 'money') : format(values[key], kind);
+      const note = node('div', null, 'kpi-note');
+      if (prior && M.finite(prior[key]) && M.finite(values[key]) && prior[key] !== 0) {
+        const difference = kind === 'percent' ? (values[key] - prior[key]) * 100 : (values[key] / prior[key] - 1) * 100;
+        const favorable = polarity === 'lower' ? difference < 0 : difference > 0;
+        const precision = kind === 'percent' ? 2 : 1;
+        const minimum = 10 ** -precision;
+        const amount = difference !== 0 && Math.abs(difference) < minimum ? `${difference < 0 ? '−' : '+'}<${minimum.toFixed(precision)}` : `${difference > 0 ? '+' : ''}${difference.toFixed(precision)}`;
+        const delta = node('span', `${amount}${kind === 'percent' ? ' pp' : '%'} `,
+          'delta' + (difference && polarity !== 'neutral' ? (favorable ? ' positive' : ' negative') : ''));
+        note.append(delta, node('span', `vs preceding ${state.days} days`), node('br'));
+      } else if (state.days && config.kind === 'timeseries') {
+        note.append(node('span', 'Prior comparison unavailable'), node('br'));
+      }
+      note.append(node('span', definition));
+      card.append(node('h2', label, 'kpi-label'), value, note); $('kpis').append(card);
+    });
+  }
+  const grouped = (data, key, value) => [...M.group(data, key)].map(([name, bucket]) => ({ name, value: value(bucket), count: bucket.length }));
+  const ranked = (data, key, value) => grouped(data, key, value).sort((a, b) => b.value - a.value || String(a.name).localeCompare(String(b.name)));
+  function insight(value, title, copy, facts) {
+    $('insight-value').textContent = value; $('insight-title').textContent = title; $('insight-copy').textContent = copy;
+    $('insight-list').replaceChildren(...facts.map(([label, text]) => {
+      const row = node('div', null, 'insight-row'); row.append(node('span', label), node('strong', text)); return row;
+    }));
+  }
+  function renderInsight() {
+    if (!selected.length) { insight('—', 'No data selected', 'Adjust the filters to explore the dataset.', []); return; }
+    if (config.kind === 'timeseries') {
+      const ranking = ranked(selected, 'category', bucket => M.sum(bucket, 'revenue'));
+      const top = ranking[0]; const total = M.sum(selected, 'revenue');
+      insight(format(M.ratio(top.value, total), 'percent'), top.name + ' leads revenue', 'Share of revenue within the current selection. Compare category contributions in the ranking below.',
+        [['Leading category', format(top.value, 'currency')], ['Categories in view', String(ranking.length)], ['Observed days', String(new Set(selected.map(M.dateKey)).size)]]);
+    } else if (config.kind === 'comparison') {
+      const ranking = ranked(selected, 'region', bucket => M.sum(bucket, 'revenue'));
+      const top = ranking[0];
+      insight(format(M.ratio(top.value, M.sum(selected, 'revenue')), 'percent'), top.name + ' is the largest market', 'Share of selected revenue. Regional size and product mix should be read together.',
+        [['Leading region', format(top.value, 'currency')], ['Products in view', String(new Set(selected.map(row => row.product)).size)], ['Regions in view', String(ranking.length)]]);
+    } else if (config.kind === 'monitoring') {
+      const peak = selected.reduce((a, b) => a.p95_latency_ms > b.p95_latency_ms ? a : b);
+      const above = selected.filter(row => row.p95_latency_ms > 300).length;
+      insight(format(peak.p95_latency_ms, 'ms'), peak.endpoint + ' has the highest hourly P95', 'Peak observed in this selection at ' + peak.timestamp.replace('T', ' ') + '. This is an endpoint-hour percentile.',
+        [['Above 300 ms reference', `${above.toLocaleString()} / ${selected.length.toLocaleString()}`], ['Reference type', 'Illustrative'], ['Endpoint-hours', selected.length.toLocaleString()]]);
+    } else {
+      const nps = M.nps(selected);
+      insight(format(M.ratio(nps.promoters, nps.count), 'percent'), 'of responses are promoters', 'Promoters score 9–10. NPS subtracts the share of detractors from the share of promoters.',
+        [['Promoters · 9–10', `${nps.promoters} / ${nps.count}`], ['Passives · 7–8', `${nps.passives} / ${nps.count}`], ['Detractors · 0–6', `${nps.detractors} / ${nps.count}`]]);
+    }
+  }
+  function baseOption() {
+    const c = colors();
+    return { animation: false, color: c.palette, backgroundColor: 'transparent',
+      textStyle: { fontFamily: "'Avenir Next', 'Segoe UI', sans-serif", color: c.text },
+      aria: { enabled: true, decal: { show: false } },
+      tooltip: { trigger: 'axis', confine: true, renderMode: 'richText', backgroundColor: c.surface, borderColor: c.border, textStyle: { color: c.text, fontSize: 12 } },
+      grid: { left: 24, right: 28, top: 42, bottom: 26, containLabel: true },
+      xAxis: { type: 'category', axisTick: { show: false }, axisLine: { lineStyle: { color: c.border } }, axisLabel: { color: c.muted, fontSize: 10, hideOverlap: true }, splitLine: { show: false } },
+      yAxis: { type: 'value', axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: c.muted, fontSize: 10 }, splitLine: { lineStyle: { color: c.grid, type: 'dashed' } } } };
+  }
+  function draw(id, option, onClick) {
+    if (!window.echarts) return;
+    const target = $('chart-' + id);
+    if (!charts.has(id)) {
+      const chart = echarts.init(target, null, { renderer: 'svg' }); charts.set(id, chart);
+      chart.on('datazoom', () => {
+        const item = chart.getOption().dataZoom?.[0];
+        if (item) zoom.set(id, { start: item.start, end: item.end });
+      });
+      new ResizeObserver(() => chart.resize()).observe(target);
+    }
+    const chart = charts.get(id);
+    if (option.dataZoom && zoom.has(id)) option.dataZoom.forEach(item => Object.assign(item, zoom.get(id)));
+    chart.setOption(option, { notMerge: true });
+    chart.off('click');
+    if (onClick) chart.on('click', onClick);
+  }
+  function line(id, labels, series, kind, { zoomable = false, min, max, threshold } = {}) {
+    const c = colors(); const option = baseOption();
+    option.xAxis.data = labels;
+    option.xAxis.axisLabel.formatter = value => value.includes('T') ? value.slice(5, 10) + '\n' + value.slice(11, 16) : value.slice(5);
+    option.yAxis.axisLabel.formatter = value => kind === 'currency' ? '$' + compact.format(value) : kind === 'percent' ? (value * 100).toFixed(1) + '%' : compact.format(value);
+    if (min !== undefined) option.yAxis.min = min;
+    if (max !== undefined) option.yAxis.max = max;
+    option.tooltip.valueFormatter = value => format(value, kind);
+    option.legend = { top: 12, left: 24, right: 16, type: 'scroll', textStyle: { color: c.muted, fontSize: 11 }, itemWidth: 15, itemHeight: 7 };
+    option.series = series.map((item, index) => ({ name: item.name, type: 'line', data: item.data, smooth: false, connectNulls: false,
+      showSymbol: labels.length <= 10, symbolSize: 5, itemStyle: { color: item.color || c.palette[index] },
+      lineStyle: { width: item.dashed ? 1.8 : 2.3, type: item.dashed ? 'dashed' : 'solid' }, emphasis: { focus: 'series' } }));
+    if (threshold !== undefined) option.series[0].markLine = { silent: true, symbol: 'none', label: { show: false }, lineStyle: { color: c.amber, type: 'dashed' }, data: [{ yAxis: threshold }] };
+    if (zoomable && labels.length > 60) {
+      const compactScreen = window.innerWidth < 480;
+      option.grid.bottom = 68;
+      option.dataZoom = [{ type: 'slider', bottom: 13, height: 18, borderColor: c.border, textStyle: { color: c.muted }, showDataShadow: false, brushSelect: false, showDetail: false },
+        { type: 'inside', zoomOnMouseWheel: 'ctrl', moveOnMouseWheel: false, moveOnMouseMove: !compactScreen }];
+    }
+    draw(id, option);
+  }
+  function bars(id, data, kind, { colorKey, clickKey, signed = false, showCount = false, bounds } = {}) {
+    const c = colors(); const option = baseOption();
+    option.tooltip.trigger = 'item'; option.tooltip.valueFormatter = value => format(value, kind);
+    option.grid = { left: 22, right: showCount ? 66 : 75, top: 25, bottom: 24, containLabel: true };
+    option.xAxis = { ...option.yAxis, splitNumber: 3, min: bounds?.[0] ?? (signed ? undefined : 0), max: bounds?.[1],
+      axisLabel: { color: c.muted, fontSize: 10, hideOverlap: true, formatter: value => kind === 'percent' ? (value * 100).toFixed(0) + '%' : kind === 'currency' ? '$' + compact.format(value) : value } };
+    option.yAxis = { type: 'category', inverse: true, data: data.map(item => item.name), axisLine: { show: false }, axisTick: { show: false },
+      axisLabel: { color: c.text, fontSize: 11, width: window.innerWidth < 480 ? 80 : 130, overflow: 'truncate' } };
+    option.series = [{ type: 'bar', barMaxWidth: 26, data: data.map(item => ({ value: item.value, itemStyle: {
+      color: colorKey ? seriesColor(colorKey, item.name) : signed && item.value < 0 ? c.rose : c.accent, borderRadius: 3 } })),
+      label: { show: true, position: 'right', color: c.text, fontSize: 10, formatter: item => showCount ? `${format(item.value, 'score')} · n=${data[item.dataIndex].count}` : format(item.value, kind) } }];
+    draw(id, option, clickKey ? event => setFilter(clickKey, data[event.dataIndex].name) : null);
+  }
+  function daily(data, key, reducer) {
+    const groups = M.group(data, key);
+    const keys = [...groups.keys()].sort();
+    if (!keys.length) return { labels: [], values: [] };
+    const labels = [];
+    for (let day = M.dayNumber(keys[0]); day <= M.dayNumber(keys.at(-1)); day++) labels.push(M.isoDay(day));
+    return { labels, values: labels.map(label => groups.has(label) ? reducer(groups.get(label)) : null) };
+  }
+  function renderCharts() {
+    if (!selected.length) { charts.forEach(chart => chart.clear()); return; }
+    const c = colors();
+    if (config.kind === 'timeseries') {
+      const revenue = daily(selected, 'date', bucket => M.sum(bucket, 'revenue'));
+      line('primary', revenue.labels, [{ name: 'Daily revenue', data: revenue.values }, { name: 'Trailing 7-day mean', data: M.rolling(revenue.values, 7), dashed: true, color: c.teal }], 'currency');
+      const rank = ranked(selected, 'category', bucket => M.sum(bucket, 'revenue'));
+      bars('secondary', rank, 'currency', { colorKey: 'category', clickKey: 'category' });
+      const conversion = daily(selected, 'date', bucket => M.ratio(M.sum(bucket, 'orders'), M.sum(bucket, 'visitors')));
+      line('tertiary', conversion.labels, [{ name: 'Conversion rate', data: conversion.values, color: c.teal }], 'percent', { min: 0 });
+      $('primary-summary').textContent = `${revenue.labels.length} calendar days in view. Dashed line: trailing 7-day mean; missing dates stay as gaps.`;
+      $('secondary-summary').textContent = `Category colors stay consistent across filters. Use the Category selector for keyboard access.`;
+      $('tertiary-summary').textContent = 'Rates are recomputed from orders and visitors, not averaged from row percentages.';
+    } else if (config.kind === 'comparison') {
+      const rank = ranked(selected, 'product', bucket => M.sum(bucket, 'revenue'));
+      bars('primary', rank, 'currency', { colorKey: 'product', clickKey: 'product' });
+      const regions = [...new Set(selected.map(row => row.region))].sort();
+      const products = [...new Set(selected.map(row => row.product))].sort();
+      const option = baseOption(); option.xAxis.data = regions;
+      option.yAxis.axisLabel.formatter = value => '$' + compact.format(value);
+      option.legend = { top: 10, left: 24, right: 16, type: 'scroll', textStyle: { color: c.muted, fontSize: 11 }, itemWidth: 10, itemHeight: 10 };
+      option.grid.top = 50; option.tooltip.valueFormatter = value => format(value, 'currency');
+      option.series = products.map(product => ({ name: product, type: 'bar', stack: 'revenue', barMaxWidth: 46, itemStyle: { color: seriesColor('product', product) },
+        data: regions.map(region => M.sum(selected.filter(row => row.region === region && row.product === product), 'revenue')) }));
+      draw('secondary', option);
+      const returns = ranked(selected, 'product', bucket => M.weighted(bucket, 'return_rate', 'units_sold'));
+      bars('tertiary', returns, 'percent', { colorKey: 'product' });
+      $('primary-summary').textContent = `${rank.length} products ranked by selected revenue. Use the Product selector for keyboard access.`;
+      $('secondary-summary').textContent = 'Compare total regional revenue by bar height; the colored segments show product contribution.';
+      $('tertiary-summary').textContent = 'Estimated from rounded source rates, weighted by units sold. Lower means fewer returns per unit.';
+    } else if (config.kind === 'monitoring') {
+      const times = [...new Set(selected.map(row => row.timestamp))].sort();
+      const endpoints = [...new Set(selected.map(row => row.endpoint))].sort();
+      const lookup = new Map(selected.map(row => [row.timestamp + '|' + row.endpoint, row]));
+      line('primary', times, endpoints.map(endpoint => ({ name: endpoint, color: seriesColor('endpoint', endpoint),
+        data: times.map(time => lookup.get(time + '|' + endpoint)?.p95_latency_ms ?? null) })), 'ms', { zoomable: true, min: 0, threshold: 300 });
+      const dates = [...new Set(selected.map(M.dateKey))].sort();
+      const heat = [];
+      const buckets = M.group(selected, row => M.dateKey(row) + '|' + row.endpoint);
+      dates.forEach((date, x) => endpoints.forEach((endpoint, y) => {
+        const bucket = buckets.get(date + '|' + endpoint);
+        if (bucket) heat.push([x, y, M.mean(bucket, 'p95_latency_ms')]);
+      }));
+      const option = baseOption();
+      option.grid = { left: 20, right: 22, top: 30, bottom: 74, containLabel: true };
+      option.xAxis.data = dates; option.xAxis.axisLabel.formatter = value => value.slice(5);
+      option.yAxis = { type: 'category', data: endpoints.map(value => value.replace('/api/', '/')), axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: c.muted, fontSize: 11 } };
+      option.tooltip = { ...option.tooltip, trigger: 'item', formatter: event => `${endpoints[event.value[1]]}\n${dates[event.value[0]]}\nMean hourly P95: ${format(event.value[2], 'ms')}` };
+      const fullBuckets = M.group(rows, row => M.dateKey(row) + '|' + row.endpoint);
+      const heatMax = Math.ceil(Math.max(...[...fullBuckets.values()].map(bucket => M.mean(bucket, 'p95_latency_ms'))) / 50) * 50;
+      option.visualMap = { min: 0, max: heatMax, orient: 'horizontal', left: 'center', bottom: 12,
+        calculable: false, itemWidth: 10, itemHeight: 120, text: [heatMax + ' ms', '0 ms'], textStyle: { color: c.muted, fontSize: 10 },
+        inRange: { color: document.documentElement.dataset.theme === 'dark' ? ['#233b54', '#337c9b', '#8dd9e8'] : ['#e8f2fa', '#70adce', '#184875'] } };
+      option.series = [{ type: 'heatmap', data: heat, itemStyle: { borderWidth: 3, borderColor: c.surface, borderRadius: 3 } }];
+      draw('secondary', option, event => setFilter('endpoint', endpoints[event.value[1]]));
+      const traffic = M.group(selected, 'timestamp');
+      line('tertiary', times, [{ name: 'Total QPS', data: times.map(time => M.sum(traffic.get(time), 'qps')), color: c.teal }], 'number', { zoomable: true, min: 0 });
+      $('primary-summary').textContent = 'Dashed reference: 300 ms (illustrative). These are hourly endpoint percentiles, not a percentile over the whole period.';
+      $('secondary-summary').textContent = 'One shared color scale across selections. Select a cell or use the Endpoint selector to focus an endpoint.';
+      $('tertiary-summary').textContent = `${times.length} hourly buckets. Endpoint QPS is summed at each timestamp; it is never summed across time.`;
+    } else {
+      const nps = M.nps(selected);
+      const distribution = Array.from({ length: 11 }, (_, score) => selected.filter(row => row.nps_score === score).length);
+      const option = baseOption(); option.xAxis.data = distribution.map((_, score) => String(score)); option.yAxis.minInterval = 1;
+      option.tooltip.valueFormatter = value => `${value} responses`;
+      option.series = [{ type: 'bar', barMaxWidth: 38, data: distribution.map((value, score) => ({ value,
+        itemStyle: { color: score <= 6 ? c.rose : score <= 8 ? c.amber : c.teal, borderRadius: [4, 4, 0, 0] } })),
+        label: { show: true, position: 'top', color: c.text, fontSize: 10 } }];
+      draw('primary', option);
+      const departments = ranked(selected, 'department', bucket => M.nps(bucket).score).map(item => ({ ...item, count: M.nps(selected.filter(row => row.department === item.name)).count }));
+      bars('secondary', departments, 'score', { signed: true, showCount: true, bounds: [-100, 100] });
+      const weeks = M.group(selected, row => M.weekKey(row.date));
+      const labels = [...weeks.keys()].sort();
+      line('tertiary', labels, [{ name: 'NPS', data: labels.map(week => M.nps(weeks.get(week)).score), color: c.teal }], 'score', { min: -100, max: 100 });
+      $('primary-summary').textContent = `${nps.count} valid responses: ${nps.detractors} detractors, ${nps.passives} passives, ${nps.promoters} promoters.`;
+      $('secondary-summary').textContent = 'Sample sizes matter. These descriptive differences do not establish statistical significance.';
+      $('tertiary-summary').textContent = labels.map(week => `${week}: n=${M.nps(weeks.get(week)).count}`).join(' · ') + '. Boundary weeks may be partial.';
+    }
+  }
+
+  function renderTable() {
+    const query = state.search.trim().toLocaleLowerCase();
+    tableRows = selected.filter(row => !query || columns.some(key => String(row[key] ?? '').toLocaleLowerCase().includes(query))).sort((a, b) => {
+      const av = a[state.sort], bv = b[state.sort];
+      if (av == null) return bv == null ? 0 : 1;
+      if (bv == null) return -1;
+      return state.direction * (typeof av === 'number' && typeof bv === 'number' ? av - bv : String(av).localeCompare(String(bv)));
+    });
+    const totalPages = Math.max(1, Math.ceil(tableRows.length / pageSize));
+    state.page = Math.max(1, Math.min(state.page, totalPages));
+    const first = (state.page - 1) * pageSize;
+    const head = node('tr');
+    config.columns.forEach(([key, label, kind]) => {
+      const cell = node('th', null, kind === 'text' ? '' : 'num'); cell.scope = 'col';
+      const active = key === state.sort; cell.setAttribute('aria-sort', active ? (state.direction === 1 ? 'ascending' : 'descending') : 'none');
+      const button = node('button', label + (active ? (state.direction === 1 ? ' ↑' : ' ↓') : ' ↕')); button.type = 'button';
+      button.addEventListener('click', () => {
+        state.direction = key === state.sort ? -state.direction : 1; state.sort = key; state.page = 1; renderTable();
+        [...$('table-head').querySelectorAll('button')][config.columns.findIndex(col => col[0] === key)].focus();
+      });
+      cell.append(button); head.append(cell);
+    });
+    $('table-head').replaceChildren(head);
+    $('table-body').replaceChildren(...tableRows.slice(first, first + pageSize).map(row => {
+      const tr = node('tr'); config.columns.forEach(([key, , kind]) => tr.append(node('td', format(row[key], kind), kind === 'text' ? '' : 'num'))); return tr;
+    }));
+    if (!tableRows.length) {
+      const tr = node('tr'); const td = node('td', 'No matching rows. Clear the search or reset the filters.', 'empty-cell'); td.colSpan = config.columns.length; tr.append(td); $('table-body').append(tr);
+    }
+    $('table-count').textContent = tableRows.length ? `${first + 1}–${Math.min(first + pageSize, tableRows.length)} of ${tableRows.length.toLocaleString()} matching rows` : '0 matching rows';
+    $('page-label').textContent = `${state.page} / ${totalPages}`;
+    $('previous').disabled = state.page <= 1; $('next').disabled = state.page >= totalPages;
+    $('export').disabled = !tableRows.length;
+  }
+  $('search').addEventListener('input', event => { state.search = event.target.value; state.page = 1; renderTable(); });
+  $('previous').addEventListener('click', () => { state.page--; renderTable(); });
+  $('next').addEventListener('click', () => { state.page++; renderTable(); });
+  $('export').addEventListener('click', () => {
+    const blob = new Blob([M.csv(tableRows, columns)], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob); const a = node('a');
+    a.href = url; a.download = config.kind + '-filtered.csv'; document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  });
+  function updateThemeButton() {
+    const dark = document.documentElement.dataset.theme === 'dark';
+    $('theme-toggle').textContent = dark ? 'Light theme ☀' : 'Dark theme ◐';
+    $('theme-toggle').setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
+    $('theme-toggle').setAttribute('aria-pressed', String(dark));
+  }
+  $('theme-toggle').addEventListener('click', () => {
+    document.documentElement.dataset.theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+    try { localStorage.setItem('csv-dashboard-theme', document.documentElement.dataset.theme); } catch (_) { /* Theme still works without storage. */ }
+    updateThemeButton(); renderCharts();
+  });
+  function renderAll() {
+    selected = M.filter(rows, state, config);
+    const dates = [...new Set(selected.map(M.dateKey))].sort();
+    $('date-range').textContent = dates.length ? dates[0] + ' — ' + dates.at(-1) : 'No dates selected';
+    $('scope-count').textContent = `${selected.length.toLocaleString()} of ${rows.length.toLocaleString()} source records`;
+    $('filter-status').textContent = `Showing ${selected.length.toLocaleString()} records. ${Object.values(state.filters).filter(Boolean).join(', ') || 'All groups'}.`;
+    $('empty-state').hidden = selected.length > 0; $('analysis').hidden = !selected.length;
+    renderMetrics(); renderInsight(); renderCharts(); renderTable();
+  }
+  updateThemeButton(); renderAll();
+  // Render useful content first. A blocked CDN must not disable filters, metrics, or the table.
+  const script = document.createElement('script');
+  script.src = 'https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js';
+  script.onload = () => { $('chart-error').hidden = true; renderCharts(); };
+  script.onerror = () => { $('chart-error').hidden = false; };
+  document.head.append(script);
+})();
+</script>
 </body>
 </html>

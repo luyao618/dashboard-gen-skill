@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>__TITLE__</title>
+  <style>__CSS__</style>
+  <script>
+    try {
+      const saved = localStorage.getItem('csv-dashboard-theme');
+      document.documentElement.dataset.theme = ['dark', 'light'].includes(saved) ? saved : (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    } catch (_) { document.documentElement.dataset.theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; }
+  </script>
+</head>
+<body data-kind="__KIND__">
+  <a class="skip-link" href="#overview">Skip to dashboard</a>
+  <header class="appbar">
+    <div class="appbar-inner">
+      <div class="brand"><svg viewBox="0 0 28 28" fill="none" aria-hidden="true"><rect x="2" y="15" width="5" height="11" rx="1" fill="currentColor"/><rect x="11" y="8" width="5" height="18" rx="1" fill="currentColor" opacity=".65"/><rect x="20" y="2" width="5" height="24" rx="1" fill="currentColor" opacity=".35"/></svg>Data studio</div>
+      <nav aria-label="Dashboard sections"><a href="#overview">Overview</a><a href="#analysis">Analysis</a><a href="#data">Source data</a></nav>
+      <span class="sample-tag">Sample dataset</span>
+      <button id="theme-toggle" type="button" aria-pressed="false">Dark theme</button>
+    </div>
+  </header>
+  <main id="overview" tabindex="-1">
+    <div class="page-heading">
+      <div><p class="eyebrow" id="eyebrow"></p><h1>__TITLE__</h1><p class="description" id="description"></p></div>
+      <div class="scope"><strong id="date-range"></strong><span id="scope-count"></span></div>
+    </div>
+    <section class="filter-bar" aria-label="Dashboard filters">
+      <span class="filter-label">View</span><div id="filter-controls" style="display: contents"></div>
+      <button id="reset" type="button">Reset filters</button>
+    </section>
+    <div class="sr-only" id="filter-status" role="status" aria-live="polite"></div>
+    <section class="kpi-grid" id="kpis" aria-label="Key metrics"></section>
+    <div id="empty-state" hidden><strong>No records in this selection.</strong> Try a different filter or reset the view.</div>
+    <div id="chart-error" role="status" hidden>Charts could not load. Connect to the internet and reload, or use the metrics and source table below.</div>
+    <section id="analysis" aria-label="Analysis">
+      <div class="analysis-heading"><h2 id="analysis-title"></h2><span>All charts follow the selected filters</span></div>
+      <div class="primary-grid">
+        <article class="card">
+          <div class="card-heading"><h3 id="primary-title"></h3><p class="chart-description" id="primary-description"></p></div>
+          <div class="chart primary-chart" id="chart-primary"></div>
+          <p class="chart-summary" id="primary-summary"></p>
+        </article>
+        <aside class="insight" aria-label="Selection insight">
+          <p class="section-label">In this selection</p><p class="insight-value" id="insight-value"></p>
+          <h3 id="insight-title"></h3><p class="insight-copy" id="insight-copy"></p><div class="insight-list" id="insight-list"></div>
+        </aside>
+      </div>
+      <div class="support-grid">
+        <article class="card"><div class="card-heading"><h3 id="secondary-title"></h3><p class="chart-description" id="secondary-description"></p></div><div class="chart" id="chart-secondary"></div><p class="chart-summary" id="secondary-summary"></p></article>
+        <article class="card"><div class="card-heading"><h3 id="tertiary-title"></h3><p class="chart-description" id="tertiary-description"></p></div><div class="chart" id="chart-tertiary"></div><p class="chart-summary" id="tertiary-summary"></p></article>
+      </div>
+    </section>
+    <section class="card table-card" id="data" aria-labelledby="table-title">
+      <div class="table-toolbar"><div><h2 id="table-title">Source data</h2><p>Inspect the records behind this view.</p></div><div class="table-actions"><label class="sr-only" for="search">Search table only</label><input id="search" type="search" placeholder="Search table…"><button id="export" type="button">Export results ↓</button></div></div>
+      <div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable source data table"><table><caption>Search applies to this table and its export. Charts use the filters above.</caption><thead id="table-head"></thead><tbody id="table-body"></tbody></table></div>
+      <div class="table-footer"><span id="table-count" role="status"></span><div class="pagination"><button id="previous" type="button" aria-label="Previous page">← Previous</button><span id="page-label"></span><button id="next" type="button" aria-label="Next page">Next →</button></div></div>
+    </section>
+    <details class="methodology"><summary>Metric definitions & data notes</summary><p id="methodology"></p><p id="source-note"></p></details>
+    <footer><span id="footer-source"></span><span>Embedded data · ECharts loads from CDN</span></footer>
+    <noscript>This dashboard needs JavaScript to calculate metrics and display its embedded records.</noscript>
+  </main>
+  <script id="dashboard-data" type="application/json">__DATA__</script>
+  <script>__MODEL__</script>
+  <script>__APP__</script>
+</body>
+</html>

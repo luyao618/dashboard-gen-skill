@@ -1,306 +1,90 @@
 ---
 name: csv-dashboard-generator
-description: |
-  Generates standalone HTML dashboards from CSV data files.
-  Uses ECharts for visualizations with a professional design system
-  featuring dark/light mode, KPI cards, interactive charts, and sortable tables.
-  Output is a single HTML file that opens directly in a browser — no build tools needed.
-triggers:
-  - dashboard
-  - csv dashboard
-  - generate dashboard
-  - visualize csv
-  - data visualization
-  - create chart
-  - html report
-  - csv to html
-  - data dashboard
-  - turn csv into dashboard
+description: Create or improve interactive HTML dashboards from CSV data, with ECharts visualizations, clear metric definitions, coordinated filters, accessible tables, and light/dark themes. Use for CSV-to-dashboard and data exploration pages; not narrative research reports or full application backends.
 ---
 
 # CSV Dashboard Generator
 
-> Generate standalone HTML dashboards from CSV data files with professional-grade visualizations.
+Turn a CSV into a dashboard that helps its reader answer a concrete question. Deliver a portable HTML file with embedded data, purposeful charts, and verified interactions.
 
-## When to Use This Skill
+## 1. Understand the data and the decision
 
-Activate this skill when the user:
+Inspect the schema and representative rows, then profile the **whole file** with a CSV parser. Do not infer totals from a preview or split CSV on commas.
 
-- Provides a CSV file and wants a dashboard or visualization
-- Asks to "visualize data", "create charts", or "generate a report"
-- Wants to turn a spreadsheet or CSV into an interactive dashboard
-- Asks for an HTML report with charts from their data
-- Mentions "csv dashboard", "data dashboard", or similar phrases
+Establish:
+- The row grain, date coverage, timezone (or its absence), dimensions, units, and candidate measures.
+- Missing/invalid values, duplicate keys, category cardinality, and gaps in expected time buckets.
+- Which values are additive, rates, snapshots, or precomputed statistics.
+- The audience and primary question: change over time, category comparison, operational exceptions, or survey distribution.
 
-## Workflow
+Report a compact data summary. Mention quality issues that change the analysis. Preserve identifiers as strings and missing observations as missing.
 
-Follow these 5 steps in order. Do NOT skip steps. Steps 1–2 are MANDATORY interactive steps — you MUST present findings and ask the user before generating any HTML.
+Read [data semantics](references/data-semantics.md) before calculating rates, comparisons, time buckets, or survey/monitoring metrics.
 
-### Step 1: Data Discovery
+## 2. Align on a useful dashboard
 
-Read the CSV file and analyze its structure.
+Keep the interview-first workflow: if the brief leaves the analysis open, present a **single concise recommendation** covering the main question, KPIs with formulas, charts, and filters. Ask for adjustments, then wait before generating HTML. Include an “auto / use your judgment” option.
 
-1. **Read the file** using the Read tool (first 100 rows + full column list)
-2. **Identify column types**:
-   - **Date/time**: columns with date patterns (YYYY-MM-DD, timestamps, month names)
-   - **Numeric**: columns with numbers (integers, floats, percentages)
-   - **Categorical**: columns with repeated string values (< 20 unique values)
-   - **Text**: columns with free-form text (> 20 unique values, long strings)
-3. **Compute basic stats** for each numeric column: min, max, mean, count of non-null
-4. **Count unique values** for categorical columns
-5. **Report findings** to the user in a clear summary:
-   - Total rows and columns
-   - Column names with detected types
-   - Date range (if date column exists)
-   - Key numeric ranges
-   - Categorical value lists
+Honor choices and authorization already provided. If the user already supplied a clear design/metric brief, approved a proposal, or asked you to decide, proceed with stated assumptions instead of repeating the interview. Ask about unresolved units or denominators when a wrong assumption would materially change the result; optional styling choices need not block work.
 
-**Then immediately proceed to Step 2 in the same message — do NOT generate HTML yet.**
+Choose a structural reference by the question, not just column types:
 
-### Step 2: User Interview (MANDATORY — MUST STOP AND WAIT)
+| Main question | Reference | What to adapt |
+|---|---|---|
+| What changed over time? | `assets/demo_timeseries.html` | Dominant trend, comparable windows, category contribution |
+| Which category contributes most? | `assets/demo_comparison.html` | Sorted ranking, composition, weighted rates |
+| Where is performance degrading? | `assets/demo_monitoring.html` | Hourly detail, reference line, shared-scale heatmap |
+| How are responses distributed? | `assets/demo_survey.html` | Score distribution, NPS, group sample sizes |
 
-**CRITICAL: You MUST present your recommendations and WAIT for the user to respond before proceeding to Step 3. Do NOT silently continue to generate the dashboard. This is the most important interaction point in the entire workflow.**
+These are working examples, not compulsory layouts. A single good chart may be enough for a small dataset.
 
-After presenting the data summary from Step 1, present ALL of the following recommendations at once, then STOP and WAIT:
+## 3. Build the analytical model
 
-1. **Dashboard layout**: "Based on your data, I recommend a [type] layout. Options:"
+Compute from the complete dataset before formatting. Define each metric's formula, unit, population, missing-value policy, and filter scope. Reconcile at least one total, one rate, and a representative subgroup against the source.
 
-   | Data Pattern | Recommended Layout | Demo Reference |
-   |---|---|---|
-   | Date + numeric metrics | Time series dashboard | `assets/demo_timeseries.html` |
-   | Category + numeric values | Comparison dashboard | `assets/demo_comparison.html` |
-   | Timestamp + performance metrics | Monitoring dashboard | `assets/demo_monitoring.html` |
-   | Rating/score + categories | Survey/rating dashboard | `assets/demo_survey.html` |
+Use one filtered dataset for KPIs, charts, and contextual observations. Keep table search separate only when labeled “table only”; export all matching rows in the current sort order, including rows on other pages.
 
-2. **KPIs**: "Which metrics as KPI cards? I suggest: [top 3-4 numeric columns + computation method]"
-3. **Charts**: "What visualizations? Based on your data, I recommend:" — list specific charts with reasoning
-4. **Grouping & Filters**: "Filter by [categorical columns]? Group by [column]?"
-5. **Anything else**: "Any specific metrics, thresholds, or features you want?"
+For large files, choose an aggregation that preserves the question, denominators, extrema, and required filter dimensions. Disclose detail reduction. A size target must never silently drop records. Avoid embedding repeated copies of the same derived data.
 
-**Always end with this option:**
+## 4. Design and implement
 
-> Or if you'd prefer, just say **"auto"** and I'll generate the entire dashboard using my best judgment.
+Read [design reference](references/design-reference.md), then the closest example or its source. For implementation mechanics, read [runtime patterns](references/runtime-patterns.md).
 
-**STOP HERE. Wait for the user's reply.** The user may:
-- Confirm your suggestions → proceed to Step 3
-- Adjust specific items → incorporate changes, then proceed
-- Say "auto" / "go ahead" / "你来决定" → proceed using your recommended defaults
-- Ask questions → answer them, then wait again
+Choose the visual hierarchy before writing markup: primary question → essential metrics → main chart → supporting explanation → inspectable records. Use the user's brand when supplied; otherwise choose a restrained palette and typography appropriate to the subject. Make a deliberate choice about density and chart prominence.
 
-### Step 3: Metric Computation
+Quality invariants:
+- Show chart units, scope, and evidence for any observation. Do not invent a causal explanation, benchmark, target, or refresh time.
+- Use stable category colors and semantic status colors with text or shape cues. Supply readable light and dark tokens.
+- Use native labeled controls, keyboard focus, semantic tables, and text summaries alongside charts. Respect reduced motion.
+- Make empty selections, zero denominators, sparse series, and unavailable comparisons explicit.
+- Reuse chart instances, resize with their containers, and preserve filter/search/zoom state across theme changes.
+- Render data strings with `textContent`; serialize embedded JSON safely. Quote exported CSV correctly and neutralize spreadsheet formulas in text fields.
 
-Process the full CSV data and prepare it for embedding.
+Deliver a **single HTML file**: CSS, application JavaScript, and data inline. The examples use pinned ECharts **5.5.1** from a CDN. Such a file requires network access for charts; call it “single-file, CDN-assisted,” not fully offline. Use system fonts or optional brand fonts with fallbacks; an icon library is not required. If offline delivery is requested, inline a licensed local ECharts bundle, preserve its notices, and verify with networking disabled. Report the actual file size; 200 KB is a preference, not a correctness constraint.
 
-1. **Read the complete CSV file** (all rows)
-2. **Compute KPI values** based on user's choices (sums, averages, rates, etc.)
-3. **Compute chart data**:
-   - Time series: aggregate by date (daily/weekly/monthly)
-   - Comparisons: group by category
-   - Distributions: count by bins or values
-   - Trends: compute period-over-period changes
-4. **Handle large datasets** (> 2000 rows):
-   - Aggregate data before embedding (daily/weekly rollups)
-   - Keep detail table to reasonable size (show top 200 rows or paginate)
-   - Embed aggregated data as JSON, not raw CSV
-5. **Format data as JSON** arrays ready for embedding in HTML
+No feature is mandatory just because a demo has it. Add zoom for long timelines, rolling means for a meaningful smoothing window, a distribution when spread matters, or chart filtering when it saves effort. Do not require dual axes, donuts, gradients, animated counters, fake skeletons, rainbow bars, or cross-chart links on every page.
 
-### Step 4: HTML Generation
+## 5. Verify and deliver
 
-Generate the complete standalone HTML file. **Read the design reference first.**
+Use the [validation checklist](references/validation.md). When a browser is available, open the result and exercise it yourself; do not delegate basic verification to the user.
 
-1. **Read `references/design-reference.md`** for the complete design system
-2. **Select the closest demo** as a structural reference:
-   - `assets/demo_timeseries.html` — for time-based data
-   - `assets/demo_comparison.html` — for categorical comparisons
-   - `assets/demo_monitoring.html` — for performance/health metrics
-   - `assets/demo_survey.html` — for ratings/scores/surveys
-3. **Generate the HTML file** with:
+Minimum evidence:
+1. Independently recomputed values agree with displayed KPIs and selected chart buckets.
+2. Filters update all scoped views; empty results, search, sorting, pagination, and full-result export work.
+3. Light/dark screenshots at desktop and narrow mobile sizes show legible labels, no page overflow, and no clipped controls. Test keyboard focus and reduced motion.
+4. No JavaScript errors; a failed chart dependency leaves usable metrics/table and an explanatory message.
 
-#### HTML Structure
+Fix demonstrated failures, then report the output path, size, key design/metric decisions, and any verification limits. Share a preview when useful.
 
-```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{Dashboard Title}</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <style>/* All CSS inline — see design reference */</style>
-</head>
-<body>
-  <div class="dashboard-container">
-    <!-- Header with title + filters -->
-    <!-- KPI cards row -->
-    <!-- Chart sections -->
-    <!-- Data table -->
-  </div>
-  <button class="theme-toggle" onclick="toggleTheme()">
-    <i class="fas fa-moon"></i>
-  </button>
-  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
-  <script>/* All JS inline — data + logic */</script>
-</body>
-</html>
+## Maintaining this skill
+
+The examples are built from `assets/source/` and the included CSV fixtures. Edit shared source and `scripts/build_demos.py`, then run:
+
+```bash
+python3 scripts/build_demos.py
+python3 scripts/build_demos.py --check
+node --test tests/model.test.cjs
+python3 -m unittest discover -s tests -p 'test_*.py'
 ```
 
-#### Required CSS (from design-reference.md)
-
-Include these CSS sections in the `<style>` block:
-- **Accent bar**: `body::before` gradient bar across top of page
-- **CSS variables**: both light mode (`:root`) and dark mode (`:root[data-theme="dark"]`)
-- **Typography**: Inter font family, heading/body/label sizes
-- **Layout**: `.dashboard-container`, `.dashboard-header`, `.dashboard-subtitle`, `.kpi-row`, `.chart-row`
-- **KPI cards**: `.kpi-card` (colored left border), `.kpi-header`, `.kpi-icon`, `.kpi-label`, `.kpi-info`, `.kpi-value`, `.kpi-change`, `.kpi-sparkline`
-- **Skeleton loading**: `.skeleton` with `@keyframes shimmer` animation
-- **Chart cards**: `.chart-card` (hover shadow), `.chart-card-title`, `.chart-container`
-- **Filter controls**: `.filter-bar`, `.filter-group`, `.filter-group-label`, `.filter-divider`, `.filter-btn` (`.time-btn` / `.cat-btn`)
-- **Data table**: `.data-table-wrapper`, `.table-toolbar`, `.table-search`, `.table-actions`, `.data-table`, th/td styles, `.row-selected`, sort icons
-- **Pagination**: `.table-pagination` with Prev/Next buttons
-- **Theme toggle**: `.theme-toggle` fixed position button
-- **Status badges**: `.badge-success`, `.badge-warning`, `.badge-danger`
-- **Responsive**: media queries for 1024px and 640px breakpoints (filter wrap, sparkline hide)
-
-#### Required JavaScript
-
-Include these JS sections in the `<script>` block:
-- **Embedded data**: `const RAW_DATA = [...]` with pre-processed JSON
-- **Color constants**: `SERIES_COLORS` array (20 colors, indigo/amber/emerald/rose palette)
-- **Format helpers**: `fmtCurrency()`, `fmtNumber()`, `fmtPct()`, `fmtDate()`
-- **Theme functions**: `initTheme()`, `toggleTheme()`, `getChartThemeColors()`
-- **CountUp animation**: `animateValue()` with easeOutCubic easing for KPI values
-- **Chart functions**: one init+render function per chart, using gradient area fills
-- **DataZoom**: slider + inside zoom on time-series charts
-- **Rolling averages**: 7-day rolling average overlay lines on trend charts
-- **Prior period comparison**: dashed lines showing prior-period data
-- **Chart linking**: cross-chart interaction (e.g., donut click → highlight stacked chart)
-- **MutationObserver**: auto-update all charts on theme change
-- **Filter functions**: multi-dimension filtering (date range + category), `renderAll()` centralized
-- **Table**: data-driven `sortTable()`, `filterTableSearch()`, `exportCSV()`, `renderTablePage()` with pagination
-- **Row click → markLine**: clicking a table row places a vertical marker on the trend chart
-- **Dynamic subtitle**: auto-update with data range, last updated time, and active filter
-- **Conditional formatting**: heat-colored backgrounds on numeric table cells
-- **Initialization**: `initTheme()` then `renderAll()`
-
-#### Design Rules (MUST follow)
-
-1. **No hardcoded colors** — use CSS variables or `SERIES_COLORS` / `STATUS_COLORS` constants
-2. **All charts theme-aware** — use `getChartThemeColors()` and re-render on theme change
-3. **ECharts 5.5.1** — do not use any other version
-4. **Font Awesome 6.5.1** — do not use any other version
-5. **Single file** — all CSS and JS inline (except CDN links)
-6. **Data as JSON** — no external data files
-7. **File size < 200KB** — aggregate data if CSV is large
-8. **No console errors** — clean JavaScript
-9. **Responsive** — no horizontal scroll on 1280px+ screens
-10. **KPI cards** — colored left border, icon header, countUp animation, skeleton loading
-11. **Tables** — toolbar with search + CSV export, data-driven sorting, pagination (15 rows/page)
-12. **Time-series charts** — DataZoom slider, gradient area fill, rolling average overlay
-13. **Cross-chart interaction** — at least one linking pattern (donut→highlight, row→markLine)
-14. **Top accent gradient bar** — every dashboard includes `body::before` accent bar
-15. **Dashboard subtitle** — auto-populated with data range, last updated, and active filter
-
-### Step 5: Validation
-
-After generating the HTML file:
-
-1. **Confirm the file was created** — report the file path and size
-2. **Suggest opening in browser** — "Open this file in your browser to verify the dashboard"
-3. **Offer adjustments** — "Would you like me to adjust any charts, colors, or layout?"
-
-## Design Specification Summary
-
-> Full details in `references/design-reference.md`
-
-### CSS Variables
-
-| Variable | Light | Dark |
-|---|---|---|
-| `--bg-primary` | `#f4f6f9` | `#0f172a` |
-| `--bg-card` | `#ffffff` | `#1e293b` |
-| `--text-primary` | `#1e293b` | `#f8fafc` |
-| `--text-secondary` | `#64748b` | `#cbd5e1` |
-| `--accent` | `#4f6ef7` | `#4f6ef7` |
-| `--border` | `#e2e8f0` | `#475569` |
-| `--success` | `#4ade80` | `#4ade80` |
-| `--warning` | `#fbbf24` | `#fbbf24` |
-| `--danger` | `#f87171` | `#f87171` |
-
-### Chart Series Colors
-
-```javascript
-const SERIES_COLORS = [
-  '#818cf8', // Indigo
-  '#fbbf24', // Amber
-  '#34d399', // Emerald
-  '#fb7185', // Rose
-  '#60a5fa', '#a78bfa', '#f472b6', '#2dd4bf',
-  '#fb923c', '#22d3ee', '#a3e635', '#c084fc',
-  '#f87171', '#38bdf8', '#facc15', '#e879f9',
-  '#4ade80', '#94a3b8', '#fda4af', '#67e8f9',
-];
-```
-
-### Chart Types and When to Use
-
-| Chart Type | Use When | ECharts Pattern |
-|---|---|---|
-| Sparkline | Mini trend in KPI cards | `type: 'line'`, no axis, 40px height |
-| Multi-series line | Trend comparison over time | `type: 'line'`, smooth, gradient area fill, DataZoom |
-| Dual Y-axis line | Two metrics with different scales | Two `yAxis`, rolling avg + prior period overlays |
-| Stacked area | Part-of-whole trends | `type: 'line'`, `stack: 'total'` + `areaStyle`, R7 avg lines with `stack: 'avg'` |
-| Donut/pie | Distribution breakdown | `type: 'pie'`, radius ['40%', '70%'], click → chart linking |
-| Horizontal bar | Top-N ranking | `type: 'bar'`, category on Y-axis, inverse |
-| Grouped bar | Category comparison | `type: 'bar'`, multiple series same X-axis |
-| Score distribution | Rating/score frequency | `type: 'bar'`, custom colors per bar |
-
-### Interactive Features
-
-| Feature | Implementation |
-|---|---|
-| Dark mode | `data-theme` attribute + CSS variables + localStorage |
-| Top accent bar | `body::before` gradient bar (indigo → emerald → amber → red) |
-| Skeleton loading | `.skeleton` shimmer animation, replaced by JS after data loads |
-| CountUp animation | `animateValue()` with easeOutCubic for KPI numbers |
-| Dashboard subtitle | Auto-populated with date range + last updated + active filter |
-| Date range filter | `.time-btn` button group, filters all components |
-| Category filter | `.cat-btn` button group, combined with date filter |
-| DataZoom slider | Scroll zoom + visual slider handle on time-series charts |
-| Rolling averages | 7-day dashed overlay lines on trend/stacked charts |
-| Prior period comparison | Dashed lines showing prior-period data on trend charts |
-| Gradient area fills | `echarts.graphic.LinearGradient` under line charts |
-| Chart linking | Donut click → highlight stacked chart series (2s) |
-| Table search | Live text filter in table toolbar |
-| CSV export | Download filtered table data as CSV |
-| Table sorting | Click column headers, data-driven sort + re-render |
-| Table pagination | 15 rows/page with Prev/Next controls |
-| Row → markLine | Click table row → vertical marker on trend chart |
-| Conditional formatting | Heat-colored backgrounds on numeric cells |
-| KPI info tooltips | `<i class="fas fa-info-circle kpi-info" title="...">` |
-| Chart resize | `window.addEventListener('resize', chart.resize)` |
-
-## Demo References
-
-| # | Demo | Data Pattern | File |
-|---|---|---|---|
-| 1 | E-Commerce Sales | Daily data + categories | `assets/demo_timeseries.html` |
-| 2 | Product Comparison | Regions x products x months | `assets/demo_comparison.html` |
-| 3 | API Monitoring | Hourly metrics + thresholds | `assets/demo_monitoring.html` |
-| 4 | NPS Survey | Scores + departments + channels | `assets/demo_survey.html` |
-
-When generating a new dashboard, **read the closest demo file** to understand the exact HTML structure, JavaScript patterns, and styling conventions. Use it as a template — adapt the data, charts, and KPIs but keep the same code patterns and design system.
-
-## Example Usage
-
-**User**: "I have a CSV file at `data/monthly_revenue.csv` — can you create a dashboard from it?"
-
-**AI workflow**:
-1. Read `data/monthly_revenue.csv` → discover columns: month, product_line, revenue, units, profit_margin
-2. Ask: "I found 5 columns. I recommend: Revenue and Units as KPI cards, a line chart for monthly trend, a bar chart for product comparison. Sound good?"
-3. User confirms → compute totals, monthly aggregates, product breakdowns
-4. Read `references/design-reference.md` and `assets/demo_timeseries.html` as references
-5. Generate `data/monthly_revenue_dashboard.html`
-6. Report: "Dashboard created at `data/monthly_revenue_dashboard.html` (45KB). Open it in your browser to see the result."
+See [README.md](README.md) for browser checks. The compiler knows these four sample schemas; it does not automatically infer an arbitrary user's dataset. For a new dashboard, adapt the closest example and its metric model to the user's data.
