@@ -1,114 +1,98 @@
 # CSV Dashboard Generator
 
-An AI skill that transforms CSV data files into standalone, interactive HTML dashboards — no build tools, no dependencies, just open in a browser.
+An AI skill for turning CSV files into useful, interactive HTML dashboards. It guides the agent through understanding the data, choosing the right visual comparisons, computing reliable metrics, and verifying the result in a browser.
 
-## What It Does
+The output is one HTML file with embedded data, CSS, and application JavaScript. **Charts load ECharts 5.5.1 from a CDN**, so the default output requires internet access for charts. No build tools are needed to open a generated dashboard. Fully offline delivery is an optional adaptation that embeds the chart library with its license notices.
 
-Give your AI agent a CSV file, and it generates a **single-file HTML dashboard** with:
+## What the skill emphasizes
 
-- **KPI cards** with animated counters, sparklines, and trend indicators
-- **Interactive ECharts visualizations** — line charts, bar charts, donut charts, heatmaps, stacked areas
-- **Sortable, searchable data tables** with pagination and CSV export
-- **Dark / Light mode** toggle with full theme persistence
-- **Cross-chart interactions** — click a table row to highlight data points, click a donut slice to focus a stacked chart
-- **Responsive layout** that works on desktop and tablet
+- **An analytical hierarchy:** a clear question, scoped metrics, a prominent chart, supporting evidence, and inspectable records.
+- **Correct metric semantics:** weighted rates, comparable date windows, explicit missing data, survey sample sizes, and honest percentile labels.
+- **Purposeful visualization:** rankings for comparisons, lines for trends, fixed-scale heatmaps for patterns, and distributions for survey scores.
+- **Consistent interaction:** coordinated filters, visible scope, a reset action, table-only search, numeric sorting, pagination, and export of all matching records.
+- **Readable themes and responsive layouts:** stable category colors, system fonts, visible keyboard focus, semantic tables, and reduced motion support.
+- **Verified delivery:** source reconciliation, browser interaction checks, desktop/mobile screenshots, and a working table when the chart CDN is unavailable.
 
-The output is a self-contained `.html` file (all data embedded as JSON, all CSS/JS inline). Share it via email, Slack, or host it anywhere — recipients just open it in a browser.
+The skill starts with a concise recommendation and asks for alignment when the analysis is open-ended. It proceeds directly when the user has already provided a clear brief or authorized the agent to decide.
 
-## Features
+## Try the examples
 
-| Feature | Details |
-|---|---|
-| Single-file output | All CSS, JS, and data inline — only ECharts & Font Awesome loaded via CDN |
-| Dual theme | Light and dark mode with CSS variables, auto-saved to localStorage |
-| KPI cards | Colored accent border, icon header, countUp animation, skeleton loading |
-| ECharts 5.5.1 | Line, bar, donut, heatmap, stacked area, dual Y-axis, sparklines |
-| DataZoom | Scroll zoom + slider on time-series charts |
-| Rolling averages | 7-day dashed overlay lines on trend charts |
-| Chart linking | Donut click highlights stacked chart; table row click adds markLine |
-| Data table | Column sorting, live search, CSV export, pagination (15 rows/page) |
-| Conditional formatting | Heat-colored backgrounds on numeric table cells |
-| Responsive | Graceful layout at 1280px, 1024px, and 640px breakpoints |
-| File size | Under 200KB per dashboard |
-
-## Demo Dashboards
-
-Four production-quality demos are included, each tailored to a different data pattern:
-
-| Demo | Data Pattern | File |
+| Example | Main view | Analytical detail |
 |---|---|---|
-| E-Commerce Sales | Daily time series + categories | `assets/demo_timeseries.html` |
-| Product Comparison | Regions x products x months | `assets/demo_comparison.html` |
-| API Monitoring | Performance metrics + thresholds | `assets/demo_monitoring.html` |
-| NPS Survey | Scores + departments + channels | `assets/demo_survey.html` |
+| [Sales performance](assets/demo_timeseries.html) | Daily revenue and category ranking | Equal prior windows; conversion from orders/visitors |
+| [Product performance](assets/demo_comparison.html) | Product ranking and regional composition | Return rates weighted by units sold |
+| [API performance](assets/demo_monitoring.html) | Hourly latency and a heatmap | Explicit hourly P95; QPS summed by timestamp |
+| [Customer sentiment](assets/demo_survey.html) | Score distribution and group NPS | Valid-score denominator and visible sample sizes |
 
-Open any demo directly in your browser to see the result. Sample CSV data is in `assets/sample_data/`.
+All four examples retain the complete source CSV, including the monitoring example's 2,880 endpoint-hours. File sizes are roughly **59–237 KB**; preserving useful detail takes priority over an arbitrary size ceiling. The examples are static sample datasets, not live services.
 
-## Project Structure
-
-```
-csv-dashboard-generator/
-├── SKILL.md                        # AI skill instructions (5-step workflow)
-├── README.md                       # This file
-├── references/
-│   └── design-reference.md         # Complete design system specification
-└── assets/
-    ├── demo_timeseries.html        # Demo: time-series dashboard
-    ├── demo_comparison.html        # Demo: comparison dashboard
-    ├── demo_monitoring.html        # Demo: monitoring dashboard
-    ├── demo_survey.html            # Demo: survey/NPS dashboard
-    └── sample_data/
-        ├── timeseries_sales.csv    # Sample data for timeseries demo
-        ├── comparison_products.csv # Sample data for comparison demo
-        ├── monitoring_api.csv      # Sample data for monitoring demo
-        └── survey_nps.csv          # Sample data for survey demo
-```
-
-| Directory | Purpose |
-|---|---|
-| `SKILL.md` | The AI reads this to understand the 5-step workflow: data discovery, user interview, metric computation, HTML generation, validation |
-| `references/` | Detailed design system docs — color palette, CSS variables, chart patterns, interaction specs. Loaded by the AI on demand |
-| `assets/` | Demo HTML dashboards (used as templates) and sample CSV data |
-
-## How to Use
-
-### As an AI Skill
-
-Install this as a skill in your AI coding agent, then:
-
-```
-User: I have a CSV at data/sales.csv — create a dashboard from it
-```
-
-The AI will:
-1. Read and analyze the CSV structure
-2. Ask what KPIs and charts you want (with smart defaults)
-3. Compute metrics and aggregations
-4. Generate a standalone HTML dashboard
-5. Report the file path and size
-
-### Viewing Demos
+Open an HTML file directly, or serve the repository:
 
 ```bash
-# Open a demo directly
-open assets/demo_timeseries.html
-
-# Or serve locally
 python3 -m http.server 8000
-# Then visit http://localhost:8000/assets/demo_timeseries.html
+# http://localhost:8000/assets/demo_timeseries.html
 ```
 
-## Design System
+Example prompts after installing this folder as `csv-dashboard-generator` in your agent's skills directory:
 
-- **Typography**: Inter (Google Fonts)
-- **Icons**: Font Awesome 6.5.1
-- **Charts**: ECharts 5.5.1
-- **Color palette**: Tailwind CSS 400-level (soft, eye-friendly)
-  - Primary series: Indigo `#818cf8`, Amber `#fbbf24`, Emerald `#34d399`, Rose `#fb7185`
-  - 20 total series colors for multi-series charts
-  - Status colors: Success `#4ade80`, Warning `#fbbf24`, Danger `#f87171`
+```text
+Create a dashboard from data/sales.csv. Focus on revenue trends and category mix.
 
-Full design specification in [`references/design-reference.md`](references/design-reference.md).
+把这个 CSV 做成中文 dashboard，主要看错误率和延迟，你来决定布局。
+
+Improve this existing dashboard. Keep the brand colors, verify its metrics,
+and make the charts and filters usable on mobile.
+```
+
+## Project structure
+
+```text
+SKILL.md                          Entry point and generation workflow
+references/
+  data-semantics.md                Grain, rates, periods, missing data, NPS
+  design-reference.md              Chart selection, visual system, accessibility
+  runtime-patterns.md              Safe embedding, state, theme, chart lifecycle
+  validation.md                    Data, interaction and rendering checks
+assets/
+  demo_*.html                     Ready-to-open standalone examples
+  sample_data/*.csv                Source fixtures
+  source/
+    dashboard.html                Shared semantic page
+    dashboard.css                 Tokens and responsive styles
+    dashboard.js                  Interactions and four chart compositions
+    model.js                      Pure metric/date/export functions
+scripts/
+  build_demos.py                  Rebuild examples from the known sample schemas
+  check_browser.py                Browser regressions and screenshots
+tests/
+  model.test.cjs                  Numerical and state invariants
+  test_build.py                  Complete CSV round-trip and safe JSON embedding
+```
+
+The demo compiler only understands the four included schemas. For an arbitrary CSV, the skill guides the agent to inspect the data and adapt a suitable example. It does not guess a metric's meaning from a column name alone.
+
+## Develop and verify
+
+Edit `assets/source/` for shared presentation or behavior, and `scripts/build_demos.py` for demo definitions. Rebuild the standalone outputs instead of editing their generated copies:
+
+```bash
+python3 scripts/build_demos.py
+python3 scripts/build_demos.py --check
+node --test tests/model.test.cjs
+python3 -m unittest discover -s tests -p 'test_*.py'
+```
+
+These checks use Python's standard library and Node's built-in test runner. They cover weighted metrics, missing data, complete comparison windows, NPS, date bucketing, CSV quoting/formula handling, safe JSON serialization, and full fixture preservation.
+
+For browser validation, install `agent-browser` and its browser runtime, then run:
+
+```bash
+python3 scripts/check_browser.py
+# Optional screenshot/download directory:
+python3 scripts/check_browser.py --output /tmp/dashboard-previews
+```
+
+The check starts a temporary localhost server in an isolated browser session. It reconciles displayed KPIs against the CSVs, checks responsive layouts and themes, exercises filtering/search/sort/pagination/export, verifies file opening and CDN failure handling, and saves screenshots for visual inspection. The generated dashboards themselves do not require Python, Node, or agent-browser.
 
 ## License
 
